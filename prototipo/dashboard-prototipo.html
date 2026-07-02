@@ -237,6 +237,8 @@
   .nav-sim:hover { color: var(--brand-ink); border-color: transparent; filter: brightness(1.06); }
   .sim-head { margin-bottom: 14px; }
   .sim-hero { grid-template-columns: 1fr; }
+  input.date-select { color-scheme: light; }
+  :root[data-theme="dark"] input.date-select { color-scheme: dark; }
   .sim-rows-head, .sim-row { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr 42px; gap: 10px; align-items: center; }
   .sim-rows-head { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 0 2px 8px; }
   .sim-row { margin-bottom: 8px; }
@@ -487,10 +489,12 @@
           </div>
         </div>
       </div>
-      <div class="head-controls" style="margin-bottom:12px">
-        <span class="ctrl-mini">Data-base do contrato</span>
-        <select class="date-select" id="simBase" aria-label="Data-base do contrato"></select>
-        <span class="ctrl-mini" id="simBaseHint" style="margin-left:6px"></span>
+      <div class="head-controls" style="margin-bottom:12px; gap:8px 16px">
+        <span class="ctrl-mini">Data de fechamento</span>
+        <input class="date-select" type="date" id="simClose" min="2022-01-01" max="2026-06-30" aria-label="Data de fechamento do contrato">
+        <span class="ctrl-mini" style="margin-left:6px">Data-base <span style="text-transform:none;font-weight:500">(opcional)</span></span>
+        <input class="date-select" type="month" id="simBaseInput" min="2022-01" max="2026-06" aria-label="Data-base do contrato (opcional)">
+        <span class="ctrl-mini" id="simBaseHint" style="margin-left:2px"></span>
       </div>
       <div class="sim-rows-head">
         <span>Ano de fornecimento</span>
@@ -708,6 +712,16 @@
       p.style.strokeDashoffset = "0";
       setTimeout(() => { p.style.strokeDasharray = ""; p.style.transition = ""; }, 950);
     }));
+
+    // marcador vertical opcional (ex.: data de fechamento do contrato)
+    if (opts.marker && opts.marker.idx != null && opts.marker.idx >= 0 && opts.marker.idx < n) {
+      const mx = x(opts.marker.idx);
+      svg.appendChild(el("line", { x1: mx, x2: mx, y1: mT, y2: mT + ph, stroke: "var(--brand)", "stroke-width": 1.5, "stroke-dasharray": "5 3", opacity: 0.9 }));
+      svg.appendChild(el("circle", { cx: mx, cy: mT, r: 3, fill: "var(--brand)" }));
+      const near = mx > mL + pw - 96;
+      const lbl = el("text", { x: mx + (near ? -6 : 6), y: mT + 12, "font-size": 10.5, "font-weight": 700, fill: "var(--brand-text)", "font-family": "var(--mono)", "text-anchor": near ? "end" : "start" });
+      lbl.textContent = opts.marker.label || ""; svg.appendChild(lbl);
+    }
 
     // crosshair + tooltip
     const crosshair = el("line", { x1: mL, x2: mL, y1: mT, y2: mT + ph, stroke: "var(--text-muted)", "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
@@ -1204,6 +1218,11 @@
   }
   function avgOf(arr) { const v = arr.filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
   function yearOptions(sel) { return SIM_YEAR_KEYS.map(y => '<option value="' + y + '"' + (y === sel ? " selected" : "") + ">" + y + "</option>").join(""); }
+  function clampMonthIdx(ym) { const i = MONTHS.indexOf(ym); if (i >= 0) return i; return ym < MONTHS[0] ? 0 : MONTHS.length - 1; }
+  function sortSimRows() {
+    const host = document.getElementById("simRows");
+    [...host.querySelectorAll(".sim-row")].sort((a, b) => (+a.querySelector(".sim-year").value) - (+b.querySelector(".sim-year").value)).forEach(r => host.appendChild(r));
+  }
 
   function addSimRow(year, price, volume) {
     const div = document.createElement("div");
@@ -1233,10 +1252,16 @@
   }
 
   function renderSim() {
+    const closeVal = document.getElementById("simClose").value;     // "AAAA-MM-DD" ou ""
+    const baseVal = document.getElementById("simBaseInput").value;  // "AAAA-MM" ou ""
+    const baseYM = baseVal || (closeVal ? closeVal.slice(0, 7) : MONTHS[MONTHS.length - 1]);
+    simBaseIdx = clampMonthIdx(baseYM);
+    const closeIdx = closeVal ? clampMonthIdx(closeVal.slice(0, 7)) : null;
     const factor = ipcaFactor(simBaseIdx);
-    document.getElementById("simBaseHint").textContent = simMode === "indexado"
-      ? "correção IPCA até hoje ×" + factor.toFixed(3).replace(".", ",")
-      : "valores em moeda da época (sem correção)";
+    const baseSrc = baseVal ? "informada" : (closeVal ? "1º dia do mês do fechamento" : "mês atual");
+    document.getElementById("simBaseHint").textContent =
+      "base " + monthLabel(MONTHS[simBaseIdx]) + " · " + baseSrc +
+      (simMode === "indexado" ? " · IPCA ×" + factor.toFixed(3).replace(".", ",") : "");
 
     const valid = readContracts().filter(c => c.price != null);
     const cardsHost = document.getElementById("simCards");
@@ -1308,19 +1333,24 @@
     }
     verdict.innerHTML = vhtml;
 
-    renderChart(document.getElementById("chartSim"), { months: MONTHS, series: chartSeries, yFmt: fmtBRL0, animate: true, tooltipFmt: fmtBRL2 });
+    renderChart(document.getElementById("chartSim"), { months: MONTHS, series: chartSeries, yFmt: fmtBRL0, animate: true, tooltipFmt: fmtBRL2, marker: closeIdx != null ? { idx: closeIdx, label: "fechamento · " + monthLabel(MONTHS[closeIdx]) } : null });
     document.getElementById("legendSim").innerHTML = legendHtml;
     note.innerHTML = "Linha cheia = preço de mercado daquele ano de fornecimento, mês a mês. Linha tracejada = o preço do seu contrato" + (simMode === "indexado" ? " (corrigido pelo IPCA até hoje)" : "") + ". Onde a linha cheia fica <b>abaixo</b> da tracejada, o mercado hoje está mais barato que o seu contrato.";
   }
 
-  fillMonthSelect(document.getElementById("simBase"), simBaseIdx);
-  document.getElementById("simBase").addEventListener("change", e => { simBaseIdx = +e.target.value; renderSim(); });
+  document.getElementById("simClose").addEventListener("input", renderSim);
+  document.getElementById("simClose").addEventListener("change", renderSim);
+  document.getElementById("simBaseInput").addEventListener("input", renderSim);
+  document.getElementById("simBaseInput").addEventListener("change", renderSim);
   document.getElementById("simMode").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return; simMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderSim();
   });
   document.getElementById("simRows").addEventListener("input", renderSim);
-  document.getElementById("simRows").addEventListener("change", renderSim);
+  document.getElementById("simRows").addEventListener("change", e => {
+    if (e.target.classList.contains("sim-year")) sortSimRows();
+    renderSim();
+  });
   document.getElementById("simRows").addEventListener("click", e => {
     const del = e.target.closest(".sim-del"); if (!del) return;
     const rows = document.querySelectorAll("#simRows .sim-row");
@@ -1328,7 +1358,7 @@
     else { const row = del.closest(".sim-row"); row.querySelector(".sim-price").value = ""; row.querySelector(".sim-vol").value = ""; }
     renderSim();
   });
-  document.getElementById("simAdd").addEventListener("click", () => { addSimRow("2028", null, null); renderSim(); });
+  document.getElementById("simAdd").addEventListener("click", () => { addSimRow("2028", null, null); sortSimRows(); renderSim(); });
   document.getElementById("simReset").addEventListener("click", () => { document.getElementById("simRows").innerHTML = ""; addSimRow("2027", null, null); renderSim(); });
 
   // ── theme ────────────────────────────────────────────────────────────────
