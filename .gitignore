@@ -1,0 +1,11 @@
+# Backups locais (cinto de seguranca; nao versionar)
+_backups/
+
+# Arquivos temporarios do Office ao abrir a planilha
+~$*
+*.tmp
+
+# Lixo do sistema
+Thumbs.db
+Desktop.ini
+.DS_Store

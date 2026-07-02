@@ -1,0 +1,1133 @@
+<title>Painel de Preços — Mercado Livre de Energia | CMF Energia</title>
+<style>
+  :root, :root[data-theme="light"] {
+    --page: #e9ebe8;
+    --panel: #fcfcfb;
+    --panel-2: #f4f5f2;
+    --surface-1: #fcfcfb;
+    --text-primary: #17170f;
+    --text-secondary: #55544d;
+    --text-muted: #8b8a80;
+    --grid: #e4e4dc;
+    --axis: #c7c6bc;
+    --border: rgba(23,23,15,0.10);
+    --border-strong: rgba(23,23,15,0.16);
+    --brand: #eb6834;
+    --brand-ink: #ffffff;
+    --brand-text: #c34a1c;
+    --brand-wash: rgba(235,104,52,0.10);
+    --good: #0ca30c;
+    --warning: #e6a013;
+    --serious: #ec835a;
+    --critical: #d03b3b;
+    --s1: #2a78d6; --s2: #1baf7a; --s3: #eda100; --s4: #008300; --s5: #4a3aa7; --s6: #e34948;
+    --card-shadow: 0 1px 2px rgba(23,23,15,0.05), 0 6px 24px rgba(23,23,15,0.05);
+    --now: #eb6834;
+  }
+  :root[data-theme="dark"] {
+    --page: #0c0d0c;
+    --panel: #181a19;
+    --panel-2: #1f2120;
+    --surface-1: #1a1a19;
+    --text-primary: #f4f5f1;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8b8a80;
+    --grid: #2a2b28;
+    --axis: #3a3b37;
+    --border: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.16);
+    --brand: #f07a45;
+    --brand-ink: #17170f;
+    --brand-text: #f5915f;
+    --brand-wash: rgba(240,122,69,0.14);
+    --good: #16b516; --warning: #f2b53a; --serious: #f0946a; --critical: #e05656;
+    --s1: #3987e5; --s2: #199e70; --s3: #c98500; --s4: #16a516; --s5: #9085e9; --s6: #e66767;
+    --card-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 30px rgba(0,0,0,0.35);
+    --now: #f07a45;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--page); color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  :root { --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Segoe UI Mono", Menlo, Consolas, monospace; }
+  body { padding: 22px 18px 56px; }
+  .wrap { max-width: 1120px; margin: 0 auto; position: relative; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+
+  /* ── top bar ─────────────────────────────────────────────── */
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 10px; background: var(--brand);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    box-shadow: 0 2px 10px var(--brand-wash);
+  }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .brand-name { font-weight: 800; letter-spacing: 0.01em; font-size: 15px; line-height: 1.05; }
+  .brand-name small { display: block; font-weight: 600; color: var(--text-muted); font-size: 9px; letter-spacing: 0.16em; margin-top: 2px; }
+  .top-right { display: flex; align-items: center; gap: 10px; }
+  .live {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text-secondary);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px;
+  }
+  .live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: livepulse 2.4s ease-out infinite; }
+  @keyframes livepulse { 0% { box-shadow: 0 0 0 0 rgba(12,163,12,0.5); } 70%,100% { box-shadow: 0 0 0 6px rgba(12,163,12,0); } }
+  .icon-btn {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border);
+    color: var(--text-secondary); border-radius: 999px; padding: 7px 13px; font-size: 12.5px; cursor: pointer;
+  }
+  .icon-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  /* ── hero ───────────────────────────────────────────────── */
+  .hero {
+    display: grid; grid-template-columns: 1.35fr 1fr; gap: 22px; align-items: stretch;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+    padding: 26px 26px; margin-bottom: 16px; box-shadow: var(--card-shadow); position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+    background:
+      radial-gradient(120% 90% at 100% 0%, var(--brand-wash), transparent 55%),
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 34px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%);
+            mask-image: linear-gradient(90deg, transparent, #000 40%);
+  }
+  .hero-left { position: relative; z-index: 1; }
+  .hero h1 { font-size: clamp(23px, 3.2vw, 33px); margin: 12px 0 10px; letter-spacing: -0.02em; line-height: 1.08; text-wrap: balance; max-width: 18ch; }
+  .hero p { margin: 0; color: var(--text-secondary); font-size: 13.5px; line-height: 1.55; max-width: 46ch; }
+  .hero-read {
+    position: relative; z-index: 1; border-left: 1px solid var(--border); padding-left: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-read .read-label { font-size: 11.5px; color: var(--text-secondary); }
+  .hero-read .read-val { font-family: var(--mono); font-size: clamp(34px, 6vw, 50px); font-weight: 600; letter-spacing: -0.03em; line-height: 1; margin: 6px 0 2px; }
+  .hero-read .read-val .cur { font-size: 0.42em; color: var(--text-muted); font-weight: 500; margin-right: 3px; letter-spacing: 0; }
+  .delta { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 12.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .delta.up { color: var(--critical); background: rgba(208,59,59,0.12); }
+  .delta.down { color: var(--good); background: rgba(12,163,12,0.12); }
+  .hero-spark { margin-top: 14px; }
+  .hero-spark svg { width: 100%; height: 44px; display: block; }
+  .hero-spark .cap { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── kpi tiles ──────────────────────────────────────────── */
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+  .kpi .k-label { font-size: 11.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+  .kpi .k-label .tag { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .kpi .k-val { font-family: var(--mono); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; margin: 9px 0 2px; }
+  .kpi .k-val.accent { color: var(--brand-text); }
+  .kpi .k-sub { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .kpi-spark { position: absolute; right: 14px; top: 16px; width: 78px; height: 30px; opacity: 0.9; }
+
+  /* ── cards ──────────────────────────────────────────────── */
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 20px 20px 16px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+  .card-head h2 { font-size: 16px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .card-head p { margin: 0; font-size: 12.5px; color: var(--text-secondary); max-width: 60ch; line-height: 1.5; }
+  .head-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .ctrl-mini { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+
+  .segmented { display: inline-flex; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; }
+  .segmented button { border: none; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 999px; cursor: pointer; transition: background 0.18s, color 0.18s; }
+  .segmented button:hover { color: var(--text-primary); }
+  .segmented button.active { background: var(--brand); color: var(--brand-ink); }
+  .segmented.ghost button.active { background: var(--panel); color: var(--brand-text); box-shadow: var(--card-shadow); }
+  .date-select { font-family: system-ui, sans-serif; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; cursor: pointer; }
+  .date-select:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .horizon-bar { display: flex; align-items: center; gap: 10px 12px; flex-wrap: wrap; background: var(--brand-wash); border: 1px solid var(--brand); border-radius: 13px; padding: 11px 15px; margin: 8px 0 14px; }
+  .horizon-bar .hb-text { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+  .horizon-bar .hb-sub { font-size: 11.5px; color: var(--text-secondary); }
+  .horizon-bar .segmented { background: var(--panel); }
+  .overlays { display: flex; gap: 12px 18px; flex-wrap: wrap; align-items: center; margin: 4px 0 12px; }
+  .ov-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .overlays .chip { font-size: 11.5px; padding: 4px 9px; }
+  #yScale button { min-width: 30px; text-align: center; }
+
+  .chart-scroll { overflow-x: auto; }
+  svg.chart { width: 100%; height: auto; display: block; min-width: 580px; }
+  .series-path { transition: opacity 0.2s, stroke-width 0.2s; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 12px 0 2px; }
+  .legend-item {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-secondary);
+    cursor: pointer; user-select: none; padding: 4px 9px; border-radius: 999px; border: 1px solid transparent; transition: background 0.15s, border-color 0.15s;
+  }
+  .legend-item:hover { background: var(--panel-2); border-color: var(--border); }
+  .legend-item.off { opacity: 0.4; }
+  .legend-item.off .legend-swatch { filter: grayscale(1); }
+  .legend-swatch { width: 15px; height: 0; border-top-width: 3px; border-top-style: solid; border-radius: 2px; flex-shrink: 0; }
+  .legend-swatch.dashed { border-top-style: dashed; }
+  .legend-sep { align-self: center; font-size: 11px; color: var(--text-muted); margin: 0 2px 0 6px; }
+
+  .note { font-size: 11.5px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
+
+  /* ── data explorer ──────────────────────────────────────── */
+  .explorer .controls { display: flex; flex-direction: column; gap: 14px; margin: 4px 0 14px; }
+  .ctrl-row { display: flex; gap: 10px 16px; align-items: baseline; flex-wrap: wrap; }
+  .ctrl-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); min-width: 132px; padding-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; flex: 1; }
+  .chip {
+    font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; cursor: pointer; user-select: none;
+    border: 1px solid var(--border); background: var(--panel-2); color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .chip .tag { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .chip.on { background: var(--brand-wash); border-color: var(--brand); color: var(--brand-text); }
+  .chip .check { width: 13px; height: 13px; border-radius: 4px; border: 1.5px solid var(--axis); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; }
+  .chip.on .check { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .expl-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .expl-actions .count { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
+
+  .table-wrap { overflow: auto; max-height: 460px; border: 1px solid var(--grid); border-radius: 12px; }
+  table.data-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12px; white-space: nowrap; }
+  table.data-table th, table.data-table td { padding: 7px 12px; text-align: right; border-bottom: 1px solid var(--grid); }
+  table.data-table thead th { position: sticky; top: 0; z-index: 2; background: var(--panel-2); color: var(--text-secondary); font-weight: 700; font-size: 11px; }
+  table.data-table th:first-child, table.data-table td:first-child { text-align: left; position: sticky; left: 0; z-index: 1; background: var(--panel); }
+  table.data-table thead th:first-child { z-index: 3; background: var(--panel-2); }
+  table.data-table td { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text-primary); }
+  table.data-table tbody tr:hover td { background: var(--panel-2); }
+  .th-tag { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-left: 5px; vertical-align: middle; }
+  .empty-state { padding: 32px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  table.data-table.resizable { table-layout: fixed; }
+  table.data-table.resizable th, table.data-table.resizable td { overflow: hidden; text-overflow: ellipsis; }
+  table.data-table.resizable th, table.data-table.resizable td { border-right: 1px solid var(--grid); }
+  table.data-table thead th { position: sticky; top: 0; }
+  .col-resize { position: absolute; top: 0; right: -5px; width: 11px; height: 100%; cursor: col-resize; z-index: 5; touch-action: none; display: flex; align-items: center; justify-content: center; }
+  .col-resize::after { content: ""; width: 2px; height: 56%; border-radius: 2px; background: var(--axis); transition: background 0.15s, width 0.15s, height 0.15s; }
+  .col-resize:hover::after, .col-resize.dragging::after { background: var(--brand); width: 3px; height: 72%; }
+  .expl-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+  /* ── tooltip ────────────────────────────────────────────── */
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 30; opacity: 0; transition: opacity 0.1s;
+    background: var(--text-primary); color: var(--panel); border-radius: 11px; padding: 9px 11px; font-size: 11.5px; line-height: 1.5;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.28); min-width: 158px;
+  }
+  :root[data-theme="dark"] .tooltip { background: #f4f4ef; color: #17170f; }
+  .tooltip .t-title { font-weight: 700; margin-bottom: 5px; font-size: 12px; }
+  .tooltip .t-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .tooltip .t-row .k { display: flex; align-items: center; gap: 6px; opacity: 0.9; }
+  .tooltip .t-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .tooltip .t-val { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .pulse-ring { transform-box: fill-box; transform-origin: center; animation: ring 2.2s ease-out infinite; }
+  @keyframes ring { 0% { transform: scale(1); opacity: 0.55; } 70%,100% { transform: scale(3.4); opacity: 0; } }
+
+  footer.foot { margin-top: 12px; font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  footer.foot .badge { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--brand-text); border: 1px solid var(--brand); border-radius: 999px; padding: 4px 11px; }
+
+  @media (max-width: 780px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-read { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 18px; }
+    .kpis { grid-template-columns: 1fr; }
+    .kpi-spark { opacity: 0.65; }
+    .ctrl-label { min-width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .live .dot, .pulse-ring { animation: none; }
+    .series-path { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="currentColor" style="color:var(--brand-ink)"/></svg>
+      </div>
+      <div class="brand-name">CMF ENERGIA<small>MERCADO LIVRE DE ENERGIA</small></div>
+    </div>
+    <div class="top-right">
+      <span class="live"><span class="dot"></span> Base atualizada · jun/2026</span>
+      <button class="icon-btn" id="themeToggle" type="button"><span id="themeIcon">🌙</span> <span id="themeLabel">Escuro</span></button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <span class="eyebrow">Atacadista · Incentivada 50% · Submercado SE/CO</span>
+      <h1>O preço da energia livre, mês a mês</h1>
+      <p>Acompanhe como o custo de contratar energia no mercado livre evoluiu, quanto isso representa de economia frente ao mercado cativo e como o preço de cada ano de fornecimento se comporta. Valores corrigidos pela inflação (IPCA) para comparação em moeda de hoje.</p>
+    </div>
+    <div class="hero-read">
+      <span class="read-label">Preço médio do mercado livre <span style="color:var(--text-muted)">· próximos 60 meses</span></span>
+      <div class="read-val mono"><span class="cur">R$</span><span id="heroVal">—</span></div>
+      <div><span class="delta" id="heroDelta">—</span> <span style="font-size:11.5px;color:var(--text-muted)">vs. mês anterior</span></div>
+      <div class="hero-spark">
+        <svg id="heroSpark" viewBox="0 0 320 44" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="cap"><span id="sparkStart">—</span><span>últimos 24 meses</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPIs -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="k-label">Economia no mercado livre</div>
+      <svg class="kpi-spark" id="kpiSparkEcon" viewBox="0 0 78 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="k-val accent mono" id="kpiEcon">—</div>
+      <div class="k-sub"><span id="kpiEconDelta">—</span> <span>vs. cativo · bandeira verde</span></div>
+    </div>
+    <div class="kpi">
+      <div class="k-label"><span class="tag" style="background:var(--good)"></span> Break-even do cativo · verde</div>
+      <div class="k-val mono" id="kpiBreak">—</div>
+      <div class="k-sub">acima deste preço, o livre deixa de compensar</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Faixa dos anos em negociação</div>
+      <div class="k-val mono" id="kpiFaixa">—</div>
+      <div class="k-sub">do mais barato (2031) ao mais caro (2026) · indexado</div>
+    </div>
+  </section>
+
+  <!-- CHART 1 — evolução por ano de fornecimento -->
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Preço de cada ano de fornecimento, ao longo do tempo</h2>
+        <p>Cada linha é um ano de entrega e mostra como seu preço negociado mudou mês a mês. Linhas cheias e coloridas ainda estão em negociação; linhas cinza tracejadas são anos já encerrados. Passe o mouse na legenda para destacar um ano.</p>
+      </div>
+      <div class="head-controls">
+        <div class="segmented" id="vintageMode">
+          <button data-mode="indexado" class="active" type="button">Indexado (IPCA)</button>
+          <button data-mode="nominal" type="button">Nominal</button>
+        </div>
+      </div>
+    </div>
+    <div class="head-controls" style="margin-bottom:6px">
+      <span class="ctrl-mini">Período exibido</span>
+      <div class="segmented ghost" id="vintageRange">
+        <button data-range="24" type="button">24M</button>
+        <button data-range="36" type="button">36M</button>
+        <button data-range="54" class="active" type="button">Máx</button>
+      </div>
+      <span class="ctrl-mini" style="margin-left:6px">De</span>
+      <select class="date-select" id="vStartSel" aria-label="Data inicial"></select>
+      <span class="ctrl-mini">até</span>
+      <select class="date-select" id="vEndSel" aria-label="Data final"></select>
+    </div>
+    <div class="overlays">
+      <div class="ov-group"><span class="ctrl-mini">Média futura do livre</span><div class="chips" id="vFwdChips"></div></div>
+      <div class="ov-group"><span class="ctrl-mini">Média histórica do ano</span><div class="chips" id="vMeanChips"></div></div>
+      <div class="ov-group" style="margin-left:auto">
+        <span class="ctrl-mini">Escala Y</span>
+        <div class="segmented ghost" id="yScale">
+          <button data-y="out" type="button" title="Diminuir zoom">−</button>
+          <button data-y="in" type="button" title="Aumentar zoom">+</button>
+          <button data-y="auto" class="active" type="button">Auto</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-scroll">
+      <svg class="chart" id="chartVintage" viewBox="0 0 980 380" role="img" aria-label="Evolução do preço de energia por ano de fornecimento"></svg>
+    </div>
+    <div class="legend" id="legendVintage"></div>
+    <div class="note">Tracejado = ano encerrado · Cheio = em negociação · Clique na legenda para ocultar/mostrar · Arraste o gráfico para cima/baixo para deslocar a escala Y (ou use − / + / Auto).</div>
+  </section>
+
+  <!-- CHART 2 — cativo x livre -->
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Mercado livre × mercado cativo</h2>
+        <p>Preço médio do mercado livre (linha azul) frente ao break-even do cativo em cada bandeira tarifária. Enquanto a linha azul está abaixo de uma faixa, comprar no livre é mais barato que ficar no cativo naquela bandeira.</p>
+      </div>
+    </div>
+    <div class="horizon-bar">
+      <span class="hb-text">Preço médio do livre para os próximos</span>
+      <div class="segmented" id="cativoHorizon">
+        <button data-h="24" type="button">24 meses</button>
+        <button data-h="36" type="button">36 meses</button>
+        <button data-h="48" type="button">48 meses</button>
+        <button data-h="60" class="active" type="button">60 meses</button>
+      </div>
+      <span class="hb-sub" id="horizonHint"></span>
+    </div>
+    <div class="head-controls" style="margin-bottom:6px">
+      <span class="ctrl-mini">Período exibido</span>
+      <div class="segmented ghost" id="cativoRange">
+        <button data-range="24" type="button">24M</button>
+        <button data-range="36" type="button">36M</button>
+        <button data-range="54" class="active" type="button">Máx</button>
+      </div>
+      <span class="ctrl-mini" style="margin-left:6px">De</span>
+      <select class="date-select" id="cStartSel" aria-label="Data inicial"></select>
+      <span class="ctrl-mini">até</span>
+      <select class="date-select" id="cEndSel" aria-label="Data final"></select>
+      <span class="ctrl-mini" style="margin-left:auto">Escala Y</span>
+      <div class="segmented ghost" id="cYScale">
+        <button data-y="out" type="button" title="Diminuir zoom">−</button>
+        <button data-y="in" type="button" title="Aumentar zoom">+</button>
+        <button data-y="auto" class="active" type="button">Auto</button>
+      </div>
+    </div>
+    <div class="chart-scroll">
+      <svg class="chart" id="chartCativo" viewBox="0 0 980 380" role="img" aria-label="Comparação entre preço do mercado livre e break-even do cativo por bandeira"></svg>
+    </div>
+    <div class="legend" id="legendCativo"></div>
+    <div class="note">A “média dos próximos N meses” é o preço médio da energia a contratar a partir de cada mês, ponderado pelos meses que faltam — calculado sobre a curva de preços por ano de fornecimento. Arraste o gráfico para cima/baixo para deslocar a escala Y.</div>
+  </section>
+
+  <!-- DATA EXPLORER -->
+  <section class="card explorer">
+    <div class="card-head">
+      <div>
+        <h2>Explorador de dados</h2>
+        <p>Monte a sua própria tabela: escolha o período, os anos de fornecimento e as colunas que quer ver. Exporte em CSV para abrir no Excel.</p>
+      </div>
+      <div class="head-controls">
+        <div class="segmented" id="explMode">
+          <button data-mode="indexado" class="active" type="button">Indexado (IPCA)</button>
+          <button data-mode="nominal" type="button">Nominal</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="ctrl-label">Período</span>
+        <div class="chips" id="explPeriod"></div>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Anos de fornecimento</span>
+        <div class="chips" id="explYears"></div>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Outras colunas</span>
+        <div class="chips" id="explExtras"></div>
+      </div>
+      <div class="ctrl-row expl-actions">
+        <button class="icon-btn" id="explAll" type="button">Selecionar tudo</button>
+        <button class="icon-btn" id="explNone" type="button">Limpar</button>
+        <button class="icon-btn" id="explCsv" type="button">⭳ Exportar CSV</button>
+        <span class="count" id="explCount"></span>
+      </div>
+    </div>
+
+    <div class="table-wrap"><div id="explTable"></div></div>
+    <div class="expl-hint">Datas do mais antigo para o mais recente · arraste a borda direita de qualquer coluna para ajustar a largura.</div>
+  </section>
+
+  <footer class="foot">
+    Valores em R$/MWh, indexados mensalmente pela inflação (IPCA). Amostra de jan/2022 a jun/2026, extraída da planilha “Curva Forward — CMF Energia”.
+    <div class="badge">PROTÓTIPO · DADOS REAIS DA PLANILHA BASE</div>
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+  // ── dados (exportados de data/precos-energia.json) ──────────────────────
+  function monthRange(y0, m0, n) { const out = []; let y = y0, m = m0; for (let i = 0; i < n; i++) { out.push(y + "-" + String(m).padStart(2, "0")); m++; if (m > 12) { m = 1; y++; } } return out; }
+  function pad(arr, len) { const out = arr.slice(); while (out.length < len) out.push(null); return out; }
+  function blocks(pairs) { const out = []; for (const [v, n] of pairs) for (let i = 0; i < n; i++) out.push(v); return out; }
+
+  const MONTHS = monthRange(2022, 1, 54);
+
+  const YEARS = {
+    2022: { active: false,
+      nominal: pad([234,173,192,172,170,164,97,99,119,95,90,91], 54),
+      indexado: pad([285.95,210.47,231.65,204.73,200.55,192.7,113.33,116.33,140.27,112.25,105.81,106.62], 54) },
+    2023: { active: false,
+      nominal: pad([241,234,258,258,235,232,217,203,197,165,121,118,108,107,103,101,105,105,108,111,108,110,110,111], 54),
+      indexado: pad([294.5,284.68,311.28,307.1,277.23,272.6,253.52,238.55,232.2,194.96,142.26,138.25,125.86,124.13,118.63,115.6,119.58,119.34,122.84,126.12,122.4,124.38,124.11,124.93], 54) },
+    2024: { active: false,
+      nominal: pad([214,219,225,233,228,223,217,208,204,185,163,158,130,121,116,103,106,107,110,107,103,104,117,116,120,159,159,150,120,172,230,185,228,320,282,117], 54),
+      indexado: pad([261.51,266.44,271.46,277.34,268.97,262.03,253.52,244.42,240.45,218.6,191.64,185.11,151.5,140.37,133.6,117.89,120.72,121.62,125.11,121.57,116.73,117.59,132.01,130.56,134.72,177.84,176.52,166.29,132.58,189.23,252.56,202.45,249.07,348.16,305.29,126.21], 54) },
+    2025: { active: false,
+      nominal: pad([199,201,200,202,208,202,203,198,200,185,173,170,145,134,130,115,119,121,123,122,116,120,129,144,135,216,201,185,160,187,212,202,216,243,176,180,175,227,322,370,356,364,316,293,333,322,295,312], 54),
+      indexado: pad([243.18,244.54,241.3,240.44,245.38,237.35,237.16,232.67,235.74,218.6,203.4,199.17,168.98,155.45,149.72,131.63,135.53,137.53,139.9,138.62,131.46,135.68,145.55,162.07,151.56,241.6,223.15,205.09,176.77,205.74,232.8,221.05,235.96,264.38,190.54,194.17,187.86,243.32,340.93,389.39,373.12,380.56,329.62,304.87,346.85,333.85,305.59,322.64], 54) },
+    2026: { active: true,
+      nominal: [191,193,192,194,200,194,195,190,192,177,165,162,158,145,137,128,130,131,130,130,125,130,139,154,147,207,195,186,175,188,197,192,200,201,189,191,199,219,242,273,271,281,276,268,289,281,279,316,364,436,400,325,337,314],
+      indexado: [233.4,234.8,231.65,230.92,235.94,227.95,227.82,223.27,226.31,209.14,193.99,189.8,184.13,168.21,157.78,146.51,148.06,148.89,147.86,147.71,141.66,146.99,156.83,173.33,165.04,231.53,216.49,206.2,193.34,206.84,216.33,210.11,218.48,218.69,204.61,206.03,213.63,234.75,256.23,287.31,284.04,293.79,287.9,278.85,301.02,291.34,289.02,326.78,375.21,446.73,407.68,329.06,338.95,314] },
+    2027: { active: true,
+      nominal: [183,185,184,186,192,186,187,182,184,175,175,175,179,179,159,149,145,139,139,139,139,137,137,153,168,201,189,182,172,180,181,180,183,181,178,186,180,198,206,218,221,220,224,226,241,242,233,265,294,314,298,296,317,313],
+      indexado: [223.63,225.07,222,221.4,226.5,218.55,218.47,213.87,216.88,206.78,205.75,205.03,208.61,207.66,183.12,170.55,165.14,157.99,158.1,157.93,157.53,154.91,154.58,172.2,188.61,224.82,209.83,201.77,190.03,198.04,198.76,196.97,199.91,196.93,192.7,200.64,193.23,212.24,218.11,229.42,231.63,230.01,233.65,235.15,251.03,250.91,241.36,274.04,303.06,321.72,303.72,299.7,318.84,313] },
+    2028: { active: true,
+      nominal: [178,180,179,181,187,181,182,177,179,170,170,170,174,178,171,165,160,156,152,152,152,150,150,161,167,191,190,177,167,175,176,175,178,176,173,181,175,183,191,199,201,202,204,205,220,230,225,260,275,298,282,280,293,295],
+      indexado: [217.52,218.99,215.96,215.44,220.6,212.68,212.63,207.99,210.99,200.87,199.87,199.17,202.78,206.5,196.94,188.86,182.22,177.31,172.88,172.7,172.26,169.6,169.24,181.21,187.49,213.63,210.94,196.22,184.5,192.54,193.27,191.5,194.45,191.49,187.29,195.24,187.86,196.16,202.23,209.43,210.67,211.19,212.79,213.3,229.15,238.46,233.08,268.87,283.47,305.33,287.41,283.5,294.7,295] },
+    2029: { active: true,
+      nominal: [173,175,174,176,182,176,177,172,174,165,165,165,169,173,166,163,158,154,150,150,150,148,148,159,165,185,186,172,162,170,171,170,173,171,168,176,170,178,186,194,196,197,199,200,215,225,220,231,255,270,261,256,267,270],
+      indexado: [211.41,212.9,209.93,209.49,214.71,206.8,206.79,202.12,205.09,194.96,193.99,193.31,196.95,200.7,191.18,186.57,179.95,175.04,170.61,170.43,170,167.34,166.99,178.95,185.25,206.92,206.5,190.68,178.98,187.03,187.78,186.03,188.99,186.05,181.88,189.85,182.49,190.8,196.94,204.17,205.43,205.96,207.58,208.1,223.94,233.28,227.9,238.88,262.85,276.64,266.01,259.2,268.55,270] },
+    2030: { active: true,
+      nominal: [168,170,169,171,177,171,172,167,169,160,160,160,164,168,161,161,156,152,148,148,148,146,146,157,163,180,181,167,157,165,166,165,168,166,163,171,165,173,181,189,191,192,194,195,210,220,215,205,215,247,240,231,249,251],
+      indexado: [205.3,206.82,203.9,203.54,208.81,200.92,200.95,196.24,199.2,189.06,188.11,187.46,191.13,194.9,185.42,184.28,177.67,172.76,168.34,168.16,167.73,165.08,164.73,176.7,183,201.33,200.95,185.14,173.45,181.53,182.28,180.56,183.52,180.61,176.46,184.46,177.13,185.44,191.64,198.9,200.19,200.74,202.36,202.9,218.74,228.1,222.72,211.99,221.62,253.08,244.61,233.89,250.44,251] },
+    2031: { active: true,
+      nominal: [163,165,164,166,172,166,167,162,164,155,155,155,159,163,156,159,154,150,146,146,146,144,144,155,161,175,176,162,152,160,161,160,163,161,158,166,160,163,171,179,181,182,184,185,200,210,205,195,203,209,218,214,220,222],
+      indexado: [199.19,200.74,197.87,197.59,202.91,195.05,195.11,190.37,193.31,183.15,182.23,181.6,185.3,189.1,179.67,181.99,175.39,170.49,166.06,165.89,165.46,162.82,162.48,174.45,180.75,195.74,195.4,179.59,167.93,176.03,176.79,175.09,178.06,175.17,171.05,179.06,171.76,174.72,181.05,188.38,189.71,190.28,191.93,192.49,208.32,217.73,212.36,201.65,209.25,214.14,222.19,216.68,221.28,222] },
+  };
+
+  const MERCADO_LIVRE = [263.71,248.43,257.15,252.94,247.34,240.68,227.58,222.43,225.21,204.89,184.08,181.83,167.82,160.54,151.18,140.1,141.98,141.9,143.77,143.82,140.6,142.69,150.14,162.93,165.49,218.37,208.38,196.33,178.54,198.29,212.26,202.5,211.56,219.61,195.52,196.13,193.02,214.49,237.91,254.42,249.45,249.32,241.58,236.16,253.32,253.7,245.58,265.95,289.24,316.82,295.7,275.45,286.45,280.93];
+  const MERCADO_LIVRE_MEDIA_HIST = new Array(54).fill(214.56);
+  const BREAK_EVEN = {
+    verde:      blocks([[373.93,12],[369.2,12],[389.02,12],[406.11,12],[402.01,6]]),
+    amarela:    blocks([[410.46,12],[404.03,12],[410.18,12],[426.34,12],[421.44,6]]),
+    vermelhaI:  blocks([[453.36,12],[444.95,12],[439.12,12],[454.02,12],[448.02,6]]),
+    vermelhaII: blocks([[493.63,12],[483.35,12],[477.45,12],[490.66,12],[483.21,6]]),
+  };
+  const PCT_ECONOMIA = [0.25,0.32,0.27,0.29,0.32,0.34,0.39,0.41,0.4,0.46,0.54,0.54,0.6,0.62,0.63,0.66,0.65,0.65,0.64,0.64,0.65,0.64,0.61,0.58,0.61,0.44,0.47,0.5,0.55,0.48,0.42,0.46,0.43,0.38,0.48,0.49,0.51,0.44,0.35,0.29,0.31,0.32,0.35,0.37,0.33,0.34,0.36,0.28,0.2,0.12,0.19,0.26,0.23,0.25];
+
+  // ── helpers ──────────────────────────────────────────────────────────────
+  const MESES_PT = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  function monthLabel(ym) { const [y, m] = ym.split("-"); return MESES_PT[+m - 1] + "/" + y.slice(2); }
+  function fmtBRL0(v) { return "R$ " + Math.round(v).toLocaleString("pt-BR"); }
+  function fmtBRL2(v) { return "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtNum2(v) { return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtPct0(v) { return Math.round(v * 100) + "%"; }
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function niceStep(rough) { const exp = Math.floor(Math.log10(rough)); const base = rough / Math.pow(10, exp); const nice = base < 1.5 ? 1 : base < 3 ? 2 : base < 7 ? 5 : 10; return nice * Math.pow(10, exp); }
+  function niceTicks(min, max, count) {
+    if (min === max) { min -= 1; max += 1; }
+    const step = niceStep((max - min) / (count - 1));
+    const start = Math.floor(min / step) * step, end = Math.ceil(max / step) * step;
+    const out = []; for (let v = start; v <= end + 1e-9; v += step) out.push(Math.round(v * 100) / 100); return out;
+  }
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  let chartPanning = false; // arraste vertical em andamento (compartilhado entre re-renders)
+
+  // ── generic line-chart renderer ─────────────────────────────────────────
+  function renderChart(svg, opts) {
+    const { months, series, yFmt } = opts;
+    const focusId = opts.focusId || null;
+    const animate = !!opts.animate && !prefersReduced;
+    svg.innerHTML = "";
+    const defs = el("defs", {}); svg.appendChild(defs);
+
+    const visible = series.filter(s => !s.hidden);
+    const hasEndLabel = visible.some(s => s.endLabel);
+    const W = 980, H = 380, mL = 60, mR = hasEndLabel ? 52 : 16, mT = 16, mB = 30;
+    const pw = W - mL - mR, ph = H - mT - mB;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+    let ticks, yMin, yMax;
+    if (opts.yDomain) {
+      yMin = opts.yDomain[0]; yMax = opts.yDomain[1];
+      ticks = []; for (let k = 0; k < 5; k++) ticks.push(Math.round(yMin + (yMax - yMin) * k / 4));
+    } else {
+      let allVals = [];
+      visible.forEach(s => s.data.forEach(v => { if (v != null) allVals.push(v); }));
+      if (!allVals.length) allVals = [0, 100];
+      const dataMin = Math.min(...allVals), dataMax = Math.max(...allVals);
+      const padAmt = (dataMax - dataMin) * 0.08 || dataMax * 0.1 || 10;
+      ticks = niceTicks(Math.max(0, dataMin - padAmt), dataMax + padAmt, 5);
+      yMin = ticks[0]; yMax = ticks[ticks.length - 1];
+    }
+
+    const n = months.length;
+    const x = i => mL + (n === 1 ? pw / 2 : (i / (n - 1)) * pw);
+    const y = v => mT + ph - ((v - yMin) / (yMax - yMin)) * ph;
+
+    ticks.forEach(t => {
+      const gy = y(t);
+      svg.appendChild(el("line", { x1: mL, x2: mL + pw, y1: gy, y2: gy, stroke: "var(--grid)", "stroke-width": 1 }));
+      const label = el("text", { x: mL - 9, y: gy + 3.5, "text-anchor": "end", "font-size": 10.5, fill: "var(--text-muted)", "font-family": "var(--mono)" });
+      label.textContent = yFmt(t); svg.appendChild(label);
+    });
+    svg.appendChild(el("line", { x1: mL, x2: mL + pw, y1: mT + ph, y2: mT + ph, stroke: "var(--axis)", "stroke-width": 1 }));
+
+    const xEvery = Math.max(1, Math.round(n / 9));
+    for (let i = 0; i < n; i += xEvery) {
+      const label = el("text", { x: x(i), y: H - 8, "text-anchor": "middle", "font-size": 10.5, fill: "var(--text-muted)", "font-family": "var(--mono)" });
+      label.textContent = monthLabel(months[i]); svg.appendChild(label);
+    }
+
+    // clip para manter as linhas dentro da área do gráfico quando a escala Y é manual
+    const clipId = "clip-" + svg.id;
+    const clip = el("clipPath", { id: clipId });
+    clip.appendChild(el("rect", { x: mL, y: mT, width: pw, height: ph }));
+    defs.appendChild(clip);
+
+    // area fills (for emphasised / flagged series)
+    function areaPath(data) {
+      let d = "", started = false, lastI = -1;
+      data.forEach((v, i) => { if (v == null) return; d += (started ? "L" : "M") + x(i).toFixed(2) + " " + y(v).toFixed(2) + " "; started = true; lastI = i; });
+      if (!started) return null;
+      let firstI = data.findIndex(v => v != null);
+      d += "L" + x(lastI).toFixed(2) + " " + (mT + ph) + " L" + x(firstI).toFixed(2) + " " + (mT + ph) + " Z";
+      return d;
+    }
+    visible.forEach((s, idx) => {
+      const wantArea = s.area || (focusId && s.id === focusId);
+      if (!wantArea) return;
+      const gid = "grad-" + svg.id + "-" + idx;
+      const grad = el("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+      const st1 = el("stop", { offset: "0%" }); st1.setAttribute("style", "stop-color:" + s.color + ";stop-opacity:0.22");
+      const st2 = el("stop", { offset: "100%" }); st2.setAttribute("style", "stop-color:" + s.color + ";stop-opacity:0");
+      grad.appendChild(st1); grad.appendChild(st2); defs.appendChild(grad);
+      const ad = areaPath(s.data); if (ad) svg.appendChild(el("path", { d: ad, fill: "url(#" + gid + ")", stroke: "none", "clip-path": "url(#" + clipId + ")" }));
+    });
+
+    // series paths
+    const drawPaths = [];
+    visible.forEach(s => {
+      let d = "", drawing = false;
+      s.data.forEach((v, i) => { if (v == null) { drawing = false; return; } d += (drawing ? "L" : "M") + x(i).toFixed(2) + " " + y(v).toFixed(2) + " "; drawing = true; });
+      let op = s.opacity != null ? s.opacity : 1;
+      let w = s.width || 2;
+      if (focusId) { if (s.id === focusId) { w = (s.width || 2) + 0.8; op = 1; } else { op = 0.14; } }
+      const path = el("path", { class: "series-path", d, fill: "none", stroke: s.color, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round", opacity: op, "clip-path": "url(#" + clipId + ")" });
+      if (s.dash) path.setAttribute("stroke-dasharray", s.dash);
+      svg.appendChild(path);
+      if (animate && !s.dash) drawPaths.push(path);
+
+      let lastI = -1; s.data.forEach((v, i) => { if (v != null) lastI = i; });
+      // endpoint marker on emphasised series
+      if (s.endpoint && lastI >= 0 && s.data[lastI] >= yMin && s.data[lastI] <= yMax) {
+        if (s.pulse && !prefersReduced) svg.appendChild(el("circle", { class: "pulse-ring", cx: x(lastI), cy: y(s.data[lastI]), r: 4, fill: s.color }));
+        svg.appendChild(el("circle", { cx: x(lastI), cy: y(s.data[lastI]), r: 3.4, fill: s.color, stroke: "var(--panel)", "stroke-width": 1.6 }));
+      }
+      // rótulo no fim da linha (camadas de sobreposição)
+      if (s.endLabel && lastI >= 0) {
+        const cy = Math.max(mT + 8, Math.min(mT + ph - 2, y(s.data[lastI])));
+        const tx = el("text", { x: x(lastI) + 7, y: cy + 3.5, "font-size": 10, "font-family": "var(--mono)", fill: s.color, "font-weight": 700 });
+        tx.textContent = s.endLabel; svg.appendChild(tx);
+      }
+    });
+
+    if (drawPaths.length) requestAnimationFrame(() => drawPaths.forEach(p => {
+      const len = p.getTotalLength(); if (!len) return;
+      p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+      p.style.transition = "none"; void p.getBoundingClientRect();
+      p.style.transition = "stroke-dashoffset 0.9s ease-out";
+      p.style.strokeDashoffset = "0";
+      setTimeout(() => { p.style.strokeDasharray = ""; p.style.transition = ""; }, 950);
+    }));
+
+    // crosshair + tooltip
+    const crosshair = el("line", { x1: mL, x2: mL, y1: mT, y2: mT + ph, stroke: "var(--text-muted)", "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
+    svg.appendChild(crosshair);
+    const dots = visible.map(s => { const c = el("circle", { r: 3.6, fill: s.color, stroke: "var(--panel)", "stroke-width": 1.6, opacity: 0 }); svg.appendChild(c); return { s, c }; });
+    const capture = el("rect", { x: mL, y: mT, width: pw, height: ph, fill: "transparent" });
+    if (opts.onYPan) capture.style.cursor = "grab";
+    svg.appendChild(capture);
+    const tooltip = document.getElementById("tooltip");
+
+    // arrastar verticalmente = deslocar a janela do eixo Y (pan)
+    if (opts.onYPan) capture.addEventListener("mousedown", ev => {
+      ev.preventDefault();
+      chartPanning = true; document.body.style.cursor = "grabbing";
+      crosshair.setAttribute("opacity", 0); dots.forEach(({ c }) => c.setAttribute("opacity", 0)); tooltip.style.opacity = 0;
+      const startY = ev.clientY;
+      const rect = svg.getBoundingClientRect();
+      const start = opts.currentDomain();
+      const valPerPx = (start[1] - start[0]) / (rect.height * (ph / H));
+      const move = e2 => { const shift = (e2.clientY - startY) * valPerPx; opts.onYPan([start[0] + shift, start[1] + shift]); };
+      const up = () => { chartPanning = false; document.body.style.cursor = ""; document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); };
+      document.addEventListener("mousemove", move); document.addEventListener("mouseup", up);
+    });
+
+    function onMove(evt) {
+      if (chartPanning) return;
+      const rect = svg.getBoundingClientRect();
+      const px = (evt.clientX - rect.left) / rect.width * W;
+      let i = Math.round(((px - mL) / pw) * (n - 1)); i = Math.max(0, Math.min(n - 1, i));
+      crosshair.setAttribute("x1", x(i)); crosshair.setAttribute("x2", x(i)); crosshair.setAttribute("opacity", 0.6);
+      let rows = "";
+      dots.forEach(({ s, c }) => {
+        const v = s.data[i];
+        if (v == null) { c.setAttribute("opacity", 0); return; }
+        const dim = focusId && s.id !== focusId;
+        c.setAttribute("cx", x(i)); c.setAttribute("cy", y(v)); c.setAttribute("opacity", dim ? 0.25 : 1);
+        rows += '<div class="t-row"><span class="k"><span class="t-dot" style="background:' + s.color + '"></span>' + s.label + '</span><span class="t-val">' + (opts.tooltipFmt ? opts.tooltipFmt(v) : fmtBRL2(v)) + "</span></div>";
+      });
+      tooltip.innerHTML = '<div class="t-title">' + monthLabel(months[i]) + "</div>" + rows;
+      tooltip.style.opacity = 1;
+      const wrapEl = svg.closest(".wrap"); const wrapRect = wrapEl.getBoundingClientRect();
+      let left = evt.clientX - wrapRect.left + 16, top = evt.clientY - wrapRect.top + 16;
+      const tw = tooltip.offsetWidth || 170, thh = tooltip.offsetHeight || 100;
+      if (left + tw > wrapRect.width) left = evt.clientX - wrapRect.left - tw - 16;
+      if (top + thh > wrapRect.height) top = evt.clientY - wrapRect.top - thh - 16;
+      tooltip.style.left = Math.max(0, left) + "px"; tooltip.style.top = Math.max(0, top) + "px";
+    }
+    capture.addEventListener("mousemove", onMove);
+    capture.addEventListener("mouseleave", () => { crosshair.setAttribute("opacity", 0); dots.forEach(({ c }) => c.setAttribute("opacity", 0)); tooltip.style.opacity = 0; });
+  }
+
+  function sliceData(months, series, count) {
+    const start = Math.max(0, months.length - count);
+    return { months: months.slice(start), series: series.map(s => ({ ...s, data: s.data.slice(start) })) };
+  }
+
+  // ── Chart 1: evolução por ano-safra ─────────────────────────────────────
+  const vintageHidden = new Set();
+  let vintageMode = "indexado", vStart = 0, vEnd = MONTHS.length - 1, vintageFocus = null, vintageAnim = true;
+  const V_FWD = [24, 36, 48, 60]; const FWD_DASH = { 24: "2 3", 36: "6 4", 48: "10 5", 60: null };
+  const vFwd = new Set(); const vMean = new Set(); let vYManual = null;
+  function sliceRange(months, series, a, b) { return { months: months.slice(a, b + 1), series: series.map(s => ({ ...s, data: s.data.slice(a, b + 1) })) }; }
+  const VINTAGE_COLORS = { 2026: "var(--s1)", 2027: "var(--s2)", 2028: "var(--s3)", 2029: "var(--s4)", 2030: "var(--s5)", 2031: "var(--s6)" };
+  const HISTORIC_DASH = { 2022: "5 4", 2023: "2 3", 2024: "8 3 2 3", 2025: "1 3" };
+
+  function vintageSeries() {
+    const base = Object.keys(YEARS).map(yk => {
+      const yr = YEARS[yk], active = yr.active;
+      return { id: yk, label: yk, data: yr[vintageMode], color: active ? VINTAGE_COLORS[yk] : "var(--text-muted)",
+        width: active ? 2.1 : 1.4, dash: active ? null : HISTORIC_DASH[yk], opacity: active ? 1 : 0.65,
+        endpoint: active, hidden: vintageHidden.has(yk) };
+    });
+    const extra = [];
+    V_FWD.forEach(h => { if (!vFwd.has(h)) return;
+      extra.push({ id: "fwd" + h, label: "Média do livre · próximos " + h + "m", data: MONTHS.map((_, t) => forwardAvg(t, h, vintageMode)),
+        color: "var(--brand)", width: 2, dash: FWD_DASH[h], opacity: 1, endLabel: h + "m" });
+    });
+    Object.keys(YEARS).forEach(y => { if (!vMean.has(y)) return;
+      const arr = YEARS[y][vintageMode]; const vals = arr.filter(v => v != null); if (!vals.length) return;
+      const mean = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 100) / 100;
+      const col = YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)";
+      extra.push({ id: "mean" + y, label: "Média histórica " + y + " · R$ " + Math.round(mean), data: new Array(MONTHS.length).fill(mean),
+        color: col, width: 1.6, dash: "5 5", opacity: 0.95, endLabel: "méd " + y });
+    });
+    return base.concat(extra);
+  }
+  function drawVintage() {
+    const svg = document.getElementById("chartVintage");
+    const { months, series } = sliceRange(MONTHS, vintageSeries(), vStart, vEnd);
+    const effFocus = (vintageFocus && !vintageHidden.has(vintageFocus)) ? vintageFocus : null;
+    renderChart(svg, { months, series, yFmt: fmtBRL0, focusId: effFocus, animate: vintageAnim, yDomain: vYManual,
+      currentDomain: () => vYManual || vintageAutoDomain(),
+      onYPan: dom => {
+        vYManual = [Math.round(dom[0]), Math.round(dom[1])];
+        [...document.getElementById("yScale").children].forEach(x => x.classList.remove("active"));
+        drawVintage();
+      } });
+    vintageAnim = false;
+  }
+  function renderVintageChart() { drawVintage(); renderVintageLegend(); }
+  function setVintageFocus(y) { if (vintageFocus === y) return; vintageFocus = y; drawVintage(); }
+  function renderVintageLegend() {
+    const box = document.getElementById("legendVintage"); box.innerHTML = "";
+    const active = Object.keys(YEARS).filter(y => YEARS[y].active);
+    const historic = Object.keys(YEARS).filter(y => !YEARS[y].active);
+    active.forEach(y => box.appendChild(legendItem(y, VINTAGE_COLORS[y], false, vintageHidden.has(y),
+      () => { vintageHidden.has(y) ? vintageHidden.delete(y) : vintageHidden.add(y); renderVintageChart(); },
+      () => setVintageFocus(y), () => setVintageFocus(null))));
+    const sep = document.createElement("span"); sep.className = "legend-sep"; sep.textContent = "encerrados:"; box.appendChild(sep);
+    historic.forEach(y => box.appendChild(legendItem(y, "var(--text-muted)", true, vintageHidden.has(y),
+      () => { vintageHidden.has(y) ? vintageHidden.delete(y) : vintageHidden.add(y); renderVintageChart(); },
+      () => setVintageFocus(y), () => setVintageFocus(null))));
+  }
+  // safety net: leaving the legend area always clears the highlight
+  document.getElementById("legendVintage").addEventListener("mouseleave", () => setVintageFocus(null));
+  function legendItem(label, color, dashed, isOff, onClick, onEnter, onLeave) {
+    const item = document.createElement("span"); item.className = "legend-item" + (isOff ? " off" : "");
+    const sw = document.createElement("span"); sw.className = "legend-swatch" + (dashed ? " dashed" : ""); sw.style.borderTopColor = color; item.appendChild(sw);
+    const txt = document.createElement("span"); txt.textContent = label; item.appendChild(txt);
+    item.addEventListener("click", onClick);
+    if (onEnter) { item.addEventListener("mouseenter", onEnter); item.addEventListener("mouseleave", onLeave); }
+    return item;
+  }
+  document.getElementById("vintageMode").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; vintageMode = b.dataset.mode; vintageAnim = true;
+    [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderVintageChart();
+  });
+  const vStartSel = document.getElementById("vStartSel"), vEndSel = document.getElementById("vEndSel");
+  function fillMonthSelect(sel, selectedIdx) {
+    sel.innerHTML = "";
+    MONTHS.forEach((m, i) => { const o = document.createElement("option"); o.value = i; o.textContent = monthLabel(m); if (i === selectedIdx) o.selected = true; sel.appendChild(o); });
+  }
+  function syncDateSelects() { fillMonthSelect(vStartSel, vStart); fillMonthSelect(vEndSel, vEnd); }
+  function clearVintagePresets() { [...document.getElementById("vintageRange").children].forEach(x => x.classList.remove("active")); }
+  syncDateSelects();
+
+  document.getElementById("vintageRange").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const count = +b.dataset.range; vEnd = MONTHS.length - 1; vStart = Math.max(0, MONTHS.length - count);
+    vintageAnim = true; [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b));
+    syncDateSelects(); drawVintage();
+  });
+  function onVintageDate() {
+    let a = +vStartSel.value, b = +vEndSel.value;
+    if (a > b) { b = a; fillMonthSelect(vEndSel, b); }
+    vStart = a; vEnd = b; vintageAnim = true; clearVintagePresets(); drawVintage();
+  }
+  vStartSel.addEventListener("change", onVintageDate);
+  vEndSel.addEventListener("change", onVintageDate);
+
+  // camadas opcionais: médias futuras do livre e média histórica de cada ano
+  function buildVintageOverlayControls() {
+    const f = document.getElementById("vFwdChips"); f.innerHTML = "";
+    V_FWD.forEach(h => {
+      const on = vFwd.has(h); const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
+      c.innerHTML = '<span class="tag" style="background:var(--brand)"></span>' + h + "m";
+      c.addEventListener("click", () => { on ? vFwd.delete(h) : vFwd.add(h); buildVintageOverlayControls(); vintageAnim = false; renderVintageChart(); });
+      f.appendChild(c);
+    });
+    const m = document.getElementById("vMeanChips"); m.innerHTML = "";
+    Object.keys(YEARS).forEach(y => {
+      const on = vMean.has(y); const col = YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)";
+      const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
+      c.innerHTML = '<span class="tag" style="background:' + col + '"></span>' + y;
+      c.addEventListener("click", () => { on ? vMean.delete(y) : vMean.add(y); buildVintageOverlayControls(); vintageAnim = false; renderVintageChart(); });
+      m.appendChild(c);
+    });
+  }
+
+  // escala Y interativa (zoom in/out manual + auto)
+  function vintageAutoDomain() {
+    const { series } = sliceRange(MONTHS, vintageSeries(), vStart, vEnd);
+    let allVals = [];
+    series.filter(s => !s.hidden).forEach(s => s.data.forEach(v => { if (v != null) allVals.push(v); }));
+    if (!allVals.length) allVals = [0, 100];
+    const dmin = Math.min(...allVals), dmax = Math.max(...allVals);
+    const pad = (dmax - dmin) * 0.08 || dmax * 0.1 || 10;
+    const t = niceTicks(Math.max(0, dmin - pad), dmax + pad, 5);
+    return [t[0], t[t.length - 1]];
+  }
+  document.getElementById("yScale").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.y === "auto") { vYManual = null; }
+    else {
+      if (!vYManual) vYManual = vintageAutoDomain();
+      const c = (vYManual[0] + vYManual[1]) / 2; let half = (vYManual[1] - vYManual[0]) / 2;
+      half = b.dataset.y === "in" ? half * 0.8 : half / 0.8;
+      vYManual = [Math.max(0, Math.round(c - half)), Math.round(c + half)];
+    }
+    const grp = e.currentTarget; [...grp.children].forEach(x => x.classList.remove("active"));
+    (vYManual === null ? grp.querySelector('[data-y="auto"]') : b).classList.add("active");
+    vintageAnim = false; drawVintage();
+  });
+
+  // ── Chart 2: cativo x livre ──────────────────────────────────────────────
+  const cativoHidden = new Set(); let cStart = 0, cEnd = MONTHS.length - 1, cativoAnim = true, cativoHorizon = 60, cYManual = null;
+
+  // Média dos próximos N meses = média dos preços por ano de fornecimento,
+  // ponderada pelos meses que faltam a partir de cada mês de observação.
+  // (reproduz exatamente a coluna de média 60m da planilha, ex.: jun/2026 = 280,93)
+  function forwardAvg(t, horizon, mode) {
+    const [y0, m0] = MONTHS[t].split("-").map(Number);
+    let sum = 0, cnt = 0;
+    for (let k = 0; k < horizon; k++) {
+      const mm = m0 - 1 + k; const year = y0 + Math.floor(mm / 12);
+      const yr = YEARS[year]; if (!yr) continue;
+      const v = yr[mode][t]; if (v == null) continue;
+      sum += v; cnt++;
+    }
+    return cnt ? Math.round((sum / cnt) * 100) / 100 : null;
+  }
+  function livreSeries(horizon) { return MONTHS.map((_, t) => forwardAvg(t, horizon, "indexado")); }
+
+  const BE_DEF = [
+    { id: "verde", label: "Break-even · bandeira verde", data: BREAK_EVEN.verde, color: "var(--good)", width: 2 },
+    { id: "amarela", label: "Break-even · bandeira amarela", data: BREAK_EVEN.amarela, color: "var(--warning)", width: 2 },
+    { id: "vermelhaI", label: "Break-even · bandeira vermelha I", data: BREAK_EVEN.vermelhaI, color: "var(--serious)", width: 2 },
+    { id: "vermelhaII", label: "Break-even · bandeira vermelha II", data: BREAK_EVEN.vermelhaII, color: "var(--critical)", width: 2 },
+  ];
+  function cativoSeriesDef() {
+    const livre = livreSeries(cativoHorizon);
+    const vals = livre.filter(v => v != null); const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const media = new Array(MONTHS.length).fill(Math.round(mean * 100) / 100);
+    return [
+      { id: "livre", label: "Mercado livre (média " + cativoHorizon + "m)", data: livre, color: "var(--s1)", width: 2.6, area: true, endpoint: true, pulse: true },
+      { id: "media", label: "Média do período (" + cativoHorizon + "m)", data: media, color: "var(--text-muted)", width: 1.4, dash: "5 4" },
+      ...BE_DEF,
+    ];
+  }
+  function updateHorizonHint() {
+    const L = MONTHS.length - 1; const v = forwardAvg(L, cativoHorizon, "indexado");
+    document.getElementById("horizonHint").textContent = "de fornecimento · hoje (" + monthLabel(MONTHS[L]) + "): " + fmtBRL0(v);
+  }
+  function cativoAutoDomain() {
+    const base = cativoSeriesDef().map(s => ({ ...s, hidden: cativoHidden.has(s.id) }));
+    const { series } = sliceRange(MONTHS, base, cStart, cEnd);
+    let vals = [];
+    series.filter(s => !s.hidden).forEach(s => s.data.forEach(v => { if (v != null) vals.push(v); }));
+    if (!vals.length) vals = [0, 100];
+    const dmin = Math.min(...vals), dmax = Math.max(...vals);
+    const pad = (dmax - dmin) * 0.08 || dmax * 0.1 || 10;
+    const t = niceTicks(Math.max(0, dmin - pad), dmax + pad, 5);
+    return [t[0], t[t.length - 1]];
+  }
+  function drawCativo() {
+    const svg = document.getElementById("chartCativo");
+    const base = cativoSeriesDef().map(s => ({ ...s, hidden: cativoHidden.has(s.id) }));
+    const { months, series } = sliceRange(MONTHS, base, cStart, cEnd);
+    renderChart(svg, { months, series, yFmt: fmtBRL0, animate: cativoAnim, yDomain: cYManual,
+      currentDomain: () => cYManual || cativoAutoDomain(),
+      onYPan: dom => { cYManual = [Math.round(dom[0]), Math.round(dom[1])]; [...document.getElementById("cYScale").children].forEach(x => x.classList.remove("active")); drawCativo(); } });
+    cativoAnim = false;
+  }
+  function renderCativoChart() { drawCativo(); renderCativoLegend(); updateHorizonHint(); }
+  function renderCativoLegend() {
+    const box = document.getElementById("legendCativo"); box.innerHTML = "";
+    cativoSeriesDef().forEach(s => box.appendChild(legendItem(s.label, s.color, !!s.dash, cativoHidden.has(s.id),
+      () => { cativoHidden.has(s.id) ? cativoHidden.delete(s.id) : cativoHidden.add(s.id); renderCativoChart(); })));
+  }
+  const cStartSel = document.getElementById("cStartSel"), cEndSel = document.getElementById("cEndSel");
+  function syncCativoDates() { fillMonthSelect(cStartSel, cStart); fillMonthSelect(cEndSel, cEnd); }
+  syncCativoDates();
+  document.getElementById("cativoRange").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const count = +b.dataset.range; cEnd = MONTHS.length - 1; cStart = Math.max(0, MONTHS.length - count);
+    cativoAnim = true; [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b));
+    syncCativoDates(); renderCativoChart();
+  });
+  function onCativoDate() {
+    let a = +cStartSel.value, b = +cEndSel.value; if (a > b) { b = a; fillMonthSelect(cEndSel, b); }
+    cStart = a; cEnd = b; cativoAnim = true;
+    [...document.getElementById("cativoRange").children].forEach(x => x.classList.remove("active"));
+    renderCativoChart();
+  }
+  cStartSel.addEventListener("change", onCativoDate); cEndSel.addEventListener("change", onCativoDate);
+  document.getElementById("cYScale").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.y === "auto") { cYManual = null; }
+    else {
+      if (!cYManual) cYManual = cativoAutoDomain();
+      const c = (cYManual[0] + cYManual[1]) / 2; let half = (cYManual[1] - cYManual[0]) / 2;
+      half = b.dataset.y === "in" ? half * 0.8 : half / 0.8;
+      cYManual = [Math.max(0, Math.round(c - half)), Math.round(c + half)];
+    }
+    const grp = e.currentTarget; [...grp.children].forEach(x => x.classList.remove("active"));
+    (cYManual === null ? grp.querySelector('[data-y="auto"]') : b).classList.add("active");
+    cativoAnim = false; drawCativo();
+  });
+  document.getElementById("cativoHorizon").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; cativoHorizon = +b.dataset.h; cativoAnim = true;
+    [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderCativoChart();
+  });
+
+  // ── sparklines ───────────────────────────────────────────────────────────
+  function sparkline(svg, values, color, opts) {
+    opts = opts || {}; const w = opts.w || 320, h = opts.h || 44, p = opts.pad || 3;
+    const vals = values.filter(v => v != null); const min = Math.min(...vals), max = Math.max(...vals);
+    const n = values.length; const X = i => p + (i / (n - 1)) * (w - 2 * p);
+    const Y = v => (h - p) - ((v - min) / (max - min || 1)) * (h - 2 * p);
+    svg.innerHTML = ""; svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    const gid = "sg-" + svg.id;
+    const defs = el("defs", {}); const grad = el("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+    const s1 = el("stop", { offset: "0%" }); s1.setAttribute("style", "stop-color:" + color + ";stop-opacity:0.28");
+    const s2 = el("stop", { offset: "100%" }); s2.setAttribute("style", "stop-color:" + color + ";stop-opacity:0");
+    grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad); svg.appendChild(defs);
+    let line = "", area = "";
+    values.forEach((v, i) => { const cmd = i === 0 ? "M" : "L"; line += cmd + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " "; });
+    area = line + "L" + X(n - 1).toFixed(1) + " " + (h - p) + " L" + X(0).toFixed(1) + " " + (h - p) + " Z";
+    svg.appendChild(el("path", { d: area, fill: "url(#" + gid + ")", stroke: "none" }));
+    const lp = el("path", { d: line, fill: "none", stroke: color, "stroke-width": opts.sw || 2, "stroke-linecap": "round", "stroke-linejoin": "round" });
+    svg.appendChild(lp);
+    svg.appendChild(el("circle", { cx: X(n - 1), cy: Y(values[n - 1]), r: opts.dot || 2.6, fill: color }));
+    if (opts.animate && !prefersReduced) requestAnimationFrame(() => {
+      const len = lp.getTotalLength(); lp.style.strokeDasharray = len; lp.style.strokeDashoffset = len;
+      void lp.getBoundingClientRect(); lp.style.transition = "stroke-dashoffset 1s ease-out"; lp.style.strokeDashoffset = "0";
+    });
+  }
+
+  // ── count-up ─────────────────────────────────────────────────────────────
+  function countUp(node, target, fmt, dur) {
+    if (prefersReduced) { node.textContent = fmt(target); return; }
+    dur = dur || 850; const t0 = performance.now();
+    function step(t) { const p = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - p, 3); node.textContent = fmt(target * e); if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+
+  // ── hero + kpis ──────────────────────────────────────────────────────────
+  function deltaBadge(node, curr, prev, opts) {
+    opts = opts || {}; const betterWhenUp = !!opts.betterWhenUp;
+    const d = curr - prev; const pct = prev ? (d / prev) * 100 : 0;
+    const isGood = betterWhenUp ? d >= 0 : d <= 0;
+    node.className = "delta " + (isGood ? "down" : "up"); // down class = green, up class = red
+    const arrow = d >= 0 ? "▲" : "▼";
+    node.textContent = arrow + " " + (opts.unit === "pp" ? Math.abs(Math.round(d * 100)) + " p.p." : (Math.abs(d) < 10 ? Math.abs(d).toFixed(1) : Math.round(Math.abs(d))) + " (" + (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + "%)");
+  }
+  (function initReadouts() {
+    const L = MERCADO_LIVRE.length - 1;
+    countUp(document.getElementById("heroVal"), MERCADO_LIVRE[L], v => Math.round(v).toLocaleString("pt-BR"));
+    deltaBadge(document.getElementById("heroDelta"), MERCADO_LIVRE[L], MERCADO_LIVRE[L - 1], { betterWhenUp: false });
+    sparkline(document.getElementById("heroSpark"), MERCADO_LIVRE.slice(-24), "var(--brand)", { w: 320, h: 44, sw: 2.2, dot: 3, animate: true });
+    document.getElementById("sparkStart").textContent = monthLabel(MONTHS[MONTHS.length - 24]);
+
+    countUp(document.getElementById("kpiEcon"), PCT_ECONOMIA[L], v => Math.round(v * 100) + "%");
+    deltaBadge(document.getElementById("kpiEconDelta"), PCT_ECONOMIA[L], PCT_ECONOMIA[L - 12], { unit: "pp", betterWhenUp: true });
+    sparkline(document.getElementById("kpiSparkEcon"), PCT_ECONOMIA.slice(-24), "var(--brand)", { w: 78, h: 30, pad: 2, sw: 1.6, dot: 2, animate: true });
+
+    countUp(document.getElementById("kpiBreak"), BREAK_EVEN.verde[L], v => "R$ " + Math.round(v).toLocaleString("pt-BR"));
+
+    const activeYears = Object.keys(YEARS).filter(y => YEARS[y].active);
+    const lastVals = activeYears.map(y => YEARS[y].indexado[L]).filter(v => v != null);
+    const lo = Math.min(...lastVals), hi = Math.max(...lastVals);
+    document.getElementById("kpiFaixa").textContent = "R$ " + Math.round(lo) + " – " + Math.round(hi);
+  })();
+
+  // ── DATA EXPLORER ──────────────────────────────────────────────────────────
+  let explMode = "indexado", explPeriod = 12;
+  const YEAR_KEYS = Object.keys(YEARS);
+  const EXTRA_COLS = [
+    { id: "livre", label: "Mercado livre · 60m", tag: "var(--s1)", get: i => MERCADO_LIVRE[i], fmt: fmtNum2 },
+    { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
+    { id: "beVerde", label: "Break-even verde", tag: "var(--good)", get: i => BREAK_EVEN.verde[i], fmt: fmtNum2 },
+    { id: "beAmarela", label: "Break-even amarela", tag: "var(--warning)", get: i => BREAK_EVEN.amarela[i], fmt: fmtNum2 },
+    { id: "beVermI", label: "Break-even vermelha I", tag: "var(--serious)", get: i => BREAK_EVEN.vermelhaI[i], fmt: fmtNum2 },
+    { id: "beVermII", label: "Break-even vermelha II", tag: "var(--critical)", get: i => BREAK_EVEN.vermelhaII[i], fmt: fmtNum2 },
+    { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
+  ];
+  const selYears = new Set(["2026", "2027", "2028", "2029"]);
+  const selExtras = new Set(["livre", "beVerde", "economia"]);
+  const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
+
+  function buildExplControls() {
+    const pBox = document.getElementById("explPeriod"); pBox.innerHTML = "";
+    PERIODS.forEach(p => {
+      const c = document.createElement("span"); c.className = "chip" + (explPeriod === p.v ? " on" : ""); c.textContent = p.l;
+      c.addEventListener("click", () => { explPeriod = p.v; buildExplControls(); renderExplorer(); });
+      pBox.appendChild(c);
+    });
+    const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
+    YEAR_KEYS.forEach(y => {
+      const on = selYears.has(y); const active = YEARS[y].active;
+      const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
+      c.innerHTML = '<span class="check">' + (on ? "✓" : "") + "</span>" + y + (active ? "" : " ·");
+      c.title = active ? "Em negociação" : "Ano encerrado";
+      c.addEventListener("click", () => { on ? selYears.delete(y) : selYears.add(y); buildExplControls(); renderExplorer(); });
+      yBox.appendChild(c);
+    });
+    const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
+    EXTRA_COLS.forEach(col => {
+      const on = selExtras.has(col.id);
+      const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
+      c.innerHTML = '<span class="tag" style="background:' + col.tag + '"></span>' + col.label;
+      c.addEventListener("click", () => { on ? selExtras.delete(col.id) : selExtras.add(col.id); buildExplControls(); renderExplorer(); });
+      eBox.appendChild(c);
+    });
+  }
+
+  function explColumns() {
+    const cols = [];
+    YEAR_KEYS.filter(y => selYears.has(y)).forEach(y => cols.push({
+      key: y, label: y, tag: YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)",
+      get: i => YEARS[y][explMode][i], fmt: fmtNum2
+    }));
+    EXTRA_COLS.filter(c => selExtras.has(c.id)).forEach(c => cols.push({ key: c.id, label: c.label, tag: c.tag, get: c.get, fmt: c.fmt }));
+    return cols;
+  }
+  // ordem crescente: do mês mais antigo (dentro do período) para o mais recente
+  function explRows() { const start = Math.max(0, MONTHS.length - explPeriod); const idx = []; for (let i = start; i < MONTHS.length; i++) idx.push(i); return idx; }
+
+  const colWidths = {};              // larguras escolhidas, preservadas entre re-renders
+  const COL_MIN = 60, COL_MAX = 340; // trava: nunca menor/maior que isto (não escapa do card)
+  const DEFAULT_W = { mes: 88 };
+  function defaultWidth(key) { return colWidths[key] || DEFAULT_W[key] || 118; }
+  function clampW(w) { return Math.max(COL_MIN, Math.min(COL_MAX, w)); }
+  function makeResizable(table) {
+    const ths = [...table.querySelectorAll("thead th")];
+    table.classList.add("resizable");
+    // larguras-padrão fixas (não medimos o layout esticado, que gerava colunas gigantes)
+    ths.forEach(th => { const key = th.dataset.col; const w = clampW(defaultWidth(key)); colWidths[key] = w; th.style.width = w + "px"; });
+    function syncTableWidth() { table.style.width = ths.reduce((a, th) => a + parseFloat(th.style.width || 0), 0) + "px"; }
+    syncTableWidth();
+    ths.forEach(th => {
+      const handle = document.createElement("span"); handle.className = "col-resize"; th.appendChild(handle);
+      handle.addEventListener("mousedown", e => {
+        e.preventDefault(); e.stopPropagation(); handle.classList.add("dragging");
+        const startX = e.clientX, startW = parseFloat(th.style.width);
+        const move = ev => { const w = clampW(startW + ev.clientX - startX); th.style.width = w + "px"; colWidths[th.dataset.col] = w; syncTableWidth(); };
+        const up = () => { handle.classList.remove("dragging"); document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); document.body.style.cursor = ""; };
+        document.addEventListener("mousemove", move); document.addEventListener("mouseup", up); document.body.style.cursor = "col-resize";
+      });
+    });
+  }
+
+  function renderExplorer() {
+    const cols = explColumns(); const rowIdx = explRows(); const host = document.getElementById("explTable");
+    document.getElementById("explCount").textContent = cols.length + " coluna" + (cols.length !== 1 ? "s" : "") + " · " + rowIdx.length + " meses";
+    if (!cols.length) { host.innerHTML = '<div class="empty-state">Selecione ao menos uma coluna acima para montar a tabela.</div>'; return; }
+    let head = '<tr><th data-col="mes">Mês</th>' + cols.map(c => '<th data-col="' + c.key + '">' + c.label + '<span class="th-tag" style="background:' + c.tag + '"></span></th>').join("") + "</tr>";
+    let body = "";
+    rowIdx.forEach(i => {
+      body += "<tr><td>" + monthLabel(MONTHS[i]) + "</td>" + cols.map(c => { const v = c.get(i); return "<td>" + (v == null ? "—" : c.fmt(v)) + "</td>"; }).join("") + "</tr>";
+    });
+    host.innerHTML = '<table class="data-table"><thead>' + head + "</thead><tbody>" + body + "</tbody></table>";
+    makeResizable(host.querySelector("table"));
+  }
+
+  document.getElementById("explMode").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; explMode = b.dataset.mode;
+    [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
+  });
+  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); EXTRA_COLS.forEach(c => selExtras.add(c.id)); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); selExtras.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explCsv").addEventListener("click", () => {
+    const cols = explColumns(); const rowIdx = explRows();
+    const header = ["Mes"].concat(cols.map(c => c.label + (YEAR_KEYS.includes(c.key) ? " (" + explMode + ")" : "")));
+    const lines = [header.join(";")];
+    rowIdx.forEach(i => { lines.push([MONTHS[i]].concat(cols.map(c => { const v = c.get(i); return v == null ? "" : String(v).replace(".", ","); })).join(";")); });
+    const uri = "data:text/csv;charset=utf-8," + encodeURIComponent("﻿" + lines.join("\n"));
+    const a = document.createElement("a"); a.href = uri; a.download = "cmf-precos-energia.csv"; document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // ── theme ────────────────────────────────────────────────────────────────
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const root = document.documentElement; const isDark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", isDark ? "light" : "dark");
+    document.getElementById("themeIcon").textContent = isDark ? "🌙" : "☀️";
+    document.getElementById("themeLabel").textContent = isDark ? "Escuro" : "Claro";
+    document.body.dataset.mode = isDark ? "light" : "dark";
+    renderVintageChart(); renderCativoChart();
+    sparkline(document.getElementById("heroSpark"), MERCADO_LIVRE.slice(-24), "var(--brand)", { w: 320, h: 44, sw: 2.2, dot: 3 });
+    sparkline(document.getElementById("kpiSparkEcon"), PCT_ECONOMIA.slice(-24), "var(--brand)", { w: 78, h: 30, pad: 2, sw: 1.6, dot: 2 });
+  });
+
+  // ── init ─────────────────────────────────────────────────────────────────
+  buildVintageOverlayControls();
+  renderVintageChart();
+  renderCativoChart();
+  buildExplControls();
+  renderExplorer();
+  document.documentElement.setAttribute("data-theme", "light");
+</script>
+
+<!-- Validação computável da paleta categórica (skill de dataviz) — roda no console -->
+<script>
+  document.body.dataset.palette = "#2a78d6,#1baf7a,#eda100,#008300,#4a3aa7,#e34948";
+  document.body.dataset.mode = "light";
+  document.body.dataset.pairs = "adjacent";
+</script>
+<script type="module">
+const BAND = { light: [0.43, 0.77], dark: [0.48, 0.67] };
+const CHROMA_FLOOR = 0.10; const CVD_TARGET = 12.0, CVD_FLOOR = 8.0; const CONTRAST_MIN = 3.0;
+const DEFAULT_SURFACE = { light: "#fcfcfb", dark: "#1a1a19" };
+const MACHADO = {
+  protan: [[0.152286, 1.052583, -0.204868],[0.114503, 0.786281, 0.099216],[-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968],[0.280085, 0.672501, 0.047413],[-0.011820, 0.042940, 0.968881]],
+};
+const hex2srgb = (h) => { h = h.trim().replace(/^#/, ""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255); };
+const s2lin = (c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+const lin = (h) => hex2srgb(h).map(s2lin);
+const relLum = (h) => { const [r, g, b] = lin(h); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+function localContrast(a, b) { const [hi, lo] = [relLum(a), relLum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); }
+function oklab(h) { const [r, g, b] = lin(h);
+  const l = Math.cbrt(0.4122214708*r+0.5363325363*g+0.0514459929*b), m = Math.cbrt(0.2119034982*r+0.6806995451*g+0.1073969566*b), s = Math.cbrt(0.0883024619*r+0.2817188376*g+0.6299787005*b);
+  return [0.2104542553*l+0.7936177850*m-0.0040720468*s, 1.9779984951*l-2.4285922050*m+0.4505937099*s, 0.0259040371*l+0.7827717662*m-0.8086757660*s]; }
+const oklch = (h) => { const [L, a, b] = oklab(h); return [L, Math.hypot(a, b)]; };
+function lin2lab(r, g, b) { const X=0.4124564*r+0.3575761*g+0.1804375*b, Y=0.2126729*r+0.7151522*g+0.0721750*b, Z=0.0193339*r+0.1191920*g+0.9503041*b;
+  const f = (t) => t > 0.008856 ? Math.cbrt(t) : 7.787*t+16/116; const [fx,fy,fz]=[f(X/0.95047),f(Y/1.0),f(Z/1.08883)]; return [116*fy-16,500*(fx-fy),200*(fy-fz)]; }
+function simulate(h, kind) { const [r,g,b]=lin(h), M=MACHADO[kind]; const c=(x)=>Math.max(0,Math.min(1,x)); return [c(M[0][0]*r+M[0][1]*g+M[0][2]*b),c(M[1][0]*r+M[1][1]*g+M[1][2]*b),c(M[2][0]*r+M[2][1]*g+M[2][2]*b)]; }
+function deltaE(h1, h2, kind) { const a=lin2lab(...(kind?simulate(h1,kind):lin(h1))), b=lin2lab(...(kind?simulate(h2,kind):lin(h2))); return Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]); }
+function validate(palette, { mode="light", surface } = {}) {
+  surface ??= DEFAULT_SURFACE[mode]; const [lo,hi]=BAND[mode]; const report=[]; let ok=true;
+  const offband = palette.filter(c=>{const L=oklch(c)[0];return L<lo||L>hi;}).map(c=>[c,+oklch(c)[0].toFixed(3)]); if (offband.length) ok=false;
+  report.push(["Lightness band", !offband.length, offband.length?"fora: "+JSON.stringify(offband):"todas em L "+lo+"–"+hi]);
+  const lowc = palette.filter(c=>oklch(c)[1]<CHROMA_FLOOR).map(c=>[c,+oklch(c)[1].toFixed(3)]); if (lowc.length) ok=false;
+  report.push(["Chroma floor", !lowc.length, lowc.length?"abaixo: "+JSON.stringify(lowc):"todas >= "+CHROMA_FLOOR]);
+  const n=palette.length; const pairlist=Array.from({length:n-1},(_,i)=>[i,i+1]); let worst=null;
+  for (const kind of ["protan","deutan"]) for (const [i,j] of pairlist){const d=deltaE(palette[i],palette[j],kind); if(worst===null||d<worst[0]) worst=[d,kind,palette[i],palette[j]];}
+  const wd=worst?worst[0]:99; const st=wd>=CVD_TARGET?"pass":wd>=CVD_FLOOR?"floor":"fail"; if(st==="fail") ok=false;
+  report.push(["CVD separation", st, worst?"pior adj "+worst[3]+"↔"+worst[2]+" ΔE "+wd.toFixed(1)+" ("+worst[1]+")":"n/a"]);
+  const low=palette.filter(c=>localContrast(c,surface)<CONTRAST_MIN).map(c=>[c,+localContrast(c,surface).toFixed(2)]);
+  report.push(["Contrast vs surface", low.length?"relief":"pass", low.length?"< "+CONTRAST_MIN+":1 — direct labels/tabela: "+JSON.stringify(low):"todas >= "+CONTRAST_MIN+":1"]);
+  return { report, ok };
+}
+const GLYPH = { true:"PASS", false:"FAIL", pass:"PASS", floor:"WARN", fail:"FAIL", relief:"WARN" };
+const b = document.body;
+if (b?.dataset.palette) {
+  const palette = b.dataset.palette.split(",").map(s=>s.trim()).filter(Boolean);
+  const result = validate(palette, { mode: b.dataset.mode || "light" });
+  console.log("Validação da paleta categórica (anos-safra ativos):");
+  console.table(result.report.map(([name,state,detail])=>({ check:name, result:GLYPH[state]??state, detail })));
+  console.log(result.ok ? "validate_palette: TODAS AS CHECAGENS PASSARAM" : "validate_palette: revisar itens marcados");
+}
+</script>
