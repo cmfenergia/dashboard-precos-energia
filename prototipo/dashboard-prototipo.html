@@ -1213,6 +1213,8 @@
         + summary() + '<span class="dd-caret">▾</span>';
     }
     function refreshChecks() {
+      panel.querySelector('[data-row="off"] .check').textContent = beSel.size === 0 ? "✓" : "";
+      panel.querySelector('[data-row="off"]').classList.toggle("on", beSel.size === 0);
       const all = beSel.size === BE_BANDS.length;
       panel.querySelector('[data-row="all"] .check').textContent = all ? "✓" : "";
       panel.querySelector('[data-row="all"]').classList.toggle("on", all);
@@ -1224,11 +1226,15 @@
       });
     }
 
-    // linha "Todas as bandeiras"
+    // linha "Não mostrar" (limpa a seleção) + "Todas as bandeiras" (marca todas)
+    const offRow = document.createElement("div"); offRow.className = "dd-row"; offRow.dataset.row = "off";
+    offRow.innerHTML = '<span class="check"></span><span class="dd-label">Não mostrar</span>';
+    offRow.addEventListener("click", () => { beSel.clear(); refreshBtn(); refreshChecks(); renderExplorer(); });
+    panel.appendChild(offRow);
     const allRow = document.createElement("div"); allRow.className = "dd-row"; allRow.dataset.row = "all";
     allRow.innerHTML = '<span class="check"></span><span class="dd-label">Todas as bandeiras</span>';
     allRow.addEventListener("click", () => {
-      if (beSel.size === BE_BANDS.length) beSel.clear(); else BE_BANDS.forEach(b => beSel.add(b.band));
+      BE_BANDS.forEach(b => beSel.add(b.band));
       refreshBtn(); refreshChecks(); renderExplorer();
     });
     panel.appendChild(allRow);
@@ -1279,6 +1285,8 @@
         + summary() + '<span class="dd-caret">▾</span>';
     }
     function refreshChecks() {
+      panel.querySelector('[data-row="off"] .check').textContent = selYears.size === 0 ? "✓" : "";
+      panel.querySelector('[data-row="off"]').classList.toggle("on", selYears.size === 0);
       const all = selYears.size === YEAR_KEYS.length;
       panel.querySelector('[data-row="all"] .check').textContent = all ? "✓" : "";
       panel.querySelector('[data-row="all"]').classList.toggle("on", all);
@@ -1290,11 +1298,15 @@
       });
     }
 
-    // linha "Todos os anos"
+    // linha "Não mostrar" (limpa a seleção) + "Todos os anos" (marca todos)
+    const offRow = document.createElement("div"); offRow.className = "dd-row"; offRow.dataset.row = "off";
+    offRow.innerHTML = '<span class="check"></span><span class="dd-label">Não mostrar</span>';
+    offRow.addEventListener("click", () => { selYears.clear(); refreshBtn(); refreshChecks(); renderExplorer(); });
+    panel.appendChild(offRow);
     const allRow = document.createElement("div"); allRow.className = "dd-row"; allRow.dataset.row = "all";
     allRow.innerHTML = '<span class="check"></span><span class="dd-label">Todos os anos</span>';
     allRow.addEventListener("click", () => {
-      if (selYears.size === YEAR_KEYS.length) selYears.clear(); else YEAR_KEYS.forEach(y => selYears.add(y));
+      YEAR_KEYS.forEach(y => selYears.add(y));
       refreshBtn(); refreshChecks(); renderExplorer();
     });
     panel.appendChild(allRow);
