@@ -197,6 +197,41 @@
   .dd-row.on .check { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
   .dd-label { flex: 1; }
   .dd-sep { height: 1px; background: var(--border); margin: 3px 4px; }
+
+  /* Seletor de mês/ano (Data de fechamento / Data-base) */
+  .mp { position: relative; display: inline-flex; }
+  .mp-btn { display: inline-flex; align-items: center; gap: 7px; font-family: system-ui, sans-serif;
+    font-size: 12.5px; font-weight: 600; color: var(--text-secondary); background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; min-height: 32px; }
+  .mp-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .mp-btn.has-val { color: var(--text-primary); }
+  .mp-btn .mp-cal { display: inline-flex; color: var(--text-muted); flex-shrink: 0; }
+  .mp-btn.has-val .mp-cal { color: var(--brand); }
+  .mp-btn .mp-val { font-variant-numeric: tabular-nums; }
+  .mp-btn .mp-ph { color: var(--text-muted); font-weight: 500; }
+  .mp-btn .mp-caret { font-size: 9px; opacity: 0.7; margin-left: 1px; }
+  .mp-panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 45; width: 236px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18); }
+  .mp-panel.hidden { display: none; }
+  .mp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .mp-year { font-size: 14px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+  .mp-nav { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); color: var(--text-secondary);
+    font-size: 15px; cursor: pointer; line-height: 1; }
+  .mp-nav:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
+  .mp-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+  .mp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .mp-cell { padding: 8px 0; border: 1px solid transparent; border-radius: 8px; background: var(--panel-2);
+    color: var(--text-secondary); font-size: 12.5px; font-weight: 600; cursor: pointer; text-transform: capitalize;
+    font-variant-numeric: tabular-nums; }
+  .mp-cell:hover:not(:disabled):not(.sel) { border-color: var(--border-strong); color: var(--text-primary); }
+  .mp-cell.sel { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .mp-cell:disabled { opacity: 0.3; cursor: not-allowed; }
+  .mp-foot { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .mp-clear { border: none; background: none; color: var(--text-muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; padding: 2px 4px; }
+  .mp-clear:hover { color: var(--brand); }
   .expl-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .expl-actions .count { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
 
@@ -519,9 +554,9 @@
       </div>
       <div class="head-controls" style="margin-bottom:12px; gap:8px 16px">
         <span class="ctrl-mini">Data de fechamento</span>
-        <input class="date-select" type="date" id="simClose" min="2022-01-01" max="2026-06-30" aria-label="Data de fechamento do contrato">
+        <span id="simClose"></span>
         <span class="ctrl-mini" style="margin-left:6px">Data-base <span style="text-transform:none;font-weight:500">(opcional)</span></span>
-        <input class="date-select" type="month" id="simBaseInput" min="2022-01" max="2026-06" aria-label="Data-base do contrato (opcional)">
+        <span id="simBaseInput"></span>
         <span class="ctrl-mini" id="simBaseHint" style="margin-left:2px"></span>
       </div>
       <div class="sim-rows-head">
@@ -623,6 +658,8 @@
   // ── helpers ──────────────────────────────────────────────────────────────
   const MESES_PT = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   function monthLabel(ym) { const [y, m] = ym.split("-"); return MESES_PT[+m - 1] + "/" + y.slice(2); }
+  // "AAAA-MM" -> "Jan 2023" (rótulo amigável do seletor de mês)
+  function monthTitle(ym) { const [y, m] = ym.split("-"); const s = MESES_PT[+m - 1]; return s[0].toUpperCase() + s.slice(1) + " " + y; }
   function fmtBRL0(v) { return "R$ " + Math.round(v).toLocaleString("pt-BR"); }
   function fmtBRL2(v) { return "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function fmtNum2(v) { return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -1328,6 +1365,9 @@
   // ── Simulador: meu contrato × mercado ───────────────────────────────────
   let simMode = "indexado";
   let simBaseIdx = MONTHS.length - 1;
+  const SIM_MIN = MONTHS[0], SIM_MAX = MONTHS[MONTHS.length - 1]; // faixa com dados reais
+  let simCloseYM = "";  // "AAAA-MM" — vazio ⇒ herda a data-base
+  let simBaseYM = "";   // "AAAA-MM" — vazio ⇒ mês atual (último da amostra)
   const SIM_COLORS = { 2022: "var(--s4)", 2023: "var(--s5)", 2024: "var(--s6)", 2025: "var(--s3)", 2026: "var(--s1)", 2027: "var(--s2)", 2028: "var(--s3)", 2029: "var(--s4)", 2030: "var(--s5)", 2031: "var(--s6)" };
   const SIM_YEAR_KEYS = Object.keys(YEARS);
 
@@ -1398,13 +1438,13 @@
   }
 
   function renderSim() {
-    const closeVal = document.getElementById("simClose").value;     // "AAAA-MM-DD" ou ""
-    const baseVal = document.getElementById("simBaseInput").value;  // "AAAA-MM" ou ""
-    const baseYM = baseVal || (closeVal ? closeVal.slice(0, 7) : MONTHS[MONTHS.length - 1]);
+    // Data de fechamento em branco ⇒ assume a data-base informada pelo cliente.
+    const closeYM = simCloseYM || simBaseYM || "";
+    const baseYM = simBaseYM || simCloseYM || MONTHS[MONTHS.length - 1];
     simBaseIdx = clampMonthIdx(baseYM);
-    const closeIdx = closeVal ? clampMonthIdx(closeVal.slice(0, 7)) : null;
+    const closeIdx = closeYM ? clampMonthIdx(closeYM) : null;
     const factor = ipcaFactor(simBaseIdx);
-    const baseSrc = baseVal ? "informada" : (closeVal ? "1º dia do mês do fechamento" : "mês atual");
+    const baseSrc = simBaseYM ? "informada" : (simCloseYM ? "mês do fechamento" : "mês atual");
     document.getElementById("simBaseHint").textContent =
       "base " + monthLabel(MONTHS[simBaseIdx]) + " · " + baseSrc +
       (simMode === "indexado" ? " · IPCA acumulado da data-base até hoje: +" + ((factor - 1) * 100).toFixed(1).replace(".", ",") + "%" : "");
@@ -1507,10 +1547,85 @@
     note.innerHTML = "Um gráfico por ano do seu contrato. Linha cheia = preço de mercado daquele ano, mês a mês · tracejada = seu contrato" + (simMode === "indexado" ? " (corrigido pelo IPCA)" : "") + ", a partir da data de fechamento · pontilhada cinza = média histórica do ano. A linha vertical laranja marca a data de fechamento. Onde a linha cheia fica <b>abaixo</b> da tracejada, o mercado hoje está mais barato que o seu contrato.";
   }
 
-  document.getElementById("simClose").addEventListener("input", renderSim);
-  document.getElementById("simClose").addEventListener("change", renderSim);
-  document.getElementById("simBaseInput").addEventListener("input", renderSim);
-  document.getElementById("simBaseInput").addEventListener("change", renderSim);
+  // ── Seletor de mês/ano: o campo inteiro abre o calendário (não só um ícone) ──
+  let closePicker, basePicker;
+  function syncPickers() { if (closePicker) closePicker.refresh(); if (basePicker) basePicker.refresh(); renderSim(); }
+
+  function makeMonthPicker(hostId, opts) {
+    // opts: get()->"AAAA-MM"|"", set(ym), placeholder()->texto, defaultYear
+    const host = document.getElementById(hostId);
+    const wrap = document.createElement("span"); wrap.className = "mp";
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "mp-btn";
+    const panel = document.createElement("div"); panel.className = "mp-panel hidden";
+    const minY = +SIM_MIN.slice(0, 4), maxY = +SIM_MAX.slice(0, 4);
+    let viewYear = maxY;
+    const CAL = '<svg class="mp-cal" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>';
+
+    function refresh() {
+      const ym = opts.get();
+      btn.classList.toggle("has-val", !!ym);
+      btn.innerHTML = CAL + (ym
+        ? '<span class="mp-val">' + monthTitle(ym) + "</span>"
+        : '<span class="mp-ph">' + opts.placeholder() + "</span>") + '<span class="mp-caret">▾</span>';
+    }
+
+    const head = document.createElement("div"); head.className = "mp-head";
+    const prev = document.createElement("button"); prev.type = "button"; prev.className = "mp-nav"; prev.textContent = "‹"; prev.setAttribute("aria-label", "Ano anterior");
+    const yLbl = document.createElement("span"); yLbl.className = "mp-year";
+    const next = document.createElement("button"); next.type = "button"; next.className = "mp-nav"; next.textContent = "›"; next.setAttribute("aria-label", "Próximo ano");
+    head.appendChild(prev); head.appendChild(yLbl); head.appendChild(next);
+    const grid = document.createElement("div"); grid.className = "mp-grid";
+    const foot = document.createElement("div"); foot.className = "mp-foot";
+    const clear = document.createElement("button"); clear.type = "button"; clear.className = "mp-clear"; clear.textContent = "Limpar";
+    foot.appendChild(clear);
+    panel.appendChild(head); panel.appendChild(grid); panel.appendChild(foot);
+
+    function drawGrid() {
+      yLbl.textContent = viewYear;
+      prev.disabled = viewYear <= minY; next.disabled = viewYear >= maxY;
+      grid.innerHTML = "";
+      const cur = opts.get();
+      for (let m = 1; m <= 12; m++) {
+        const ym = viewYear + "-" + String(m).padStart(2, "0");
+        const cell = document.createElement("button"); cell.type = "button"; cell.className = "mp-cell";
+        cell.textContent = MESES_PT[m - 1];
+        if (ym < SIM_MIN || ym > SIM_MAX) cell.disabled = true;
+        if (ym === cur) cell.classList.add("sel");
+        cell.addEventListener("click", () => { opts.set(ym); syncPickers(); close(); });
+        grid.appendChild(cell);
+      }
+    }
+    prev.addEventListener("click", () => { if (viewYear > minY) { viewYear--; drawGrid(); } });
+    next.addEventListener("click", () => { if (viewYear < maxY) { viewYear++; drawGrid(); } });
+    clear.addEventListener("click", () => { opts.set(""); syncPickers(); close(); });
+
+    function onOutside(e) { if (!wrap.contains(e.target)) close(); }
+    function close() { panel.classList.add("hidden"); document.removeEventListener("mousedown", onOutside); }
+    function open() {
+      const cur = opts.get();
+      viewYear = cur ? +cur.slice(0, 4) : (opts.defaultYear ? opts.defaultYear() : maxY);
+      viewYear = Math.max(minY, Math.min(maxY, viewYear));
+      drawGrid(); panel.classList.remove("hidden");
+      setTimeout(() => document.addEventListener("mousedown", onOutside), 0);
+    }
+    btn.addEventListener("click", () => { panel.classList.contains("hidden") ? open() : close(); });
+
+    refresh();
+    wrap.appendChild(btn); wrap.appendChild(panel); host.appendChild(wrap);
+    return { refresh };
+  }
+
+  closePicker = makeMonthPicker("simClose", {
+    get: () => simCloseYM,
+    set: ym => { simCloseYM = ym; },
+    placeholder: () => "= data-base (" + monthTitle(simBaseYM || MONTHS[MONTHS.length - 1]) + ")",
+    defaultYear: () => +(simBaseYM || MONTHS[MONTHS.length - 1]).slice(0, 4),
+  });
+  basePicker = makeMonthPicker("simBaseInput", {
+    get: () => simBaseYM,
+    set: ym => { simBaseYM = ym; },
+    placeholder: () => "Mês atual (" + monthTitle(MONTHS[MONTHS.length - 1]) + ")",
+  });
   document.getElementById("simMode").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return; simMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderSim();
