@@ -1157,9 +1157,15 @@
     { band: "vermelhaII", label: "Vermelha II", tag: "var(--critical)" },
   ];
   const beSel = new Set(["verde"]);
+  // Média histórica: média do preço de um ano de fornecimento escolhido, ao longo
+  // de todo o período (mesma conta do gráfico principal). Seletor de ano + on/off.
+  const hist = { on: false, year: "2026" };
+  function histMean(y) {
+    const vals = YEARS[y][explMode].filter(v => v != null);
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  }
   // Colunas simples restantes (chip liga/desliga direto).
   const STD_COLS = [
-    { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
@@ -1178,7 +1184,14 @@
     }));
     // grupo 2 — break-even (várias bandeiras via checklist num único seletor)
     eBox.appendChild(makeBeDropdown());
-    // colunas simples restantes (média histórica, % economia)
+    // grupo 3 — média histórica de um ano de fornecimento escolhido
+    eBox.appendChild(makeExplGroup({
+      on: hist.on, tag: "var(--text-muted)", label: "Média histórica",
+      options: YEAR_KEYS.map(y => ({ v: y, l: y + (YEARS[y].active ? "" : " · encerrado") })), value: hist.year,
+      toggle: () => { hist.on = !hist.on; },
+      pick: v => { hist.year = v; hist.on = true; },
+    }));
+    // colunas simples restantes (% economia)
     STD_COLS.forEach(col => {
       const on = selStd.has(col.id);
       const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
@@ -1352,6 +1365,12 @@
       key: "be_" + b.band, label: "Break-even " + b.label, tag: b.tag,
       get: i => BREAK_EVEN[explMode][b.band][i], fmt: fmtNum2, md: true
     }));
+    if (hist.on) {
+      const m = histMean(hist.year);
+      cols.push({ key: "hist" + hist.year, label: "Média histórica " + hist.year,
+        tag: YEARS[hist.year].active ? VINTAGE_COLORS[hist.year] : "var(--text-muted)",
+        get: () => m, fmt: fmtNum2, md: true });
+    }
     STD_COLS.filter(c => selStd.has(c.id)).forEach(c => cols.push({ key: c.id, label: c.label, tag: c.tag, get: c.get, fmt: c.fmt }));
     return cols;
   }
@@ -1399,8 +1418,8 @@
     const b = e.target.closest("button"); if (!b) return; explMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
   });
-  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
-  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); selStd.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); hist.on = true; STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); hist.on = false; selStd.clear(); buildExplControls(); renderExplorer(); });
   document.getElementById("explCsv").addEventListener("click", () => {
     const cols = explColumns(); const rowIdx = explRows();
     const header = ["Mes"].concat(cols.map(c => c.label + (c.md ? " (" + explMode + ")" : "")));
