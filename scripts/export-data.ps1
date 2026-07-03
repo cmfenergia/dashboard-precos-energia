@@ -84,19 +84,22 @@ try {
 
     $avg60mIndexado = @()
     $avg60mHistorico = @()
-    $breakEvenVerde = @()
-    $breakEvenAmarela = @()
-    $breakEvenVermelhaI = @()
-    $breakEvenVermelhaII = @()
+    # break-even nominal = aba Forward AD:AG  |  indexado (IPCA) = aba Atac-I50 AE:AH
+    $beNomVerde = @();  $beNomAmarela = @();  $beNomVermelhaI = @();  $beNomVermelhaII = @()
+    $beIdxVerde = @();  $beIdxAmarela = @();  $beIdxVermelhaI = @();  $beIdxVermelhaII = @()
     $pctEconomia = @()
 
     for ($r = $firstRow; $r -le $lastRow; $r++) {
         $avg60mIndexado += (Get-Num $wsA "Y" $r)
         $avg60mHistorico += (Get-Num $wsA "Z" $r)
-        $breakEvenVerde += (Get-Num $wsA "AE" $r)
-        $breakEvenAmarela += (Get-Num $wsA "AF" $r)
-        $breakEvenVermelhaI += (Get-Num $wsA "AG" $r)
-        $breakEvenVermelhaII += (Get-Num $wsA "AH" $r)
+        $beNomVerde     += (Get-Num $wsF "AD" $r)
+        $beNomAmarela   += (Get-Num $wsF "AE" $r)
+        $beNomVermelhaI += (Get-Num $wsF "AF" $r)
+        $beNomVermelhaII+= (Get-Num $wsF "AG" $r)
+        $beIdxVerde     += (Get-Num $wsA "AE" $r)
+        $beIdxAmarela   += (Get-Num $wsA "AF" $r)
+        $beIdxVermelhaI += (Get-Num $wsA "AG" $r)
+        $beIdxVermelhaII+= (Get-Num $wsA "AH" $r)
         $pctEconomia += (Get-Num $wsA "AJ" $r)
     }
 
@@ -110,10 +113,18 @@ try {
             mediaHistorica60m = $avg60mHistorico
         }
         breakEven = [ordered]@{
-            verde = $breakEvenVerde
-            amarela = $breakEvenAmarela
-            vermelhaI = $breakEvenVermelhaI
-            vermelhaII = $breakEvenVermelhaII
+            nominal = [ordered]@{
+                verde = $beNomVerde
+                amarela = $beNomAmarela
+                vermelhaI = $beNomVermelhaI
+                vermelhaII = $beNomVermelhaII
+            }
+            indexado = [ordered]@{
+                verde = $beIdxVerde
+                amarela = $beIdxAmarela
+                vermelhaI = $beIdxVermelhaI
+                vermelhaII = $beIdxVermelhaII
+            }
         }
         percentualEconomia = $pctEconomia
     }

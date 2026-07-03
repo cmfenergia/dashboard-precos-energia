@@ -236,7 +236,11 @@
   .nav-sim { background: var(--brand); color: var(--brand-ink); border-color: transparent; font-weight: 700; }
   .nav-sim:hover { color: var(--brand-ink); border-color: transparent; filter: brightness(1.06); }
   .sim-head { margin-bottom: 14px; }
-  .sim-hero { grid-template-columns: 1fr; }
+  .sim-hero { grid-template-columns: 1fr; text-align: center; padding: 36px 26px; }
+  .sim-hero .hero-left { max-width: 780px; margin: 0 auto; }
+  .sim-hero h1 { max-width: none; font-size: clamp(26px, 4vw, 40px); margin: 14px 0 12px; }
+  .sim-hero p { max-width: 62ch; margin: 0 auto; font-size: 14.5px; }
+  .sim-hero::before { -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent); mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent); }
   input.date-select { color-scheme: light; }
   :root[data-theme="dark"] input.date-select { color-scheme: dark; }
   .sim-rows-head, .sim-row { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr 42px; gap: 10px; align-items: center; }
@@ -578,11 +582,21 @@
 
   const MERCADO_LIVRE = [263.71,248.43,257.15,252.94,247.34,240.68,227.58,222.43,225.21,204.89,184.08,181.83,167.82,160.54,151.18,140.1,141.98,141.9,143.77,143.82,140.6,142.69,150.14,162.93,165.49,218.37,208.38,196.33,178.54,198.29,212.26,202.5,211.56,219.61,195.52,196.13,193.02,214.49,237.91,254.42,249.45,249.32,241.58,236.16,253.32,253.7,245.58,265.95,289.24,316.82,295.7,275.45,286.45,280.93];
   const MERCADO_LIVRE_MEDIA_HIST = new Array(54).fill(214.56);
+  // Break-even (preço-teto do consumidor cativo por bandeira), constante por ano-safra.
+  // nominal  = aba Forward, colunas AD:AG  |  indexado (IPCA) = aba Atac-I50, colunas AE:AH
   const BREAK_EVEN = {
-    verde:      blocks([[373.93,12],[369.2,12],[389.02,12],[406.11,12],[402.01,6]]),
-    amarela:    blocks([[410.46,12],[404.03,12],[410.18,12],[426.34,12],[421.44,6]]),
-    vermelhaI:  blocks([[453.36,12],[444.95,12],[439.12,12],[454.02,12],[448.02,6]]),
-    vermelhaII: blocks([[493.63,12],[483.35,12],[477.45,12],[490.66,12],[483.21,6]]),
+    nominal: {
+      verde:      blocks([[300,12],[330,12],[350,12],[390,12],[390,6]]),
+      amarela:    blocks([[329.89,12],[359.89,12],[368.85,12],[408.85,12],[408.85,6]]),
+      vermelhaI:  blocks([[365,12],[395,12],[394.63,12],[434.63,12],[434.63,6]]),
+      vermelhaII: blocks([[397.95,12],[427.95,12],[428.77,12],[468.77,12],[468.77,6]]),
+    },
+    indexado: {
+      verde:      blocks([[373.93,12],[369.2,12],[389.02,12],[406.11,12],[402.01,6]]),
+      amarela:    blocks([[410.46,12],[404.03,12],[410.18,12],[426.34,12],[421.44,6]]),
+      vermelhaI:  blocks([[453.36,12],[444.95,12],[439.12,12],[454.02,12],[448.02,6]]),
+      vermelhaII: blocks([[493.63,12],[483.35,12],[477.45,12],[490.66,12],[483.21,6]]),
+    },
   };
   const PCT_ECONOMIA = [0.25,0.32,0.27,0.29,0.32,0.34,0.39,0.41,0.4,0.46,0.54,0.54,0.6,0.62,0.63,0.66,0.65,0.65,0.64,0.64,0.65,0.64,0.61,0.58,0.61,0.44,0.47,0.5,0.55,0.48,0.42,0.46,0.43,0.38,0.48,0.49,0.51,0.44,0.35,0.29,0.31,0.32,0.35,0.37,0.33,0.34,0.36,0.28,0.2,0.12,0.19,0.26,0.23,0.25];
 
@@ -936,11 +950,12 @@
   }
   function livreSeries(horizon) { return MONTHS.map((_, t) => forwardAvg(t, horizon, "indexado")); }
 
+  // O gráfico cativo compara sempre o mercado livre indexado, então usa o break-even indexado.
   const BE_DEF = [
-    { id: "verde", label: "Break-even · bandeira verde", data: BREAK_EVEN.verde, color: "var(--good)", width: 2 },
-    { id: "amarela", label: "Break-even · bandeira amarela", data: BREAK_EVEN.amarela, color: "var(--warning)", width: 2 },
-    { id: "vermelhaI", label: "Break-even · bandeira vermelha I", data: BREAK_EVEN.vermelhaI, color: "var(--serious)", width: 2 },
-    { id: "vermelhaII", label: "Break-even · bandeira vermelha II", data: BREAK_EVEN.vermelhaII, color: "var(--critical)", width: 2 },
+    { id: "verde", label: "Break-even · bandeira verde", data: BREAK_EVEN.indexado.verde, color: "var(--good)", width: 2 },
+    { id: "amarela", label: "Break-even · bandeira amarela", data: BREAK_EVEN.indexado.amarela, color: "var(--warning)", width: 2 },
+    { id: "vermelhaI", label: "Break-even · bandeira vermelha I", data: BREAK_EVEN.indexado.vermelhaI, color: "var(--serious)", width: 2 },
+    { id: "vermelhaII", label: "Break-even · bandeira vermelha II", data: BREAK_EVEN.indexado.vermelhaII, color: "var(--critical)", width: 2 },
   ];
   function cativoSeriesDef() {
     const livre = livreSeries(cativoHorizon);
@@ -1069,7 +1084,7 @@
     deltaBadge(document.getElementById("kpiEconDelta"), PCT_ECONOMIA[L], PCT_ECONOMIA[L - 12], { unit: "pp", betterWhenUp: true });
     sparkline(document.getElementById("kpiSparkEcon"), PCT_ECONOMIA.slice(-24), "var(--brand)", { w: 78, h: 30, pad: 2, sw: 1.6, dot: 2, animate: true });
 
-    countUp(document.getElementById("kpiBreak"), BREAK_EVEN.verde[L], v => "R$ " + Math.round(v).toLocaleString("pt-BR"));
+    countUp(document.getElementById("kpiBreak"), BREAK_EVEN.indexado.verde[L], v => "R$ " + Math.round(v).toLocaleString("pt-BR"));
 
     const activeYears = Object.keys(YEARS).filter(y => YEARS[y].active);
     const lastVals = activeYears.map(y => YEARS[y].indexado[L]).filter(v => v != null);
@@ -1083,10 +1098,10 @@
   const EXTRA_COLS = [
     { id: "livre", label: "Mercado livre · 60m", tag: "var(--s1)", get: i => MERCADO_LIVRE[i], fmt: fmtNum2 },
     { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
-    { id: "beVerde", label: "Break-even verde", tag: "var(--good)", get: i => BREAK_EVEN.verde[i], fmt: fmtNum2 },
-    { id: "beAmarela", label: "Break-even amarela", tag: "var(--warning)", get: i => BREAK_EVEN.amarela[i], fmt: fmtNum2 },
-    { id: "beVermI", label: "Break-even vermelha I", tag: "var(--serious)", get: i => BREAK_EVEN.vermelhaI[i], fmt: fmtNum2 },
-    { id: "beVermII", label: "Break-even vermelha II", tag: "var(--critical)", get: i => BREAK_EVEN.vermelhaII[i], fmt: fmtNum2 },
+    { id: "beVerde", label: "Break-even verde", tag: "var(--good)", get: i => BREAK_EVEN[explMode].verde[i], fmt: fmtNum2 },
+    { id: "beAmarela", label: "Break-even amarela", tag: "var(--warning)", get: i => BREAK_EVEN[explMode].amarela[i], fmt: fmtNum2 },
+    { id: "beVermI", label: "Break-even vermelha I", tag: "var(--serious)", get: i => BREAK_EVEN[explMode].vermelhaI[i], fmt: fmtNum2 },
+    { id: "beVermII", label: "Break-even vermelha II", tag: "var(--critical)", get: i => BREAK_EVEN[explMode].vermelhaII[i], fmt: fmtNum2 },
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
