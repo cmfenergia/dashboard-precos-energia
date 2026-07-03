@@ -253,8 +253,10 @@
   .sim-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 16px 0 20px; }
   .sim-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 15px; }
   .sc-head { font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 7px; color: var(--text-secondary); }
-  .sc-price { font-size: 21px; font-weight: 700; margin: 9px 0 2px; }
+  .sc-price { font-size: 21px; font-weight: 700; margin: 9px 0 1px; }
+  .sc-corr { font-size: 17px; font-weight: 700; color: var(--brand); margin: 3px 0 2px; }
   .sc-unit { font-size: 11px; color: var(--text-muted); font-weight: 500; font-family: system-ui, sans-serif; }
+  .sc-base { font-size: 11.5px; color: var(--text-muted); font-weight: 500; font-family: system-ui, sans-serif; }
   .sc-note { font-size: 11px; color: var(--text-muted); margin: 2px 0; line-height: 1.5; }
   .sc-rows { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
   .sc-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
@@ -480,7 +482,7 @@
       <div class="hero-left">
         <span class="eyebrow">Simulador · Meu contrato × mercado</span>
         <h1>Seu contrato de energia está caro ou barato?</h1>
-        <p>Informe os anos de fornecimento, o preço que você contratou e a data-base do contrato. Comparamos com o preço de mercado de hoje, com a média histórica de cada ano e com o mercado na data em que você fechou — para você enxergar se comprou acima ou abaixo do mercado.</p>
+        <p>Informe os anos de fornecimento, o preço que você contratou e a data-base do contrato. No modo Indexado, corrigimos o seu preço pelo IPCA até hoje e comparamos com o preço de mercado de hoje e com a média histórica de cada ano — para você enxergar se comprou acima ou abaixo do mercado.</p>
       </div>
     </section>
 
@@ -1224,13 +1226,16 @@
     return 1;
   }
   function lastIdxOf(arr) { let li = -1; arr.forEach((v, i) => { if (v != null) li = i; }); return li; }
-  function nearestVal(arr, idx) {
-    if (arr[idx] != null) return { v: arr[idx], i: idx };
-    for (let d = 1; d < arr.length; d++) {
-      if (idx - d >= 0 && arr[idx - d] != null) return { v: arr[idx - d], i: idx - d };
-      if (idx + d < arr.length && arr[idx + d] != null) return { v: arr[idx + d], i: idx + d };
+  // "AAAA-MM" -> "DD/MM/AAAA" (granularidade mensal, sempre dia 01)
+  function ymToDMY(ym) { const [y, m] = ym.split("-"); return "01/" + m + "/" + y; }
+  // Mês-âncora da série indexada = "moeda de hoje" (onde indexado == nominal, fator 1,0).
+  // É o último IPCA disponível na base; quando entrar um IPCA novo, este índice avança sozinho.
+  function refBaseIdx() {
+    let ref = MONTHS.length - 1;
+    for (let i = MONTHS.length - 1; i >= 0; i--) {
+      if (Math.abs(ipcaFactor(i) - 1) < 1e-6) ref = i; else break;
     }
-    return { v: null, i: idx };
+    return ref;
   }
   function avgOf(arr) { const v = arr.filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
   function yearOptions(sel) { return SIM_YEAR_KEYS.map(y => '<option value="' + y + '"' + (y === sel ? " selected" : "") + ">" + y + "</option>").join(""); }
@@ -1293,13 +1298,15 @@
       return;
     }
 
+    const baseDMY = ymToDMY(MONTHS[simBaseIdx]);          // data-base do contrato
+    const refDMY = ymToDMY(MONTHS[refBaseIdx()]);          // "moeda de hoje" = último IPCA na base
+
     let cardsHtml = ""; const charts = [];
     let totalImpact = 0, hasVol = false, wSum = 0, wPctSum = 0, simplePctSum = 0;
 
     valid.forEach(c => {
       const arr = YEARS[c.year][simMode];
       const marketNow = arr[lastIdxOf(arr)];
-      const base = nearestVal(arr, simBaseIdx);
       const avg = avgOf(arr);
       const Pcmp = simMode === "indexado" ? c.price * factor : c.price;
       const col = SIM_COLORS[c.year] || "var(--s1)";
@@ -1313,17 +1320,18 @@
         totalImpact += imp; wSum += c.volume; wPctSum += pctNow * c.volume;
         impactHtml = '<div class="sc-impact ' + (imp > 0 ? "pos" : "neg") + '">' + (imp > 0 ? "+ " : "− ") + fmtBRL0(Math.abs(imp)) + ' / ano <span class="sc-unit">vs. mercado hoje</span></div>';
       }
-      const corrNote = simMode === "indexado" ? '<div class="sc-note">≈ ' + fmtBRL2(Pcmp) + " em moeda de hoje</div>" : "";
+      const corrLine = simMode === "indexado"
+        ? '<div class="sc-corr mono">' + fmtBRL2(Pcmp) + ' <span class="sc-unit">/MWh</span><span class="sc-base"> · Data base atual (' + refDMY + ')</span></div>'
+        : "";
 
       cardsHtml +=
         '<div class="sim-card" style="border-top:3px solid ' + col + '">' +
           '<div class="sc-head"><span class="tag" style="background:' + col + '"></span> Fornecimento ' + c.year + "</div>" +
-          '<div class="sc-price mono">' + fmtBRL2(c.price) + ' <span class="sc-unit">/MWh contratado</span></div>' +
-          corrNote +
+          '<div class="sc-price mono">' + fmtBRL2(c.price) + ' <span class="sc-unit">/MWh</span><span class="sc-base"> · Data base ' + baseDMY + '</span></div>' +
+          corrLine +
           '<div class="sc-rows">' +
             '<div class="sc-row"><span>vs. mercado hoje (' + fmtBRL0(marketNow) + ")</span>" + badgeHtml(Pcmp, marketNow) + "</div>" +
             '<div class="sc-row"><span>vs. média histórica (' + fmtBRL0(avg) + ")</span>" + badgeHtml(Pcmp, avg) + "</div>" +
-            '<div class="sc-row"><span>vs. mercado na data-base (' + fmtBRL0(base.v) + ")</span>" + badgeHtml(Pcmp, base.v) + "</div>" +
           "</div>" + impactHtml +
         "</div>";
 
