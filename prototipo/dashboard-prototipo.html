@@ -481,7 +481,7 @@
     <div class="card-head">
       <div>
         <h2>Explorador de dados</h2>
-        <p>Monte a sua própria tabela: escolha o período e as colunas extras que quer ver. Os anos de fornecimento já aparecem automaticamente. Exporte em CSV para abrir no Excel.</p>
+        <p>Monte a sua própria tabela: escolha o período, os anos de fornecimento e as colunas que quer ver. Exporte em CSV para abrir no Excel.</p>
       </div>
       <div class="head-controls">
         <div class="segmented" id="explMode">
@@ -495,6 +495,10 @@
       <div class="ctrl-row">
         <span class="ctrl-label">Período</span>
         <div class="chips" id="explPeriod"></div>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Anos de fornecimento</span>
+        <div class="chips" id="explYears"></div>
       </div>
       <div class="ctrl-row">
         <span class="ctrl-label">Outras colunas</span>
@@ -1162,6 +1166,7 @@
     { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
+  const selYears = new Set(["2026", "2027", "2028", "2029"]);
   const selStd = new Set(["economia"]);
   const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
 
@@ -1172,6 +1177,8 @@
       c.addEventListener("click", () => { explPeriod = p.v; buildExplControls(); renderExplorer(); });
       pBox.appendChild(c);
     });
+    const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
+    yBox.appendChild(makeYearDropdown());
     const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
     // grupo 1 — média dos preços futuros do mercado livre (horizonte via seletor)
     eBox.appendChild(makeExplGroup({
@@ -1273,10 +1280,78 @@
     return wrap;
   }
 
+  // Anos de fornecimento: mesmo padrão de dropdown com checklist do Break-even.
+  function makeYearDropdown() {
+    const wrap = document.createElement("span"); wrap.className = "expl-dropdown";
+    const btn = document.createElement("span"); btn.className = "chip";
+    const panel = document.createElement("div"); panel.className = "dd-panel hidden";
+
+    function summary() {
+      const n = selYears.size;
+      if (n === 0) return "";
+      if (n === YEAR_KEYS.length) return " · todos";
+      if (n === 1) return " · " + [...selYears][0];
+      return " · " + n + " anos";
+    }
+    function refreshBtn() {
+      btn.className = "chip" + (selYears.size ? " on" : "");
+      btn.innerHTML = '<span class="tag" style="background:var(--s1)"></span>Anos de fornecimento'
+        + summary() + '<span class="dd-caret">▾</span>';
+    }
+    function refreshChecks() {
+      const all = selYears.size === YEAR_KEYS.length;
+      panel.querySelector('[data-row="all"] .check').textContent = all ? "✓" : "";
+      panel.querySelector('[data-row="all"]').classList.toggle("on", all);
+      YEAR_KEYS.forEach(y => {
+        const on = selYears.has(y);
+        const row = panel.querySelector('[data-row="' + y + '"]');
+        row.querySelector(".check").textContent = on ? "✓" : "";
+        row.classList.toggle("on", on);
+      });
+    }
+
+    // linha "Todos os anos"
+    const allRow = document.createElement("div"); allRow.className = "dd-row"; allRow.dataset.row = "all";
+    allRow.innerHTML = '<span class="check"></span><span class="dd-label">Todos os anos</span>';
+    allRow.addEventListener("click", () => {
+      if (selYears.size === YEAR_KEYS.length) selYears.clear(); else YEAR_KEYS.forEach(y => selYears.add(y));
+      refreshBtn(); refreshChecks(); renderExplorer();
+    });
+    panel.appendChild(allRow);
+    const sep = document.createElement("div"); sep.className = "dd-sep"; panel.appendChild(sep);
+
+    // uma linha por ano
+    YEAR_KEYS.forEach(y => {
+      const active = YEARS[y].active;
+      const row = document.createElement("div"); row.className = "dd-row"; row.dataset.row = y;
+      row.title = active ? "Em negociação" : "Ano encerrado";
+      row.innerHTML = '<span class="check"></span>'
+        + '<span class="tag" style="background:' + (active ? VINTAGE_COLORS[y] : "var(--text-muted)") + '"></span>'
+        + '<span class="dd-label">' + y + (active ? "" : " · encerrado") + "</span>";
+      row.addEventListener("click", () => {
+        selYears.has(y) ? selYears.delete(y) : selYears.add(y);
+        refreshBtn(); refreshChecks(); renderExplorer();
+      });
+      panel.appendChild(row);
+    });
+
+    function closePanel() { panel.classList.add("hidden"); document.removeEventListener("mousedown", onOutside); }
+    function onOutside(e) { if (!wrap.contains(e.target)) closePanel(); }
+    btn.addEventListener("click", () => {
+      const willOpen = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden");
+      if (willOpen) setTimeout(() => document.addEventListener("mousedown", onOutside), 0);
+      else document.removeEventListener("mousedown", onOutside);
+    });
+
+    refreshBtn(); refreshChecks();
+    wrap.appendChild(btn); wrap.appendChild(panel);
+    return wrap;
+  }
+
   function explColumns() {
     const cols = [];
-    // Anos de fornecimento: sempre presentes na tabela (não são mais filtráveis).
-    YEAR_KEYS.forEach(y => cols.push({
+    YEAR_KEYS.filter(y => selYears.has(y)).forEach(y => cols.push({
       key: y, label: y, tag: YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)",
       get: i => YEARS[y][explMode][i], fmt: fmtNum2, md: true
     }));
@@ -1335,8 +1410,8 @@
     const b = e.target.closest("button"); if (!b) return; explMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
   });
-  document.getElementById("explAll").addEventListener("click", () => { livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
-  document.getElementById("explNone").addEventListener("click", () => { livre.on = false; beSel.clear(); selStd.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); selStd.clear(); buildExplControls(); renderExplorer(); });
   document.getElementById("explCsv").addEventListener("click", () => {
     const cols = explColumns(); const rowIdx = explRows();
     const header = ["Mes"].concat(cols.map(c => c.label + (c.md ? " (" + explMode + ")" : "")));
