@@ -1184,13 +1184,8 @@
     }));
     // grupo 2 — break-even (várias bandeiras via checklist num único seletor)
     eBox.appendChild(makeBeDropdown());
-    // grupo 3 — média histórica de um ano de fornecimento escolhido
-    eBox.appendChild(makeExplGroup({
-      on: hist.on, tag: "var(--text-muted)", label: "Média histórica",
-      options: YEAR_KEYS.map(y => ({ v: y, l: y + (YEARS[y].active ? "" : " · encerrado") })), value: hist.year,
-      toggle: () => { hist.on = !hist.on; },
-      pick: v => { hist.year = v; hist.on = true; },
-    }));
+    // grupo 3 — média histórica de um ano de fornecimento escolhido (dropdown único)
+    eBox.appendChild(makeHistDropdown());
     // colunas simples restantes (% economia)
     STD_COLS.forEach(col => {
       const on = selStd.has(col.id);
@@ -1339,6 +1334,64 @@
 
     function closePanel() { panel.classList.add("hidden"); document.removeEventListener("mousedown", onOutside); }
     function onOutside(e) { if (!wrap.contains(e.target)) closePanel(); }
+    btn.addEventListener("click", () => {
+      const willOpen = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden");
+      if (willOpen) setTimeout(() => document.addEventListener("mousedown", onOutside), 0);
+      else document.removeEventListener("mousedown", onOutside);
+    });
+
+    refreshBtn(); refreshChecks();
+    wrap.appendChild(btn); wrap.appendChild(panel);
+    return wrap;
+  }
+
+  // Média histórica: mesmo dropdown com painel dos outros, mas seleção única de ano
+  // (um ano por vez, ou "Não mostrar" para desligar).
+  function makeHistDropdown() {
+    const wrap = document.createElement("span"); wrap.className = "expl-dropdown";
+    const btn = document.createElement("span"); btn.className = "chip";
+    const panel = document.createElement("div"); panel.className = "dd-panel hidden";
+
+    function refreshBtn() {
+      btn.className = "chip" + (hist.on ? " on" : "");
+      const col = hist.on && YEARS[hist.year].active ? VINTAGE_COLORS[hist.year] : "var(--text-muted)";
+      btn.innerHTML = '<span class="tag" style="background:' + col + '"></span>Média histórica'
+        + (hist.on ? " · " + hist.year : "") + '<span class="dd-caret">▾</span>';
+    }
+    function refreshChecks() {
+      panel.querySelector('[data-row="off"] .check').textContent = hist.on ? "" : "✓";
+      panel.querySelector('[data-row="off"]').classList.toggle("on", !hist.on);
+      YEAR_KEYS.forEach(y => {
+        const on = hist.on && hist.year === y;
+        const row = panel.querySelector('[data-row="' + y + '"]');
+        row.querySelector(".check").textContent = on ? "✓" : "";
+        row.classList.toggle("on", on);
+      });
+    }
+
+    function closePanel() { panel.classList.add("hidden"); document.removeEventListener("mousedown", onOutside); }
+    function onOutside(e) { if (!wrap.contains(e.target)) closePanel(); }
+
+    // linha "Não mostrar" (desliga a coluna)
+    const offRow = document.createElement("div"); offRow.className = "dd-row"; offRow.dataset.row = "off";
+    offRow.innerHTML = '<span class="check"></span><span class="dd-label">Não mostrar</span>';
+    offRow.addEventListener("click", () => { hist.on = false; refreshBtn(); refreshChecks(); closePanel(); renderExplorer(); });
+    panel.appendChild(offRow);
+    const sep = document.createElement("div"); sep.className = "dd-sep"; panel.appendChild(sep);
+
+    // uma linha por ano (seleção única)
+    YEAR_KEYS.forEach(y => {
+      const active = YEARS[y].active;
+      const row = document.createElement("div"); row.className = "dd-row"; row.dataset.row = y;
+      row.title = active ? "Em negociação" : "Ano encerrado";
+      row.innerHTML = '<span class="check"></span>'
+        + '<span class="tag" style="background:' + (active ? VINTAGE_COLORS[y] : "var(--text-muted)") + '"></span>'
+        + '<span class="dd-label">' + y + (active ? "" : " · encerrado") + "</span>";
+      row.addEventListener("click", () => { hist.year = y; hist.on = true; refreshBtn(); refreshChecks(); closePanel(); renderExplorer(); });
+      panel.appendChild(row);
+    });
+
     btn.addEventListener("click", () => {
       const willOpen = panel.classList.contains("hidden");
       panel.classList.toggle("hidden");
