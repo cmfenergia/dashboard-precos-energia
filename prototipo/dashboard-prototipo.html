@@ -481,7 +481,7 @@
     <div class="card-head">
       <div>
         <h2>Explorador de dados</h2>
-        <p>Monte a sua própria tabela: escolha o período, os anos de fornecimento e as colunas que quer ver. Exporte em CSV para abrir no Excel.</p>
+        <p>Monte a sua própria tabela: escolha os anos de fornecimento e as colunas que quer ver. Exporte em CSV para abrir no Excel. A tabela mostra todo o período disponível.</p>
       </div>
       <div class="head-controls">
         <div class="segmented" id="explMode">
@@ -492,10 +492,6 @@
     </div>
 
     <div class="controls">
-      <div class="ctrl-row">
-        <span class="ctrl-label">Período</span>
-        <div class="chips" id="explPeriod"></div>
-      </div>
       <div class="ctrl-row">
         <span class="ctrl-label">Anos de fornecimento</span>
         <div class="chips" id="explYears"></div>
@@ -1147,7 +1143,7 @@
   })();
 
   // ── DATA EXPLORER ──────────────────────────────────────────────────────────
-  let explMode = "indexado", explPeriod = 12;
+  let explMode = "indexado";
   const YEAR_KEYS = Object.keys(YEARS);
   // Média dos preços futuros do mercado livre: um único seletor de horizonte
   // (mesma conta ponderada da planilha, ver forwardAvg; acompanha Nominal/Indexado).
@@ -1168,15 +1164,8 @@
   ];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
   const selStd = new Set(["economia"]);
-  const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
 
   function buildExplControls() {
-    const pBox = document.getElementById("explPeriod"); pBox.innerHTML = "";
-    PERIODS.forEach(p => {
-      const c = document.createElement("span"); c.className = "chip" + (explPeriod === p.v ? " on" : ""); c.textContent = p.l;
-      c.addEventListener("click", () => { explPeriod = p.v; buildExplControls(); renderExplorer(); });
-      pBox.appendChild(c);
-    });
     const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
     yBox.appendChild(makeYearDropdown());
     const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
@@ -1367,7 +1356,7 @@
     return cols;
   }
   // ordem crescente: do mês mais antigo (dentro do período) para o mais recente
-  function explRows() { const start = Math.max(0, MONTHS.length - explPeriod); const idx = []; for (let i = start; i < MONTHS.length; i++) idx.push(i); return idx; }
+  function explRows() { const idx = []; for (let i = 0; i < MONTHS.length; i++) idx.push(i); return idx; }
 
   const colWidths = {};              // larguras escolhidas, preservadas entre re-renders
   const COL_MIN = 60, COL_MAX = 340; // trava: nunca menor/maior que isto (não escapa do card)
