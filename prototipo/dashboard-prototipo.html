@@ -179,6 +179,8 @@
   .chip.on { background: var(--brand-wash); border-color: var(--brand); color: var(--brand-text); }
   .chip .check { width: 13px; height: 13px; border-radius: 4px; border: 1.5px solid var(--axis); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; }
   .chip.on .check { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .expl-group { display: inline-flex; align-items: center; gap: 6px; }
+  .expl-group select.date-select:disabled { opacity: 0.45; cursor: not-allowed; }
   .expl-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .expl-actions .count { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
 
@@ -1097,22 +1099,25 @@
   // ── DATA EXPLORER ──────────────────────────────────────────────────────────
   let explMode = "indexado", explPeriod = 12;
   const YEAR_KEYS = Object.keys(YEARS);
-  const EXTRA_COLS = [
-    // Preço médio do mercado livre olhando N meses à frente (mesma conta da planilha,
-    // ver forwardAvg); acompanha o modo Nominal/Indexado da tabela.
-    { id: "livre24", label: "Mercado livre · 24m", tag: "var(--s1)", get: i => forwardAvg(i, 24, explMode), fmt: fmtNum2 },
-    { id: "livre36", label: "Mercado livre · 36m", tag: "var(--s1)", get: i => forwardAvg(i, 36, explMode), fmt: fmtNum2 },
-    { id: "livre48", label: "Mercado livre · 48m", tag: "var(--s1)", get: i => forwardAvg(i, 48, explMode), fmt: fmtNum2 },
-    { id: "livre60", label: "Mercado livre · 60m", tag: "var(--s1)", get: i => forwardAvg(i, 60, explMode), fmt: fmtNum2 },
+  // Média dos preços futuros do mercado livre: um único seletor de horizonte
+  // (mesma conta ponderada da planilha, ver forwardAvg; acompanha Nominal/Indexado).
+  const LIVRE_H = [24, 36, 48, 60];
+  const livre = { on: true, h: 60 };
+  // Break-even: um único seletor de bandeira (cor acompanha a bandeira escolhida).
+  const BE_BANDS = [
+    { band: "verde", label: "Verde", tag: "var(--good)" },
+    { band: "amarela", label: "Amarela", tag: "var(--warning)" },
+    { band: "vermelhaI", label: "Vermelha I", tag: "var(--serious)" },
+    { band: "vermelhaII", label: "Vermelha II", tag: "var(--critical)" },
+  ];
+  const be = { on: true, band: "verde" };
+  // Colunas simples restantes (chip liga/desliga direto).
+  const STD_COLS = [
     { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
-    { id: "beVerde", label: "Break-even verde", tag: "var(--good)", get: i => BREAK_EVEN[explMode].verde[i], fmt: fmtNum2 },
-    { id: "beAmarela", label: "Break-even amarela", tag: "var(--warning)", get: i => BREAK_EVEN[explMode].amarela[i], fmt: fmtNum2 },
-    { id: "beVermI", label: "Break-even vermelha I", tag: "var(--serious)", get: i => BREAK_EVEN[explMode].vermelhaI[i], fmt: fmtNum2 },
-    { id: "beVermII", label: "Break-even vermelha II", tag: "var(--critical)", get: i => BREAK_EVEN[explMode].vermelhaII[i], fmt: fmtNum2 },
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
-  const selExtras = new Set(["livre60", "beVerde", "economia"]);
+  const selStd = new Set(["economia"]);
   const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
 
   function buildExplControls() {
@@ -1132,22 +1137,62 @@
       yBox.appendChild(c);
     });
     const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
-    EXTRA_COLS.forEach(col => {
-      const on = selExtras.has(col.id);
+    // grupo 1 — média dos preços futuros do mercado livre (horizonte via seletor)
+    eBox.appendChild(makeExplGroup({
+      on: livre.on, tag: "var(--s1)", label: "Média dos preços futuros · Mercado livre",
+      options: LIVRE_H.map(h => ({ v: h, l: h + " meses" })), value: livre.h,
+      toggle: () => { livre.on = !livre.on; },
+      pick: v => { livre.h = +v; livre.on = true; },
+    }));
+    // grupo 2 — break-even (bandeira via seletor; a cor do chip segue a bandeira)
+    const band = BE_BANDS.find(b => b.band === be.band);
+    eBox.appendChild(makeExplGroup({
+      on: be.on, tag: band.tag, label: "Break-even",
+      options: BE_BANDS.map(b => ({ v: b.band, l: b.label })), value: be.band,
+      toggle: () => { be.on = !be.on; },
+      pick: v => { be.band = v; be.on = true; },
+    }));
+    // colunas simples restantes (média histórica, % economia)
+    STD_COLS.forEach(col => {
+      const on = selStd.has(col.id);
       const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
       c.innerHTML = '<span class="tag" style="background:' + col.tag + '"></span>' + col.label;
-      c.addEventListener("click", () => { on ? selExtras.delete(col.id) : selExtras.add(col.id); buildExplControls(); renderExplorer(); });
+      c.addEventListener("click", () => { on ? selStd.delete(col.id) : selStd.add(col.id); buildExplControls(); renderExplorer(); });
       eBox.appendChild(c);
     });
+  }
+
+  // Grupo do Explorador: chip liga/desliga + seletor da variante (horizonte/bandeira).
+  function makeExplGroup(g) {
+    const wrap = document.createElement("span"); wrap.className = "expl-group";
+    const chip = document.createElement("span"); chip.className = "chip" + (g.on ? " on" : "");
+    chip.innerHTML = '<span class="tag" style="background:' + g.tag + '"></span>' + g.label;
+    chip.addEventListener("click", () => { g.toggle(); buildExplControls(); renderExplorer(); });
+    const sel = document.createElement("select"); sel.className = "date-select"; sel.disabled = !g.on;
+    sel.innerHTML = g.options.map(o => '<option value="' + o.v + '"' + (o.v == g.value ? " selected" : "") + ">" + o.l + "</option>").join("");
+    sel.addEventListener("change", e => { g.pick(e.target.value); buildExplControls(); renderExplorer(); });
+    wrap.appendChild(chip); wrap.appendChild(sel);
+    return wrap;
   }
 
   function explColumns() {
     const cols = [];
     YEAR_KEYS.filter(y => selYears.has(y)).forEach(y => cols.push({
       key: y, label: y, tag: YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)",
-      get: i => YEARS[y][explMode][i], fmt: fmtNum2
+      get: i => YEARS[y][explMode][i], fmt: fmtNum2, md: true
     }));
-    EXTRA_COLS.filter(c => selExtras.has(c.id)).forEach(c => cols.push({ key: c.id, label: c.label, tag: c.tag, get: c.get, fmt: c.fmt }));
+    if (livre.on) cols.push({
+      key: "livre" + livre.h, label: "Mercado livre · " + livre.h + "m", tag: "var(--s1)",
+      get: i => forwardAvg(i, livre.h, explMode), fmt: fmtNum2, md: true
+    });
+    if (be.on) {
+      const band = BE_BANDS.find(b => b.band === be.band);
+      cols.push({
+        key: "be_" + band.band, label: "Break-even " + band.label, tag: band.tag,
+        get: i => BREAK_EVEN[explMode][band.band][i], fmt: fmtNum2, md: true
+      });
+    }
+    STD_COLS.filter(c => selStd.has(c.id)).forEach(c => cols.push({ key: c.id, label: c.label, tag: c.tag, get: c.get, fmt: c.fmt }));
     return cols;
   }
   // ordem crescente: do mês mais antigo (dentro do período) para o mais recente
@@ -1194,11 +1239,11 @@
     const b = e.target.closest("button"); if (!b) return; explMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
   });
-  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); EXTRA_COLS.forEach(c => selExtras.add(c.id)); buildExplControls(); renderExplorer(); });
-  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); selExtras.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; be.on = true; STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; be.on = false; selStd.clear(); buildExplControls(); renderExplorer(); });
   document.getElementById("explCsv").addEventListener("click", () => {
     const cols = explColumns(); const rowIdx = explRows();
-    const header = ["Mes"].concat(cols.map(c => c.label + (YEAR_KEYS.includes(c.key) ? " (" + explMode + ")" : "")));
+    const header = ["Mes"].concat(cols.map(c => c.label + (c.md ? " (" + explMode + ")" : "")));
     const lines = [header.join(";")];
     rowIdx.forEach(i => { lines.push([MONTHS[i]].concat(cols.map(c => { const v = c.get(i); return v == null ? "" : String(v).replace(".", ","); })).join(";")); });
     const uri = "data:text/csv;charset=utf-8," + encodeURIComponent("﻿" + lines.join("\n"));
