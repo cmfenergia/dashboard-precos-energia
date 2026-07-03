@@ -1098,7 +1098,12 @@
   let explMode = "indexado", explPeriod = 12;
   const YEAR_KEYS = Object.keys(YEARS);
   const EXTRA_COLS = [
-    { id: "livre", label: "Mercado livre · 60m", tag: "var(--s1)", get: i => MERCADO_LIVRE[i], fmt: fmtNum2 },
+    // Preço médio do mercado livre olhando N meses à frente (mesma conta da planilha,
+    // ver forwardAvg); acompanha o modo Nominal/Indexado da tabela.
+    { id: "livre24", label: "Mercado livre · 24m", tag: "var(--s1)", get: i => forwardAvg(i, 24, explMode), fmt: fmtNum2 },
+    { id: "livre36", label: "Mercado livre · 36m", tag: "var(--s1)", get: i => forwardAvg(i, 36, explMode), fmt: fmtNum2 },
+    { id: "livre48", label: "Mercado livre · 48m", tag: "var(--s1)", get: i => forwardAvg(i, 48, explMode), fmt: fmtNum2 },
+    { id: "livre60", label: "Mercado livre · 60m", tag: "var(--s1)", get: i => forwardAvg(i, 60, explMode), fmt: fmtNum2 },
     { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
     { id: "beVerde", label: "Break-even verde", tag: "var(--good)", get: i => BREAK_EVEN[explMode].verde[i], fmt: fmtNum2 },
     { id: "beAmarela", label: "Break-even amarela", tag: "var(--warning)", get: i => BREAK_EVEN[explMode].amarela[i], fmt: fmtNum2 },
@@ -1107,7 +1112,7 @@
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
-  const selExtras = new Set(["livre", "beVerde", "economia"]);
+  const selExtras = new Set(["livre60", "beVerde", "economia"]);
   const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
 
   function buildExplControls() {
