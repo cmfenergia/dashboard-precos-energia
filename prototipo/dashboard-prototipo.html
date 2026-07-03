@@ -481,7 +481,7 @@
     <div class="card-head">
       <div>
         <h2>Explorador de dados</h2>
-        <p>Monte a sua própria tabela: escolha o período, os anos de fornecimento e as colunas que quer ver. Exporte em CSV para abrir no Excel.</p>
+        <p>Monte a sua própria tabela: escolha o período e as colunas extras que quer ver. Os anos de fornecimento já aparecem automaticamente. Exporte em CSV para abrir no Excel.</p>
       </div>
       <div class="head-controls">
         <div class="segmented" id="explMode">
@@ -495,10 +495,6 @@
       <div class="ctrl-row">
         <span class="ctrl-label">Período</span>
         <div class="chips" id="explPeriod"></div>
-      </div>
-      <div class="ctrl-row">
-        <span class="ctrl-label">Anos de fornecimento</span>
-        <div class="chips" id="explYears"></div>
       </div>
       <div class="ctrl-row">
         <span class="ctrl-label">Outras colunas</span>
@@ -1166,7 +1162,6 @@
     { id: "hist", label: "Média histórica", tag: "var(--text-muted)", get: i => MERCADO_LIVRE_MEDIA_HIST[i], fmt: fmtNum2 },
     { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
   ];
-  const selYears = new Set(["2026", "2027", "2028", "2029"]);
   const selStd = new Set(["economia"]);
   const PERIODS = [{ v: 12, l: "12 meses" }, { v: 24, l: "24 meses" }, { v: 36, l: "36 meses" }, { v: 54, l: "Todo o período" }];
 
@@ -1176,15 +1171,6 @@
       const c = document.createElement("span"); c.className = "chip" + (explPeriod === p.v ? " on" : ""); c.textContent = p.l;
       c.addEventListener("click", () => { explPeriod = p.v; buildExplControls(); renderExplorer(); });
       pBox.appendChild(c);
-    });
-    const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
-    YEAR_KEYS.forEach(y => {
-      const on = selYears.has(y); const active = YEARS[y].active;
-      const c = document.createElement("span"); c.className = "chip" + (on ? " on" : "");
-      c.innerHTML = '<span class="check">' + (on ? "✓" : "") + "</span>" + y + (active ? "" : " ·");
-      c.title = active ? "Em negociação" : "Ano encerrado";
-      c.addEventListener("click", () => { on ? selYears.delete(y) : selYears.add(y); buildExplControls(); renderExplorer(); });
-      yBox.appendChild(c);
     });
     const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
     // grupo 1 — média dos preços futuros do mercado livre (horizonte via seletor)
@@ -1289,7 +1275,8 @@
 
   function explColumns() {
     const cols = [];
-    YEAR_KEYS.filter(y => selYears.has(y)).forEach(y => cols.push({
+    // Anos de fornecimento: sempre presentes na tabela (não são mais filtráveis).
+    YEAR_KEYS.forEach(y => cols.push({
       key: y, label: y, tag: YEARS[y].active ? VINTAGE_COLORS[y] : "var(--text-muted)",
       get: i => YEARS[y][explMode][i], fmt: fmtNum2, md: true
     }));
@@ -1348,8 +1335,8 @@
     const b = e.target.closest("button"); if (!b) return; explMode = b.dataset.mode;
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
   });
-  document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
-  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); selStd.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explAll").addEventListener("click", () => { livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { livre.on = false; beSel.clear(); selStd.clear(); buildExplControls(); renderExplorer(); });
   document.getElementById("explCsv").addEventListener("click", () => {
     const cols = explColumns(); const rowIdx = explRows();
     const header = ["Mes"].concat(cols.map(c => c.label + (c.md ? " (" + explMode + ")" : "")));
