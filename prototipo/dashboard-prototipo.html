@@ -1175,13 +1175,8 @@
     const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
     yBox.appendChild(makeYearDropdown());
     const eBox = document.getElementById("explExtras"); eBox.innerHTML = "";
-    // grupo 1 — média dos preços futuros do mercado livre (horizonte via seletor)
-    eBox.appendChild(makeExplGroup({
-      on: livre.on, tag: "var(--s1)", label: "Média dos preços futuros · Mercado livre",
-      options: LIVRE_H.map(h => ({ v: h, l: h + " meses" })), value: livre.h,
-      toggle: () => { livre.on = !livre.on; },
-      pick: v => { livre.h = +v; livre.on = true; },
-    }));
+    // grupo 1 — média dos preços futuros do mercado livre (dropdown único de horizonte)
+    eBox.appendChild(makeLivreDropdown());
     // grupo 2 — break-even (várias bandeiras via checklist num único seletor)
     eBox.appendChild(makeBeDropdown());
     // grupo 3 — média histórica de um ano de fornecimento escolhido (dropdown único)
@@ -1196,18 +1191,6 @@
     });
   }
 
-  // Grupo do Explorador: chip liga/desliga + seletor da variante (horizonte/bandeira).
-  function makeExplGroup(g) {
-    const wrap = document.createElement("span"); wrap.className = "expl-group";
-    const chip = document.createElement("span"); chip.className = "chip" + (g.on ? " on" : "");
-    chip.innerHTML = '<span class="tag" style="background:' + g.tag + '"></span>' + g.label;
-    chip.addEventListener("click", () => { g.toggle(); buildExplControls(); renderExplorer(); });
-    const sel = document.createElement("select"); sel.className = "date-select"; sel.disabled = !g.on;
-    sel.innerHTML = g.options.map(o => '<option value="' + o.v + '"' + (o.v == g.value ? " selected" : "") + ">" + o.l + "</option>").join("");
-    sel.addEventListener("change", e => { g.pick(e.target.value); buildExplControls(); renderExplorer(); });
-    wrap.appendChild(chip); wrap.appendChild(sel);
-    return wrap;
-  }
 
   // Break-even: seletor único que abre uma checklist de bandeiras (multi-seleção
   // + "Todas"). Não recria os controles ao marcar/desmarcar, então o menu fica
@@ -1389,6 +1372,59 @@
         + '<span class="tag" style="background:' + (active ? VINTAGE_COLORS[y] : "var(--text-muted)") + '"></span>'
         + '<span class="dd-label">' + y + (active ? "" : " · encerrado") + "</span>";
       row.addEventListener("click", () => { hist.year = y; hist.on = true; refreshBtn(); refreshChecks(); closePanel(); renderExplorer(); });
+      panel.appendChild(row);
+    });
+
+    btn.addEventListener("click", () => {
+      const willOpen = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden");
+      if (willOpen) setTimeout(() => document.addEventListener("mousedown", onOutside), 0);
+      else document.removeEventListener("mousedown", onOutside);
+    });
+
+    refreshBtn(); refreshChecks();
+    wrap.appendChild(btn); wrap.appendChild(panel);
+    return wrap;
+  }
+
+  // Média dos preços futuros do mercado livre: mesmo dropdown com painel, seleção
+  // única de horizonte (ou "Não mostrar" para desligar).
+  function makeLivreDropdown() {
+    const wrap = document.createElement("span"); wrap.className = "expl-dropdown";
+    const btn = document.createElement("span"); btn.className = "chip";
+    const panel = document.createElement("div"); panel.className = "dd-panel hidden";
+
+    function refreshBtn() {
+      btn.className = "chip" + (livre.on ? " on" : "");
+      btn.innerHTML = '<span class="tag" style="background:var(--s1)"></span>Média dos preços futuros · Mercado livre'
+        + (livre.on ? " · " + livre.h + "m" : "") + '<span class="dd-caret">▾</span>';
+    }
+    function refreshChecks() {
+      panel.querySelector('[data-row="off"] .check').textContent = livre.on ? "" : "✓";
+      panel.querySelector('[data-row="off"]').classList.toggle("on", !livre.on);
+      LIVRE_H.forEach(h => {
+        const on = livre.on && livre.h === h;
+        const row = panel.querySelector('[data-row="' + h + '"]');
+        row.querySelector(".check").textContent = on ? "✓" : "";
+        row.classList.toggle("on", on);
+      });
+    }
+
+    function closePanel() { panel.classList.add("hidden"); document.removeEventListener("mousedown", onOutside); }
+    function onOutside(e) { if (!wrap.contains(e.target)) closePanel(); }
+
+    // linha "Não mostrar" (desliga a coluna)
+    const offRow = document.createElement("div"); offRow.className = "dd-row"; offRow.dataset.row = "off";
+    offRow.innerHTML = '<span class="check"></span><span class="dd-label">Não mostrar</span>';
+    offRow.addEventListener("click", () => { livre.on = false; refreshBtn(); refreshChecks(); closePanel(); renderExplorer(); });
+    panel.appendChild(offRow);
+    const sep = document.createElement("div"); sep.className = "dd-sep"; panel.appendChild(sep);
+
+    // uma linha por horizonte (seleção única)
+    LIVRE_H.forEach(h => {
+      const row = document.createElement("div"); row.className = "dd-row"; row.dataset.row = h;
+      row.innerHTML = '<span class="check"></span><span class="dd-label">' + h + " meses</span>";
+      row.addEventListener("click", () => { livre.h = h; livre.on = true; refreshBtn(); refreshChecks(); closePanel(); renderExplorer(); });
       panel.appendChild(row);
     });
 
