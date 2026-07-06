@@ -1171,11 +1171,9 @@
     return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
   }
   // Colunas simples restantes (chip liga/desliga direto).
-  const STD_COLS = [
-    { id: "economia", label: "% economia", tag: "var(--brand)", get: i => PCT_ECONOMIA[i], fmt: v => Math.round(v * 100) + "%" },
-  ];
+  const STD_COLS = [];
   const selYears = new Set(["2026", "2027", "2028", "2029"]);
-  const selStd = new Set(["economia"]);
+  const selStd = new Set();
 
   function buildExplControls() {
     const yBox = document.getElementById("explYears"); yBox.innerHTML = "";
