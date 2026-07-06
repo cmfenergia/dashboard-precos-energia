@@ -350,6 +350,28 @@
     .sim-row { grid-template-columns: 1fr 1fr 1fr 34px; gap: 6px; }
     .sim-input { padding: 7px 7px; font-size: 12px; }
   }
+
+  /* ── Portão de captura de lead antes do simulador (escopo .lead-* isolado) ─ */
+  .lead-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(8,9,12,0.66); }
+  .lead-overlay.open { display: flex; }
+  .lead-modal { position: relative; width: 100%; max-width: 428px; background: #1c1d21; border: 1px solid #2d2f36; border-radius: 16px; box-shadow: 0 26px 64px rgba(0,0,0,0.55); padding: 26px 26px 20px; color: #ececef; }
+  .lead-close { position: absolute; top: 11px; right: 13px; background: none; border: none; color: #77777f; font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 7px; border-radius: 8px; }
+  .lead-close:hover { color: #d6d6da; background: #26272c; }
+  .lead-eyebrow { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: #c9622c; }
+  .lead-title { font-size: 19px; font-weight: 800; margin: 8px 0 5px; color: #f4f4f6; letter-spacing: -.01em; }
+  .lead-lead { font-size: 13px; line-height: 1.5; color: #9a9aa2; margin: 0 0 18px; }
+  .lead-field { margin-bottom: 13px; }
+  .lead-field label { display: block; font-size: 12px; font-weight: 600; color: #b9b9c0; margin-bottom: 6px; }
+  .lead-input { width: 100%; box-sizing: border-box; background: #232428; border: 1px solid #34363d; border-radius: 9px; padding: 11px 12px; font-size: 14px; color: #f2f2f4; outline: none; transition: border-color .15s, box-shadow .15s; }
+  .lead-input::placeholder { color: #6b6c74; }
+  .lead-input:focus { border-color: #c9622c; box-shadow: 0 0 0 3px rgba(201,98,44,0.22); }
+  .lead-field.invalid .lead-input { border-color: #e05a4a; }
+  .lead-field.invalid .lead-input:focus { box-shadow: 0 0 0 3px rgba(224,90,74,0.22); }
+  .lead-err { display: none; font-size: 11.5px; color: #f08a7c; margin-top: 5px; }
+  .lead-field.invalid .lead-err { display: block; }
+  .lead-submit { width: 100%; margin-top: 6px; background: #c9622c; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: background .15s; }
+  .lead-submit:hover { background: #b3541f; }
+  .lead-note { font-size: 11px; line-height: 1.5; color: #77777f; text-align: center; margin: 12px 0 2px; }
 </style>
 
 <div class="wrap">
@@ -604,6 +626,35 @@
 </div>
 
 <div class="tooltip" id="tooltip"></div>
+
+<!-- Portão de captura de lead: aberto ao acionar o simulador (só se ainda não for lead) -->
+<div class="lead-overlay" id="leadOverlay" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
+  <div class="lead-modal">
+    <button type="button" class="lead-close" id="leadClose" aria-label="Fechar">×</button>
+    <div class="lead-eyebrow">Acesso ao simulador</div>
+    <h2 class="lead-title" id="leadTitle">Simule seu contrato de energia</h2>
+    <p class="lead-lead">Preencha seus dados para liberar a comparação do seu contrato com o mercado livre. Leva menos de 30 segundos.</p>
+    <form id="leadForm" novalidate>
+      <div class="lead-field" id="fldNome">
+        <label for="leadNome">Nome</label>
+        <input class="lead-input" id="leadNome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" />
+        <div class="lead-err">Informe seu nome.</div>
+      </div>
+      <div class="lead-field" id="fldEmail">
+        <label for="leadEmail">Email corporativo</label>
+        <input class="lead-input" id="leadEmail" name="email" type="email" autocomplete="email" placeholder="nome@dominio.com" />
+        <div class="lead-err">Informe um email válido.</div>
+      </div>
+      <div class="lead-field" id="fldTel">
+        <label for="leadTel">Telefone corporativo</label>
+        <input class="lead-input" id="leadTel" name="telefone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
+        <div class="lead-err">Informe um telefone com DDD.</div>
+      </div>
+      <button type="submit" class="lead-submit">Simular meu contrato</button>
+      <p class="lead-note">Usamos seus dados apenas para falar sobre a simulação e ofertas de energia. Não compartilhamos com terceiros.</p>
+    </form>
+  </div>
+</div>
 
 <script>
   // ── dados (exportados de data/precos-energia.json) ──────────────────────
@@ -1563,7 +1614,7 @@
     window.scrollTo(0, 0);
     if (name === "sim") renderSim();
   }
-  document.getElementById("goSim").addEventListener("click", () => showView("sim"));
+  document.getElementById("goSim").addEventListener("click", () => requestSim("header:goSim"));
   document.getElementById("simBack").addEventListener("click", () => showView("market"));
 
   // fator de correção IPCA de um mês da amostra até hoje (indexado/nominal de qualquer ano dão o mesmo)
@@ -1859,6 +1910,102 @@
   });
   document.getElementById("simAdd").addEventListener("click", () => { addSimRow("2028", null, null); sortSimRows(); renderSim(); });
   document.getElementById("simReset").addEventListener("click", () => { document.getElementById("simRows").innerHTML = ""; addSimRow("2027", null, null); renderSim(); });
+
+  // ── Portão de captura de lead antes do simulador ─────────────────────────
+  const LEAD_KEY = "cmf_lead_known";   // marca este navegador como lead já capturada
+  const LEAD_STORE = "cmf_leads";      // fila local dos leads (protótipo, sem backend)
+  const leadOverlay = document.getElementById("leadOverlay");
+  const leadForm = document.getElementById("leadForm");
+  const elNome = document.getElementById("leadNome");
+  const elEmail = document.getElementById("leadEmail");
+  const elTel = document.getElementById("leadTel");
+  let pendingCta = "";
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function isKnownLead() { return lsGet(LEAD_KEY) === "1"; }
+
+  // PONTO ÚNICO DE INTEGRAÇÃO. Hoje persiste local (protótipo estático, sem banco).
+  // Ao embutir no site real, descomente o fetch para gravar na tabela de leads.
+  function saveLead(data) {
+    const rec = Object.assign({
+      criadoEm: new Date().toISOString(),
+      origemCta: pendingCta || "simulador",
+      pagina: location.href,
+      referrer: document.referrer || null
+    }, data);
+    try {
+      const fila = JSON.parse(lsGet(LEAD_STORE) || "[]");
+      fila.push(rec);
+      lsSet(LEAD_STORE, JSON.stringify(fila));
+    } catch (e) {}
+    lsSet(LEAD_KEY, "1");
+    // === Gravar no banco quando houver backend no site (não roda no Artifact/CSP):
+    // fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(rec) }).catch(function () {});
+    return rec;
+  }
+
+  // Todo CTA que leva ao simulador passa por aqui: lead conhecida entra direto.
+  function requestSim(cta) {
+    pendingCta = cta || "simulador";
+    if (isKnownLead()) { showView("sim"); return; }
+    openLead();
+  }
+
+  function openLead() {
+    leadForm.reset();
+    ["fldNome", "fldEmail", "fldTel"].forEach(function (id) {
+      document.getElementById(id).classList.remove("invalid");
+    });
+    leadOverlay.classList.add("open");
+    setTimeout(function () { elNome.focus(); }, 30);
+  }
+  function closeLead() { leadOverlay.classList.remove("open"); }
+
+  // Máscara (00) 00000-0000 aplicada enquanto digita.
+  function maskPhone(v) {
+    const d = v.replace(/\D/g, "").slice(0, 11);
+    if (d.length === 0) return "";
+    if (d.length <= 2) return "(" + d;
+    if (d.length <= 7) return "(" + d.slice(0, 2) + ") " + d.slice(2);
+    return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7);
+  }
+  elTel.addEventListener("input", function () { elTel.value = maskPhone(elTel.value); });
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function setInvalid(id, bad) { document.getElementById(id).classList.toggle("invalid", bad); }
+
+  leadForm.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    const nome = elNome.value.trim();
+    const email = elEmail.value.trim();
+    const telDigits = elTel.value.replace(/\D/g, "");
+    const badNome = nome.length === 0;
+    const badEmail = !EMAIL_RE.test(email);
+    const badTel = telDigits.length < 10;   // DDD (2) + número (8 a 9)
+    setInvalid("fldNome", badNome);
+    setInvalid("fldEmail", badEmail);
+    setInvalid("fldTel", badTel);
+    if (badNome || badEmail || badTel) {
+      (badNome ? elNome : badEmail ? elEmail : elTel).focus();
+      return;
+    }
+    saveLead({ nome: nome, email: email, telefone: elTel.value });
+    closeLead();
+    showView("sim");
+  });
+
+  // limpa o destaque de erro assim que a pessoa começa a corrigir o campo
+  [["fldNome", elNome], ["fldEmail", elEmail], ["fldTel", elTel]].forEach(function (pair) {
+    pair[1].addEventListener("input", function () { setInvalid(pair[0], false); });
+  });
+
+  document.getElementById("leadClose").addEventListener("click", closeLead);
+  leadOverlay.addEventListener("mousedown", function (e) { if (e.target === leadOverlay) closeLead(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && leadOverlay.classList.contains("open")) closeLead();
+  });
 
   // ── theme ────────────────────────────────────────────────────────────────
   document.getElementById("themeToggle").addEventListener("click", () => {
