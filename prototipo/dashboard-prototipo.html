@@ -304,7 +304,7 @@
   .sim-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 15px 17px; }
   .sc-body { display: flex; gap: 18px; align-items: stretch; }
   .sc-main { flex: 0 0 auto; min-width: 0; }
-  .sc-compare { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 9px; padding-left: 18px; border-left: 1px solid var(--border); }
+  .sc-compare { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 0; padding-left: 18px; border-left: 1px solid var(--border); }
   @media (max-width: 540px) { .sc-body { flex-direction: column; gap: 12px; } .sc-compare { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 12px; } }
   .sc-head { font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 7px; color: var(--text-secondary); }
   .sc-price { font-size: 21px; font-weight: 700; margin: 9px 0 1px; }
@@ -312,22 +312,25 @@
   .sc-unit { font-size: 11px; color: var(--text-muted); font-weight: 500; font-family: system-ui, sans-serif; }
   .sc-base { font-size: 11.5px; color: var(--text-muted); font-weight: 500; font-family: system-ui, sans-serif; }
   .sc-note { font-size: 11px; color: var(--text-muted); margin: 2px 0; line-height: 1.5; }
-  .sc-cmp { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); }
-  .sc-cmp.down { background: rgba(12,163,12,0.08); border-color: rgba(12,163,12,0.22); }
-  .sc-cmp.up { background: rgba(224,110,70,0.12); border-color: rgba(224,110,70,0.28); }
-  .sc-cmp-l { display: flex; align-items: center; gap: 9px; min-width: 0; }
-  .sc-cmp-ico { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sc-cmp { display: flex; align-items: center; gap: 11px; padding: 11px 0; }
+  .sc-cmp + .sc-cmp { border-top: 1px solid var(--border); }
+  .sc-cmp-badge { width: 34px; height: 34px; border-radius: 9px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: var(--panel-2); }
+  .sc-cmp.down .sc-cmp-badge { background: rgba(12,163,12,0.12); }
+  .sc-cmp.up .sc-cmp-badge { background: rgba(224,110,70,0.15); }
+  .sc-cmp-ico { width: 17px; height: 17px; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .sc-cmp.down .sc-cmp-ico { stroke: var(--good); }
   .sc-cmp.up .sc-cmp-ico { stroke: var(--critical); }
-  .sc-cmp-tx { min-width: 0; }
-  .sc-cmp-title { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); line-height: 1.25; }
-  .sc-cmp-sub { font-size: 11px; color: var(--text-muted); line-height: 1.3; margin-top: 1px; }
-  .sc-cmp-r { text-align: right; flex: 0 0 auto; }
-  .sc-cmp-val { font-family: var(--mono); font-size: 16px; font-weight: 800; line-height: 1.1; }
+  .sc-cmp-tx { flex: 1 1 auto; min-width: 0; }
+  .sc-cmp-title { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.25; }
+  .sc-cmp-sub { font-size: 11px; color: var(--text-muted); line-height: 1.3; margin-top: 2px; }
+  .sc-cmp-r { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+  .sc-cmp-val { font-family: var(--mono); font-size: 15px; font-weight: 800; color: var(--text-primary); white-space: nowrap; }
   .sc-cmp-val.sm { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
   .sc-cmp.down .sc-cmp-val { color: var(--good); }
-  .sc-cmp.up .sc-cmp-val { color: var(--critical); }
-  .sc-cmp-pct { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+  .sc-cmp-unit { font-size: 10px; font-weight: 600; color: var(--text-muted); font-family: system-ui, sans-serif; }
+  .sc-cmp-pct { font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--panel-2); color: var(--text-secondary); }
+  .sc-cmp.down .sc-cmp-pct { background: rgba(12,163,12,0.14); color: var(--good); }
+  .sc-cmp.up .sc-cmp-pct { background: rgba(224,110,70,0.16); color: var(--critical); }
   .sc-impact { margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border); font-size: 14px; font-weight: 700; font-family: var(--mono); }
   .sc-impact.pos { color: var(--critical); }
   .sc-impact.neg { color: var(--good); }
@@ -1620,25 +1623,29 @@
   const ICO_DOWN = '<svg class="sc-cmp-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4 12 12M12 7v5h-5"/></svg>';
   const ICO_UP = '<svg class="sc-cmp-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M12 9V4H7"/></svg>';
   const ICO_FLAT = '<svg class="sc-cmp-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+  function cmpRow(cls, ico, title, sub, right) {
+    return '<div class="sc-cmp ' + cls + '">' +
+      '<span class="sc-cmp-badge">' + ico + "</span>" +
+      '<div class="sc-cmp-tx"><div class="sc-cmp-title">' + title + "</div>" +
+      '<div class="sc-cmp-sub">' + sub + "</div></div>" +
+      '<div class="sc-cmp-r">' + right + "</div></div>";
+  }
   function cmpLine(title, refLabel, curr, ref) {
     if (ref == null) {
-      return '<div class="sc-cmp flat"><div class="sc-cmp-l">' + ICO_FLAT +
-        '<div class="sc-cmp-tx"><div class="sc-cmp-title">' + title + "</div>" +
-        '<div class="sc-cmp-sub">sem referência disponível</div></div></div></div>';
+      return cmpRow("flat", ICO_FLAT, title, "sem referência disponível",
+        '<div class="sc-cmp-val sm">—</div>');
     }
     const d = curr - ref, pct = ref ? d / ref * 100 : 0;
     const near = Math.abs(d) < 0.5;
-    const cls = near ? "flat" : (d < 0 ? "down" : "up");
-    const ico = near ? ICO_FLAT : (d < 0 ? ICO_DOWN : ICO_UP);
+    const sub = refLabel + ": " + fmtBRL0(ref) + " /MWh";
+    if (near) return cmpRow("flat", ICO_FLAT, title, sub, '<div class="sc-cmp-val sm">no mesmo nível</div>');
+    const cls = d < 0 ? "down" : "up";
+    const ico = d < 0 ? ICO_DOWN : ICO_UP;
     const sign = d < 0 ? "−" : "+";
-    const valTxt = near
-      ? '<div class="sc-cmp-val sm">no mesmo nível</div>'
-      : '<div class="sc-cmp-val">' + sign + fmtBRL0(Math.abs(d)) + "</div>" +
-        '<div class="sc-cmp-pct">' + sign + Math.abs(pct).toFixed(1).replace(".", ",") + "%</div>";
-    return '<div class="sc-cmp ' + cls + '"><div class="sc-cmp-l">' + ico +
-      '<div class="sc-cmp-tx"><div class="sc-cmp-title">' + title + "</div>" +
-      '<div class="sc-cmp-sub">' + refLabel + ": " + fmtBRL0(ref) + " /MWh</div></div></div>" +
-      '<div class="sc-cmp-r">' + valTxt + "</div></div>";
+    const right =
+      '<div class="sc-cmp-val">' + sign + fmtBRL0(Math.abs(d)) + '<span class="sc-cmp-unit">/MWh</span></div>' +
+      '<span class="sc-cmp-pct">' + sign + Math.abs(pct).toFixed(1).replace(".", ",") + "%</span>";
+    return cmpRow(cls, ico, title, sub, right);
   }
 
   function renderSim() {
