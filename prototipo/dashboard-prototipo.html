@@ -372,6 +372,24 @@
   .lead-submit { width: 100%; margin-top: 6px; background: #c9622c; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: background .15s; }
   .lead-submit:hover { background: #b3541f; }
   .lead-note { font-size: 11px; line-height: 1.5; color: #77777f; text-align: center; margin: 12px 0 2px; }
+
+  /* ── Minha conta: configuração de perfil dentro da página do simulador (.acct-*) ─ */
+  .acct-form { display: grid; gap: 15px; max-width: 540px; }
+  .acct-field { display: grid; gap: 6px; }
+  .acct-field label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .acct-input { width: 100%; box-sizing: border-box; background: var(--panel-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 14px; color: var(--text-primary); outline: none; transition: border-color .15s, box-shadow .15s; }
+  .acct-input::placeholder { color: var(--text-secondary); opacity: .55; }
+  .acct-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(235,104,52,0.18); }
+  .acct-field.bad .acct-input { border-color: var(--critical); }
+  .acct-err { display: none; font-size: 11.5px; color: var(--critical); }
+  .acct-field.bad .acct-err { display: block; }
+  .acct-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .acct-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
+  .acct-save { background: var(--brand); border: none; border-radius: 10px; padding: 11px 20px; font-size: 13.5px; font-weight: 700; color: #fff; cursor: pointer; transition: filter .15s; }
+  .acct-save:hover { filter: brightness(0.93); }
+  .acct-msg { display: none; font-size: 12.5px; font-weight: 600; }
+  .acct-msg.show { display: inline; }
+  .acct-msg.ok { color: var(--good); }
 </style>
 
 <div class="wrap">
@@ -561,8 +579,9 @@
 
   <!-- ══════════ SIMULADOR: MEU CONTRATO × MERCADO ══════════ -->
   <div id="viewSimulator" style="display:none">
-    <div class="sim-head">
+    <div class="sim-head" style="display:flex; align-items:center; justify-content:space-between; gap:10px">
       <button class="icon-btn" id="simBack" type="button">← Voltar ao painel</button>
+      <button class="icon-btn" id="goAccount" type="button">⚙️ Minha conta</button>
     </div>
 
     <section class="hero sim-hero">
@@ -624,6 +643,81 @@
       <div class="badge">PROTÓTIPO · SIMULADOR DO CLIENTE</div>
     </footer>
   </div><!-- /viewSimulator -->
+
+  <div id="viewAccount" style="display:none">
+    <div class="sim-head">
+      <button class="icon-btn" id="acctBack" type="button">← Voltar ao simulador</button>
+    </div>
+
+    <section class="hero">
+      <div class="hero-left">
+        <span class="eyebrow">Minha conta · Dados de cadastro</span>
+        <h1>Configurações do seu perfil</h1>
+        <p>Aqui você confere e atualiza os dados que usamos para falar com você sobre a simulação e as ofertas de energia. Alterou de email ou de telefone? É só editar e salvar.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Dados de contato</h2>
+          <p>Seu nome, email e telefone cadastrados. Atualize se algum deles mudou.</p>
+        </div>
+      </div>
+      <form class="acct-form" id="acctProfileForm" novalidate>
+        <div class="acct-field" id="acctFldNome">
+          <label for="acctNome">Nome</label>
+          <input class="acct-input" id="acctNome" type="text" autocomplete="name" placeholder="Seu nome" />
+          <div class="acct-err">Informe seu nome.</div>
+        </div>
+        <div class="acct-field" id="acctFldEmail">
+          <label for="acctEmail">Email cadastrado</label>
+          <input class="acct-input" id="acctEmail" type="email" autocomplete="email" placeholder="nome@dominio.com" />
+          <div class="acct-err">Informe um email válido.</div>
+        </div>
+        <div class="acct-field" id="acctFldTel">
+          <label for="acctTel">Telefone cadastrado</label>
+          <input class="acct-input" id="acctTel" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
+          <div class="acct-err">Informe um telefone com DDD.</div>
+        </div>
+        <div class="acct-actions">
+          <button type="submit" class="acct-save">Salvar alterações</button>
+          <span class="acct-msg ok" id="acctProfileMsg">Dados atualizados com sucesso.</span>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Senha</h2>
+          <p>Defina uma nova senha de acesso à sua conta.</p>
+        </div>
+      </div>
+      <form class="acct-form" id="acctPassForm" novalidate>
+        <div class="acct-field" id="acctFldPass">
+          <label for="acctPass">Nova senha</label>
+          <input class="acct-input" id="acctPass" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres" />
+          <div class="acct-err">A senha precisa ter ao menos 6 caracteres.</div>
+        </div>
+        <div class="acct-field" id="acctFldPass2">
+          <label for="acctPass2">Confirmar nova senha</label>
+          <input class="acct-input" id="acctPass2" type="password" autocomplete="new-password" placeholder="Repita a nova senha" />
+          <div class="acct-err">As senhas não coincidem.</div>
+        </div>
+        <div class="acct-actions">
+          <button type="submit" class="acct-save">Alterar senha</button>
+          <span class="acct-msg ok" id="acctPassMsg">Senha alterada com sucesso.</span>
+        </div>
+        <p class="acct-hint">Protótipo sem servidor: a senha não é enviada nem armazenada — a confirmação é apenas ilustrativa até a integração com o site real.</p>
+      </form>
+    </section>
+
+    <footer class="foot">
+      Área de conta do protótipo. Alterações de nome, email e telefone ficam salvas neste navegador; ao integrar ao site real, passam a gravar no cadastro do cliente.
+      <div class="badge">PROTÓTIPO · MINHA CONTA</div>
+    </footer>
+  </div><!-- /viewAccount -->
 </div>
 
 <div class="tooltip" id="tooltip"></div>
@@ -1609,11 +1703,13 @@
 
   function simVisible() { return document.getElementById("viewSimulator").style.display !== "none"; }
   function showView(name) {
-    document.getElementById("viewMarket").style.display = name === "sim" ? "none" : "";
+    document.getElementById("viewMarket").style.display = name === "market" ? "" : "none";
     document.getElementById("viewSimulator").style.display = name === "sim" ? "" : "none";
+    document.getElementById("viewAccount").style.display = name === "account" ? "" : "none";
     document.getElementById("tooltip").style.opacity = 0;
     window.scrollTo(0, 0);
     if (name === "sim") renderSim();
+    if (name === "account") fillAccount();
   }
   document.getElementById("goSim").addEventListener("click", () => requestSim("header:goSim"));
   document.getElementById("simBack").addEventListener("click", () => showView("market"));
@@ -2016,6 +2112,84 @@
   [["fldNome", elNome], ["fldEmail", elEmail], ["fldTel", elTel]].forEach(function (pair) {
     pair[1].addEventListener("input", function () { setInvalid(pair[0], false); });
   });
+
+  // ── Minha conta: configuração de perfil dentro da página do simulador ─────
+  const acctNome = document.getElementById("acctNome");
+  const acctEmail = document.getElementById("acctEmail");
+  const acctTel = document.getElementById("acctTel");
+  const acctPass = document.getElementById("acctPass");
+  const acctPass2 = document.getElementById("acctPass2");
+
+  function getLeads() { try { return JSON.parse(lsGet(LEAD_STORE) || "[]"); } catch (e) { return []; } }
+  function currentLead() { const f = getLeads(); return f.length ? f[f.length - 1] : null; }
+  function acctBad(id, bad) { document.getElementById(id).classList.toggle("bad", bad); }
+  function acctMsg(id, show) { document.getElementById(id).classList.toggle("show", show); }
+
+  // Preenche a tela de conta com o cadastro atual deste navegador.
+  function fillAccount() {
+    const rec = currentLead() || {};
+    acctNome.value = rec.nome || "";
+    acctEmail.value = rec.email || "";
+    acctTel.value = rec.telefone || "";
+    acctPass.value = ""; acctPass2.value = "";
+    ["acctFldNome", "acctFldEmail", "acctFldTel", "acctFldPass", "acctFldPass2"]
+      .forEach(function (id) { acctBad(id, false); });
+    acctMsg("acctProfileMsg", false); acctMsg("acctPassMsg", false);
+  }
+
+  acctTel.addEventListener("input", function () { acctTel.value = maskPhone(acctTel.value); });
+
+  // Salva nome/email/telefone no registro atual (persiste local; ponto de integração real).
+  document.getElementById("acctProfileForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    acctMsg("acctProfileMsg", false);
+    const nome = acctNome.value.trim();
+    const email = acctEmail.value.trim();
+    const telDigits = acctTel.value.replace(/\D/g, "");
+    const badNome = nome.length === 0;
+    const badEmail = !EMAIL_RE.test(email);
+    const badTel = telDigits.length < 10;
+    acctBad("acctFldNome", badNome);
+    acctBad("acctFldEmail", badEmail);
+    acctBad("acctFldTel", badTel);
+    if (badNome || badEmail || badTel) {
+      (badNome ? acctNome : badEmail ? acctEmail : acctTel).focus();
+      return;
+    }
+    const fila = getLeads();
+    const patch = { nome: nome, email: email, telefone: acctTel.value, atualizadoEm: new Date().toISOString() };
+    if (fila.length) { Object.assign(fila[fila.length - 1], patch); } else { fila.push(patch); }
+    lsSet(LEAD_STORE, JSON.stringify(fila));
+    // === Atualizar o cadastro no backend quando o site real existir:
+    // fetch("/api/leads", { method: "PUT", headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(patch) }).catch(function () {});
+    acctMsg("acctProfileMsg", true);
+  });
+
+  // Troca de senha: protótipo sem servidor — valida e confirma, sem armazenar a senha.
+  document.getElementById("acctPassForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    acctMsg("acctPassMsg", false);
+    const p1 = acctPass.value, p2 = acctPass2.value;
+    const badP1 = p1.length < 6;
+    const badP2 = !badP1 && p2 !== p1;
+    acctBad("acctFldPass", badP1);
+    acctBad("acctFldPass2", badP2);
+    if (badP1) { acctPass.focus(); return; }
+    if (badP2) { acctPass2.focus(); return; }
+    acctPass.value = ""; acctPass2.value = "";
+    acctMsg("acctPassMsg", true);
+  });
+
+  // Limpa o destaque de erro assim que a pessoa começa a corrigir cada campo.
+  [["acctFldNome", acctNome], ["acctFldEmail", acctEmail], ["acctFldTel", acctTel],
+   ["acctFldPass", acctPass], ["acctFldPass2", acctPass2]
+  ].forEach(function (pair) {
+    pair[1].addEventListener("input", function () { acctBad(pair[0], false); });
+  });
+
+  document.getElementById("goAccount").addEventListener("click", function () { showView("account"); });
+  document.getElementById("acctBack").addEventListener("click", function () { showView("sim"); });
 
   document.getElementById("leadClose").addEventListener("click", closeLead);
   leadOverlay.addEventListener("mousedown", function (e) { if (e.target === leadOverlay) closeLead(); });
