@@ -383,7 +383,7 @@
   .pw-eye:hover { opacity: 1; }
 
   /* ── Minha conta: configuração de perfil dentro da página do simulador (.acct-*) ─ */
-  .acct-form { display: grid; gap: 15px; max-width: 540px; }
+  .acct-form { display: grid; gap: 15px; }
   .acct-field { display: grid; gap: 6px; }
   .acct-field label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
   .acct-input { width: 100%; box-sizing: border-box; background: var(--panel-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 14px; color: var(--text-primary); outline: none; transition: border-color .15s, box-shadow .15s; }
@@ -392,13 +392,29 @@
   .acct-field.bad .acct-input { border-color: var(--critical); }
   .acct-err { display: none; font-size: 11.5px; color: var(--critical); }
   .acct-field.bad .acct-err { display: block; }
-  .acct-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .acct-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 6px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
   .acct-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
   .acct-save { background: var(--brand); border: none; border-radius: 10px; padding: 11px 20px; font-size: 13.5px; font-weight: 700; color: #fff; cursor: pointer; transition: filter .15s; }
   .acct-save:hover { filter: brightness(0.93); }
   .acct-msg { display: none; font-size: 12.5px; font-weight: 600; }
   .acct-msg.show { display: inline; }
   .acct-msg.ok { color: var(--good); }
+  /* coluna única centralizada (só a tela Minha conta) */
+  #viewAccount { max-width: 640px; margin-left: auto; margin-right: auto; }
+  /* cabeçalho do perfil, sem o gradiente decorativo do .hero */
+  .acct-hero { padding: 22px 22px 20px; }
+  .acct-hero-head { display: flex; align-items: center; gap: 16px; }
+  .acct-avatar { width: 54px; height: 54px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; text-transform: uppercase; color: var(--brand-text); background: var(--brand-wash); border: 1px solid var(--border); }
+  .acct-hero h1 { font-size: clamp(21px, 3vw, 28px); margin: 4px 0 0; letter-spacing: -0.02em; line-height: 1.12; }
+  .acct-hero-lead { color: var(--text-secondary); font-size: 13.5px; line-height: 1.55; margin: 14px 0 0; }
+  /* ícone à esquerda dentro do campo */
+  .acct-inwrap { position: relative; }
+  .acct-inwrap .acct-input, .pw-wrap .acct-input { padding-left: 40px; }
+  .in-ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--text-secondary); opacity: .75; pointer-events: none; }
+  .in-ico svg { width: 100%; height: 100%; display: block; }
+  /* ação secundária: contorno na cor da marca, sem preenchimento */
+  .acct-secondary { background: transparent; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 20px; font-size: 13.5px; font-weight: 700; color: var(--brand-text); cursor: pointer; transition: background .15s; }
+  .acct-secondary:hover { background: var(--brand-wash); }
 </style>
 
 <div class="wrap">
@@ -657,12 +673,15 @@
       <button class="icon-btn" id="acctBack" type="button">← Voltar ao simulador</button>
     </div>
 
-    <section class="hero">
-      <div class="hero-left">
-        <span class="eyebrow">Minha conta · Dados de cadastro</span>
-        <h1>Configurações do seu perfil</h1>
-        <p>Aqui você confere e atualiza os dados que usamos para falar com você sobre a simulação e as ofertas de energia. Alterou de email ou de telefone? É só editar e salvar.</p>
+    <section class="card acct-hero">
+      <div class="acct-hero-head">
+        <div class="acct-avatar" id="acctAvatar">R</div>
+        <div class="acct-hero-txt">
+          <span class="eyebrow">Minha conta · Dados de cadastro</span>
+          <h1>Configurações do seu perfil</h1>
+        </div>
       </div>
+      <p class="acct-hero-lead">Aqui você confere e atualiza os dados que usamos para falar com você sobre a simulação e as ofertas de energia. Alterou de email ou de telefone? É só editar e salvar.</p>
     </section>
 
     <section class="card">
@@ -675,17 +694,26 @@
       <form class="acct-form" id="acctProfileForm" novalidate>
         <div class="acct-field" id="acctFldNome">
           <label for="acctNome">Nome</label>
-          <input class="acct-input" id="acctNome" type="text" autocomplete="name" placeholder="Seu nome" />
+          <div class="acct-inwrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg></span>
+            <input class="acct-input" id="acctNome" type="text" autocomplete="name" placeholder="Seu nome" />
+          </div>
           <div class="acct-err">Informe seu nome.</div>
         </div>
         <div class="acct-field" id="acctFldEmail">
           <label for="acctEmail">Email cadastrado</label>
-          <input class="acct-input" id="acctEmail" type="email" autocomplete="email" placeholder="nome@dominio.com" />
+          <div class="acct-inwrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+            <input class="acct-input" id="acctEmail" type="email" autocomplete="email" placeholder="nome@dominio.com" />
+          </div>
           <div class="acct-err">Informe um email válido.</div>
         </div>
         <div class="acct-field" id="acctFldTel">
           <label for="acctTel">Telefone cadastrado</label>
-          <input class="acct-input" id="acctTel" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
+          <div class="acct-inwrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3H4a1 1 0 0 0-1 1 16 16 0 0 0 16 16 1 1 0 0 0 1-1v-2.6a1 1 0 0 0-.75-.97l-3.2-.8a1 1 0 0 0-1 .27l-1 1.2a12 12 0 0 1-5.4-5.4l1.2-1a1 1 0 0 0 .27-1l-.8-3.2A1 1 0 0 0 6.6 3Z"/></svg></span>
+            <input class="acct-input" id="acctTel" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
+          </div>
           <div class="acct-err">Informe um telefone com DDD.</div>
         </div>
         <div class="acct-actions">
@@ -706,6 +734,7 @@
         <div class="acct-field" id="acctFldPass">
           <label for="acctPass">Nova senha</label>
           <div class="pw-wrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <input class="acct-input" id="acctPass" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres" />
             <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
           </div>
@@ -714,13 +743,14 @@
         <div class="acct-field" id="acctFldPass2">
           <label for="acctPass2">Confirmar nova senha</label>
           <div class="pw-wrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <input class="acct-input" id="acctPass2" type="password" autocomplete="new-password" placeholder="Repita a nova senha" />
             <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
           </div>
           <div class="acct-err">As senhas não coincidem.</div>
         </div>
         <div class="acct-actions">
-          <button type="submit" class="acct-save">Alterar senha</button>
+          <button type="submit" class="acct-secondary">Alterar senha</button>
           <span class="acct-msg ok" id="acctPassMsg">Senha alterada com sucesso.</span>
         </div>
         <p class="acct-hint">Protótipo sem servidor: a senha fica guardada só neste navegador (em hash simples, não em texto puro). No site real, o hash seguro fica no backend.</p>
@@ -2257,6 +2287,7 @@
     acctNome.value = rec.nome || "";
     acctEmail.value = rec.email || "";
     acctTel.value = rec.telefone || "";
+    document.getElementById("acctAvatar").textContent = ((rec.nome || "").trim().charAt(0) || "?");
     acctPass.value = ""; acctPass2.value = "";
     resetPwEyes(document.getElementById("viewAccount"));
     ["acctFldNome", "acctFldEmail", "acctFldTel", "acctFldPass", "acctFldPass2"]
