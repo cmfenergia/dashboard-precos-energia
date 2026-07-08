@@ -446,6 +446,42 @@
     .acct-navsep { display: none; }
     .acct-navlogout { margin-left: auto; }
   }
+
+  /* ── Alerta de preço-alvo no simulador (.alrt-*) ── */
+  .alrt-body { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; }
+  .alrt-now { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px; margin-bottom: 14px; }
+  .alrt-now-label { display: block; font-size: 12px; color: var(--text-secondary); }
+  .alrt-now-label b { color: var(--text-primary); }
+  .alrt-now-val { display: flex; align-items: baseline; gap: 3px; margin: 5px 0 3px; font-family: var(--mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 30px; letter-spacing: -0.02em; color: var(--text-primary); }
+  .alrt-now-val .cur { font-size: 15px; color: var(--text-secondary); font-weight: 700; }
+  .alrt-now-val small { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+  .alrt-now-sub { font-size: 11.5px; color: var(--text-secondary); }
+  .alrt-flabel { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  .alrt-err { display: none; font-size: 11.5px; color: var(--critical); margin-top: 6px; }
+  .alrt-check { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--text-primary); padding: 7px 0; cursor: pointer; line-height: 1.4; }
+  .alrt-check input { margin-top: 1px; accent-color: var(--brand); width: 15px; height: 15px; flex: 0 0 auto; }
+  .alrt-check b { font-weight: 600; color: var(--text-secondary); }
+  .alrt-optin { color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+  .alrt-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+  .alrt-status { border-radius: 11px; padding: 12px 14px; font-size: 13px; line-height: 1.5; margin-top: 16px; border: 1px solid var(--border); }
+  .alrt-status.wait { background: var(--panel-2); color: var(--text-secondary); }
+  .alrt-status.wait b { color: var(--text-primary); }
+  .alrt-status.hit { background: var(--brand-wash); border-color: var(--brand); color: var(--text-primary); }
+  .alrt-sim-link { background: none; border: none; color: var(--brand-text); font-weight: 700; cursor: pointer; padding: 0; font-size: 11.5px; }
+  .alrt-sim-link:hover { text-decoration: underline; }
+  .alrt-preview { margin-top: 14px; display: flex; flex-direction: column; gap: 13px; }
+  .alrt-preview-lab { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+  .wa { max-width: 360px; }
+  .wa-head { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+  .wa-logo { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #25d366; color: #fff; align-items: center; justify-content: center; font-size: 11px; }
+  .wa-bubble { background: #d9fdd3; color: #0b1f16; border-radius: 12px; border-top-left-radius: 3px; padding: 9px 12px; font-size: 13px; line-height: 1.5; }
+  [data-theme="dark"] .wa-bubble { background: #075e54; color: #e9ffe4; }
+  .wa-time { display: block; text-align: right; font-size: 10px; opacity: 0.6; margin-top: 3px; }
+  .mail { max-width: 430px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--panel-2); }
+  .mail-head { padding: 9px 13px; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text-secondary); }
+  .mail-subj { padding: 9px 13px 3px; font-weight: 700; font-size: 13.5px; color: var(--text-primary); }
+  .mail-body { padding: 2px 13px 13px; font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); }
+  @media (max-width: 640px) { .alrt-body { grid-template-columns: 1fr; gap: 16px; } }
 </style>
 
 <div class="wrap">
@@ -691,6 +727,51 @@
       <div class="sim-cards" id="simCards"></div>
       <div id="simCharts"></div>
       <div class="note" id="simNote"></div>
+    </section>
+
+    <section class="card" id="alrtCard">
+      <div class="card-head">
+        <div>
+          <h2>Alerta de preço-alvo</h2>
+          <p>Defina o preço que você consideraria bom para renovar ou fechar um novo contrato. Quando o mercado chegar a esse valor, a CMF te avisa e entra em contato para buscar a oportunidade com um gerador.</p>
+        </div>
+      </div>
+
+      <div class="alrt-body">
+        <div class="alrt-set">
+          <div class="alrt-now">
+            <span class="alrt-now-label">Preço de mercado hoje · ano-safra <b id="alrtAno">2027</b></span>
+            <div class="alrt-now-val"><span class="cur">R$</span><span id="alrtNow">—</span><small>/MWh</small></div>
+            <span class="alrt-now-sub">Ano mais negociado no momento. Base: jun/2026.</span>
+          </div>
+
+          <label class="alrt-flabel" for="alrtAlvo">Seu preço-alvo (R$/MWh)</label>
+          <div class="acct-inwrap">
+            <span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>
+            <input class="acct-input" id="alrtAlvo" type="text" inputmode="decimal" autocomplete="off" placeholder="ex.: 280" />
+          </div>
+          <div class="alrt-err" id="alrtAlvoErr">Informe um preço-alvo válido (maior que zero).</div>
+        </div>
+
+        <div class="alrt-side">
+          <span class="alrt-flabel">Como quer ser avisado?</span>
+          <label class="alrt-check"><input type="checkbox" id="alrtWa" checked /> <span>WhatsApp <b id="alrtWaNum"></b></span></label>
+          <label class="alrt-check"><input type="checkbox" id="alrtEmailCh" checked /> <span>Email <b id="alrtEmailAddr"></b></span></label>
+          <label class="alrt-check alrt-optin"><input type="checkbox" id="alrtOptin" /> <span>Autorizo a CMF Energia a me contatar por esses canais quando o preço-alvo for atingido.</span></label>
+          <div class="alrt-err" id="alrtChErr">Escolha ao menos um canal e autorize o contato.</div>
+        </div>
+      </div>
+
+      <div class="alrt-actions">
+        <button type="button" class="acct-save" id="alrtSave">Ativar alerta</button>
+        <button type="button" class="acct-secondary" id="alrtOff" style="display:none">Desativar alerta</button>
+        <span class="acct-msg ok" id="alrtMsg">Alerta ativado.</span>
+      </div>
+
+      <div class="alrt-status" id="alrtStatus" style="display:none"></div>
+      <div class="alrt-preview" id="alrtPreview" style="display:none"></div>
+
+      <p class="acct-hint">Protótipo sem servidor: nada é enviado de verdade. No site real, um serviço da CMF compara os preços a cada atualização da curva e dispara a mensagem por WhatsApp/email automaticamente. <button type="button" class="alrt-sim-link" id="alrtSimHit">Simular preço atingido →</button></p>
     </section>
 
     <footer class="foot">
@@ -1851,7 +1932,7 @@
     document.getElementById("viewAccount").style.display = name === "account" ? "" : "none";
     document.getElementById("tooltip").style.opacity = 0;
     window.scrollTo(0, 0);
-    if (name === "sim") renderSim();
+    if (name === "sim") { renderSim(); renderAlerta(); }
     if (name === "account") fillAccount();
   }
   document.getElementById("goSim").addEventListener("click", () => requestSim("header:goSim"));
@@ -2443,6 +2524,135 @@
 
   document.getElementById("goAccount").addEventListener("click", function () { showView("account"); });
   document.getElementById("acctBack").addEventListener("click", function () { showView("sim"); });
+
+  // ── Alerta de preço-alvo (simulado; só neste navegador) ────────────────────
+  // Ano-safra mais negociado hoje (A+1). No site real viria do backend.
+  const ALERTA_ANO = "2027";
+  // Preço de referência = última cotação nominal (R$/MWh) daquele ano na curva.
+  function alrtPrice() {
+    const arr = (YEARS[ALERTA_ANO] || {}).nominal || [];
+    for (let i = arr.length - 1; i >= 0; i--) { if (arr[i] != null) return arr[i]; }
+    return null;
+  }
+  function alrtShowErr(id, show) { document.getElementById(id).style.display = show ? "block" : "none"; }
+
+  // Texto único da notificação, reaproveitado no WhatsApp e no email.
+  function alrtBody(alvo, price) {
+    return "O preço de energia para " + ALERTA_ANO + " chegou a " + fmtBRL0(price) +
+      "/MWh, dentro do seu alvo de " + fmtBRL0(alvo) + "/MWh. Podemos buscar sua renovação agora?";
+  }
+  function alrtWaCard(msg) {
+    return '<div class="wa"><div class="wa-head"><span class="wa-logo">⚡</span> CMF Energia</div>' +
+      '<div class="wa-bubble"><b>Boa notícia! 🎯</b><br>' + msg +
+      '<span class="wa-time">agora ✓✓</span></div></div>';
+  }
+  function alrtMailCard(msg) {
+    return '<div class="mail"><div class="mail-head">CMF Energia &lt;alertas@cmfenergia.com.br&gt;</div>' +
+      '<div class="mail-subj">Seu preço-alvo para ' + ALERTA_ANO + ' foi atingido</div>' +
+      '<div class="mail-body">' + msg + ' Responda este email ou aguarde: um especialista vai falar com você.</div></div>';
+  }
+  function alrtShowPreview(alvo, price) {
+    const wa = document.getElementById("alrtWa").checked;
+    const em = document.getElementById("alrtEmailCh").checked;
+    const msg = alrtBody(alvo, price);
+    let html = '<div class="alrt-preview-lab">Prévia da notificação (simulação — nada é enviado)</div>';
+    if (wa) html += alrtWaCard(msg);
+    if (em) html += alrtMailCard(msg);
+    if (!wa && !em) html = '<div class="alrt-status wait">Selecione um canal para ver a prévia.</div>';
+    const p = document.getElementById("alrtPreview"); p.innerHTML = html; p.style.display = "";
+  }
+  function alrtRenderStatus(alvo, now) {
+    const st = document.getElementById("alrtStatus"); st.style.display = "";
+    if (now != null && now <= alvo) {
+      st.className = "alrt-status hit";
+      st.innerHTML = "🎯 <b>Preço atingido!</b> O mercado para " + ALERTA_ANO + " está em " + fmtBRL0(now) +
+        "/MWh, dentro do seu alvo de " + fmtBRL0(alvo) + "/MWh. A CMF vai falar com você para buscar essa renovação.";
+      alrtShowPreview(alvo, now);
+    } else {
+      st.className = "alrt-status wait";
+      st.innerHTML = "⏳ <b>Alerta ativo.</b> Preço de hoje para " + ALERTA_ANO + ": " + fmtBRL0(now) +
+        "/MWh. Faltam " + fmtBRL0(now - alvo) + "/MWh para o seu alvo de " + fmtBRL0(alvo) +
+        "/MWh — a gente te avisa quando chegar lá.";
+      document.getElementById("alrtPreview").style.display = "none";
+    }
+  }
+  // Preenche a tela com o alerta salvo na conta (ou o estado "criar novo").
+  function renderAlerta() {
+    if (!document.getElementById("alrtCard")) return;
+    const rec = currentLead() || {};
+    const now = alrtPrice();
+    document.getElementById("alrtAno").textContent = ALERTA_ANO;
+    document.getElementById("alrtNow").textContent = now != null ? Math.round(now).toLocaleString("pt-BR") : "—";
+    document.getElementById("alrtWaNum").textContent = rec.telefone ? "· " + rec.telefone : "";
+    document.getElementById("alrtEmailAddr").textContent = rec.email ? "· " + rec.email : "";
+    acctMsg("alrtMsg", false);
+    alrtShowErr("alrtAlvoErr", false); alrtShowErr("alrtChErr", false);
+    const a = rec.alerta;
+    if (a) {
+      document.getElementById("alrtAlvo").value = a.alvo;
+      document.getElementById("alrtWa").checked = !!(a.canais && a.canais.whatsapp);
+      document.getElementById("alrtEmailCh").checked = !!(a.canais && a.canais.email);
+      document.getElementById("alrtOptin").checked = !!a.optin;
+      document.getElementById("alrtSave").textContent = "Salvar alterações";
+      document.getElementById("alrtOff").style.display = "";
+      alrtRenderStatus(a.alvo, now);
+    } else {
+      document.getElementById("alrtAlvo").value = "";
+      document.getElementById("alrtWa").checked = true;
+      document.getElementById("alrtEmailCh").checked = true;
+      document.getElementById("alrtOptin").checked = false;
+      document.getElementById("alrtSave").textContent = "Ativar alerta";
+      document.getElementById("alrtOff").style.display = "none";
+      document.getElementById("alrtStatus").style.display = "none";
+      document.getElementById("alrtPreview").style.display = "none";
+    }
+  }
+
+  // Ativar/salvar: grava o alerta na conta atual (ponto de integração real).
+  document.getElementById("alrtSave").addEventListener("click", function () {
+    const alvo = parseFloat((document.getElementById("alrtAlvo").value || "").replace(/\./g, "").replace(",", "."));
+    const wa = document.getElementById("alrtWa").checked;
+    const em = document.getElementById("alrtEmailCh").checked;
+    const optin = document.getElementById("alrtOptin").checked;
+    const badAlvo = !(alvo > 0);
+    const badCh = (!wa && !em) || !optin;
+    alrtShowErr("alrtAlvoErr", badAlvo); alrtShowErr("alrtChErr", badCh);
+    if (badAlvo) { document.getElementById("alrtAlvo").focus(); return; }
+    if (badCh) return;
+    const list = getAccounts(); const idx = currentIndex(); if (idx < 0) return;
+    list[idx].alerta = { ano: ALERTA_ANO, alvo: alvo, canais: { whatsapp: wa, email: em }, optin: true, ativo: true, criadoEm: new Date().toISOString() };
+    setAccounts(list);
+    // === No site real: POST /api/alertas { ano, alvo, canais }. Um serviço compara
+    // os preços a cada atualização da curva e dispara WhatsApp/email quando bate.
+    // fetch("/api/alertas", { method: "POST", headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(list[idx].alerta) }).catch(function () {});
+    renderAlerta();
+    acctMsg("alrtMsg", true);
+  });
+
+  document.getElementById("alrtOff").addEventListener("click", function () {
+    const list = getAccounts(); const idx = currentIndex();
+    if (idx >= 0) { delete list[idx].alerta; setAccounts(list); }
+    renderAlerta();
+  });
+
+  // Prévia sob demanda: mostra a notificação mesmo antes de o preço bater.
+  document.getElementById("alrtSimHit").addEventListener("click", function () {
+    const alvo = parseFloat((document.getElementById("alrtAlvo").value || "").replace(/\./g, "").replace(",", "."));
+    if (!(alvo > 0)) { alrtShowErr("alrtAlvoErr", true); document.getElementById("alrtAlvo").focus(); return; }
+    alrtShowErr("alrtAlvoErr", false);
+    const now = alrtPrice();
+    const price = Math.min(now == null ? alvo : now, alvo);   // garante "atingido" no exemplo
+    const st = document.getElementById("alrtStatus"); st.style.display = ""; st.className = "alrt-status hit";
+    st.innerHTML = "🎯 <b>Exemplo:</b> se o preço para " + ALERTA_ANO + " chegar a " + fmtBRL0(price) +
+      "/MWh (seu alvo: " + fmtBRL0(alvo) + "/MWh), você receberia:";
+    alrtShowPreview(alvo, price);
+  });
+
+  document.getElementById("alrtAlvo").addEventListener("input", function () { alrtShowErr("alrtAlvoErr", false); });
+  ["alrtWa", "alrtEmailCh", "alrtOptin"].forEach(function (id) {
+    document.getElementById(id).addEventListener("change", function () { alrtShowErr("alrtChErr", false); });
+  });
 
   // Privacidade — Baixar meus dados: gera um JSON real da conta neste navegador.
   document.getElementById("acctDownload").addEventListener("click", function () {
