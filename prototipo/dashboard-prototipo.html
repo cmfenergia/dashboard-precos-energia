@@ -376,6 +376,11 @@
   .lead-seg button { flex: 1; background: none; border: none; border-radius: 7px; padding: 8px; font-size: 12.5px; font-weight: 700; color: #9a9aa2; cursor: pointer; transition: background .15s, color .15s; }
   .lead-seg button.active { background: #c9622c; color: #fff; }
   .lead-modal[data-authmode="login"] .only-signup { display: none; }
+  /* olhinho para revelar/ocultar a senha (modal e Minha conta) */
+  .pw-wrap { position: relative; display: block; }
+  .pw-wrap input { padding-right: 44px; }
+  .pw-eye { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px 7px; font-size: 15px; line-height: 1; border-radius: 7px; opacity: .7; }
+  .pw-eye:hover { opacity: 1; }
 
   /* ── Minha conta: configuração de perfil dentro da página do simulador (.acct-*) ─ */
   .acct-form { display: grid; gap: 15px; max-width: 540px; }
@@ -700,12 +705,18 @@
       <form class="acct-form" id="acctPassForm" novalidate>
         <div class="acct-field" id="acctFldPass">
           <label for="acctPass">Nova senha</label>
-          <input class="acct-input" id="acctPass" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres" />
+          <div class="pw-wrap">
+            <input class="acct-input" id="acctPass" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres" />
+            <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
+          </div>
           <div class="acct-err">A senha precisa ter ao menos 6 caracteres.</div>
         </div>
         <div class="acct-field" id="acctFldPass2">
           <label for="acctPass2">Confirmar nova senha</label>
-          <input class="acct-input" id="acctPass2" type="password" autocomplete="new-password" placeholder="Repita a nova senha" />
+          <div class="pw-wrap">
+            <input class="acct-input" id="acctPass2" type="password" autocomplete="new-password" placeholder="Repita a nova senha" />
+            <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
+          </div>
           <div class="acct-err">As senhas não coincidem.</div>
         </div>
         <div class="acct-actions">
@@ -766,12 +777,18 @@
       </div>
       <div class="lead-field" id="fldSenha">
         <label for="leadSenha">Senha</label>
-        <input class="lead-input" id="leadSenha" name="senha" type="password" autocomplete="current-password" placeholder="Sua senha" />
+        <div class="pw-wrap">
+          <input class="lead-input" id="leadSenha" name="senha" type="password" autocomplete="current-password" placeholder="Sua senha" />
+          <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
+        </div>
         <div class="lead-err">Informe sua senha.</div>
       </div>
       <div class="lead-field only-signup" id="fldSenha2">
         <label for="leadSenha2">Confirmar senha</label>
-        <input class="lead-input" id="leadSenha2" name="senha2" type="password" autocomplete="new-password" placeholder="Repita a senha" />
+        <div class="pw-wrap">
+          <input class="lead-input" id="leadSenha2" name="senha2" type="password" autocomplete="new-password" placeholder="Repita a senha" />
+          <button type="button" class="pw-eye" aria-label="Mostrar senha">👁</button>
+        </div>
         <div class="lead-err">As senhas não coincidem.</div>
       </div>
       <button type="submit" class="lead-submit" id="leadSubmit">Entrar</button>
@@ -2117,8 +2134,18 @@
     setTimeout(function () { (authMode === "signup" ? elNome : elEmail).focus(); }, 10);
   });
 
+  // Devolve todos os campos de senha (do bloco) ao estado oculto.
+  function resetPwEyes(root) {
+    root.querySelectorAll(".pw-eye").forEach(function (b) {
+      const i = b.parentNode.querySelector("input");
+      if (i) i.type = "password";
+      b.textContent = "👁"; b.setAttribute("aria-label", "Mostrar senha");
+    });
+  }
+
   function openLead() {
     leadForm.reset();
+    resetPwEyes(leadOverlay);
     // Sem contas ainda → começa no cadastro; senão, na tela de entrar.
     setAuthMode(getAccounts().length ? "login" : "signup");
     leadOverlay.classList.add("open");
@@ -2231,6 +2258,7 @@
     acctEmail.value = rec.email || "";
     acctTel.value = rec.telefone || "";
     acctPass.value = ""; acctPass2.value = "";
+    resetPwEyes(document.getElementById("viewAccount"));
     ["acctFldNome", "acctFldEmail", "acctFldTel", "acctFldPass", "acctFldPass2"]
       .forEach(function (id) { acctBad(id, false); });
     acctMsg("acctProfileMsg", false); acctMsg("acctPassMsg", false);
@@ -2301,6 +2329,18 @@
 
   document.getElementById("goAccount").addEventListener("click", function () { showView("account"); });
   document.getElementById("acctBack").addEventListener("click", function () { showView("sim"); });
+
+  // Olhinho: mostra/oculta a senha do campo ao lado (modal de acesso e Minha conta).
+  document.querySelectorAll(".pw-eye").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const input = btn.parentNode.querySelector("input");
+      const reveal = input.type === "password";
+      input.type = reveal ? "text" : "password";
+      btn.textContent = reveal ? "🙈" : "👁";
+      btn.setAttribute("aria-label", reveal ? "Ocultar senha" : "Mostrar senha");
+      input.focus();
+    });
+  });
 
   document.getElementById("leadClose").addEventListener("click", closeLead);
   leadOverlay.addEventListener("mousedown", function (e) { if (e.target === leadOverlay) closeLead(); });
