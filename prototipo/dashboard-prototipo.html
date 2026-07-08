@@ -372,6 +372,10 @@
   .lead-submit { width: 100%; margin-top: 6px; background: #c9622c; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: background .15s; }
   .lead-submit:hover { background: #b3541f; }
   .lead-note { font-size: 11px; line-height: 1.5; color: #77777f; text-align: center; margin: 12px 0 2px; }
+  .lead-seg { display: flex; gap: 4px; background: #232428; border: 1px solid #34363d; border-radius: 10px; padding: 3px; margin: 4px 0 16px; }
+  .lead-seg button { flex: 1; background: none; border: none; border-radius: 7px; padding: 8px; font-size: 12.5px; font-weight: 700; color: #9a9aa2; cursor: pointer; transition: background .15s, color .15s; }
+  .lead-seg button.active { background: #c9622c; color: #fff; }
+  .lead-modal[data-authmode="login"] .only-signup { display: none; }
 
   /* ── Minha conta: configuração de perfil dentro da página do simulador (.acct-*) ─ */
   .acct-form { display: grid; gap: 15px; max-width: 540px; }
@@ -708,7 +712,7 @@
           <button type="submit" class="acct-save">Alterar senha</button>
           <span class="acct-msg ok" id="acctPassMsg">Senha alterada com sucesso.</span>
         </div>
-        <p class="acct-hint">Protótipo sem servidor: a senha não é enviada nem armazenada — a confirmação é apenas ilustrativa até a integração com o site real.</p>
+        <p class="acct-hint">Protótipo sem servidor: a senha fica guardada só neste navegador (em hash simples, não em texto puro). No site real, o hash seguro fica no backend.</p>
       </form>
     </section>
 
@@ -716,7 +720,7 @@
       <div class="card-head">
         <div>
           <h2>Sessão</h2>
-          <p>Encerrar a sessão neste navegador. Seus dados de cadastro continuam salvos — na próxima simulação pedimos só a confirmação do acesso.</p>
+          <p>Encerrar a sessão neste navegador. Sua conta continua salva — na próxima simulação pedimos seu email e senha novamente.</p>
         </div>
       </div>
       <div class="acct-actions">
@@ -735,28 +739,42 @@
 
 <!-- Portão de captura de lead: aberto ao acionar o simulador (só se ainda não for lead) -->
 <div class="lead-overlay" id="leadOverlay" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
-  <div class="lead-modal">
+  <div class="lead-modal" data-authmode="login">
     <button type="button" class="lead-close" id="leadClose" aria-label="Fechar">×</button>
     <div class="lead-eyebrow">Acesso ao simulador</div>
-    <h2 class="lead-title" id="leadTitle">Simule seu contrato de energia</h2>
-    <p class="lead-lead">Preencha seus dados para liberar a comparação do seu contrato com o mercado livre. Leva menos de 30 segundos.</p>
+    <h2 class="lead-title" id="leadTitle">Entrar na sua conta</h2>
+    <p class="lead-lead" id="leadLead">Use seu email e senha para acessar o simulador.</p>
+    <div class="lead-seg" id="leadSeg">
+      <button type="button" data-authmode="login" class="active">Entrar</button>
+      <button type="button" data-authmode="signup">Criar conta</button>
+    </div>
     <form id="leadForm" novalidate>
-      <div class="lead-field" id="fldNome">
+      <div class="lead-field only-signup" id="fldNome">
         <label for="leadNome">Nome</label>
         <input class="lead-input" id="leadNome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" />
         <div class="lead-err">Informe seu nome.</div>
       </div>
       <div class="lead-field" id="fldEmail">
-        <label for="leadEmail">Email corporativo</label>
+        <label for="leadEmail">Email</label>
         <input class="lead-input" id="leadEmail" name="email" type="email" autocomplete="email" placeholder="nome@dominio.com" />
         <div class="lead-err">Informe um email válido.</div>
       </div>
-      <div class="lead-field" id="fldTel">
+      <div class="lead-field only-signup" id="fldTel">
         <label for="leadTel">Telefone corporativo</label>
         <input class="lead-input" id="leadTel" name="telefone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
         <div class="lead-err">Informe um telefone com DDD.</div>
       </div>
-      <button type="submit" class="lead-submit">Simular meu contrato</button>
+      <div class="lead-field" id="fldSenha">
+        <label for="leadSenha">Senha</label>
+        <input class="lead-input" id="leadSenha" name="senha" type="password" autocomplete="current-password" placeholder="Sua senha" />
+        <div class="lead-err">Informe sua senha.</div>
+      </div>
+      <div class="lead-field only-signup" id="fldSenha2">
+        <label for="leadSenha2">Confirmar senha</label>
+        <input class="lead-input" id="leadSenha2" name="senha2" type="password" autocomplete="new-password" placeholder="Repita a senha" />
+        <div class="lead-err">As senhas não coincidem.</div>
+      </div>
+      <button type="submit" class="lead-submit" id="leadSubmit">Entrar</button>
       <p class="lead-note">Usamos seus dados apenas para falar sobre a simulação e ofertas de energia. Não compartilhamos com terceiros.</p>
     </form>
   </div>
@@ -2019,65 +2037,92 @@
   document.getElementById("simAdd").addEventListener("click", () => { addSimRow("2028", null, null); sortSimRows(); renderSim(); });
   document.getElementById("simReset").addEventListener("click", () => { document.getElementById("simRows").innerHTML = ""; addSimRow("2027", null, null); renderSim(); });
 
-  // ── Portão de captura de lead antes do simulador ─────────────────────────
-  const LEAD_KEY = "cmf_lead_known";   // marca este navegador como lead já capturada
-  const LEAD_STORE = "cmf_leads";      // fila local dos leads (protótipo, sem backend)
+  // ── Login / cadastro antes do simulador ──────────────────────────────────
+  const ACCOUNTS_KEY = "cmf_leads";    // contas cadastradas (protótipo, sem backend)
+  const SESSION_KEY = "cmf_session";   // email da conta logada neste navegador
   const leadOverlay = document.getElementById("leadOverlay");
+  const leadModal = leadOverlay.querySelector(".lead-modal");
   const leadForm = document.getElementById("leadForm");
   const elNome = document.getElementById("leadNome");
   const elEmail = document.getElementById("leadEmail");
   const elTel = document.getElementById("leadTel");
+  const elSenha = document.getElementById("leadSenha");
+  const elSenha2 = document.getElementById("leadSenha2");
   let pendingCta = "";
+  let authMode = "login";
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsRemove(k) { try { localStorage.removeItem(k); } catch (e) {} }
-  function isKnownLead() { return lsGet(LEAD_KEY) === "1"; }
 
-  // Logout: encerra a sessão deste navegador SEM apagar os dados já salvos
-  // (LEAD_STORE permanece). Na próxima simulação o cadastro é pedido de novo.
-  // O botão "Sair" fica dentro da área "Minha conta".
+  // Hash leve só para não guardar a senha em texto puro no protótipo (FNV-1a).
+  // No site real, o hash seguro (bcrypt/argon2) fica no backend, nunca no cliente.
+  function hashSenha(s) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return "h" + (h >>> 0).toString(16);
+  }
+
+  function getAccounts() { try { return JSON.parse(lsGet(ACCOUNTS_KEY) || "[]"); } catch (e) { return []; } }
+  function setAccounts(list) { lsSet(ACCOUNTS_KEY, JSON.stringify(list)); }
+  function findAccount(email) {
+    const e = (email || "").trim().toLowerCase();
+    if (!e) return null;
+    return getAccounts().find(function (a) { return (a.email || "").toLowerCase() === e; }) || null;
+  }
+  function isLoggedIn() { return !!findAccount(lsGet(SESSION_KEY)); }
+
+  // Logout: encerra a sessão deste navegador SEM apagar as contas salvas.
+  // Na próxima simulação pedimos email e senha novamente. Botão em "Minha conta".
   function logout() {
-    lsRemove(LEAD_KEY);
+    lsRemove(SESSION_KEY);
     showView("market");
   }
   document.getElementById("goLogout").addEventListener("click", logout);
 
-  // PONTO ÚNICO DE INTEGRAÇÃO. Hoje persiste local (protótipo estático, sem banco).
-  // Ao embutir no site real, descomente o fetch para gravar na tabela de leads.
-  function saveLead(data) {
-    const rec = Object.assign({
-      criadoEm: new Date().toISOString(),
-      origemCta: pendingCta || "simulador",
-      pagina: location.href,
-      referrer: document.referrer || null
-    }, data);
-    try {
-      const fila = JSON.parse(lsGet(LEAD_STORE) || "[]");
-      fila.push(rec);
-      lsSet(LEAD_STORE, JSON.stringify(fila));
-    } catch (e) {}
-    lsSet(LEAD_KEY, "1");
-    // === Gravar no banco quando houver backend no site (não roda no Artifact/CSP):
-    // fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(rec) }).catch(function () {});
-    return rec;
-  }
-
-  // Todo CTA que leva ao simulador passa por aqui: lead conhecida entra direto.
+  // Todo CTA que leva ao simulador passa por aqui: sessão ativa entra direto.
   function requestSim(cta) {
     pendingCta = cta || "simulador";
-    if (isKnownLead()) { showView("sim"); return; }
+    if (isLoggedIn()) { showView("sim"); return; }
     openLead();
   }
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function setInvalid(id, bad) { document.getElementById(id).classList.toggle("invalid", bad); }
+  function setErr(id, msg) { const e = document.getElementById(id).querySelector(".lead-err"); if (e) e.textContent = msg; }
+
+  const AUTH_TXT = {
+    login:  { title: "Entrar na sua conta", lead: "Use seu email e senha para acessar o simulador.", submit: "Entrar" },
+    signup: { title: "Crie sua conta", lead: "Cadastre-se para liberar o simulador. Seu email vira o seu login.", submit: "Criar conta e simular" }
+  };
+  const AUTH_FIELDS = ["fldNome", "fldEmail", "fldTel", "fldSenha", "fldSenha2"];
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    leadModal.setAttribute("data-authmode", mode);
+    document.getElementById("leadTitle").textContent = AUTH_TXT[mode].title;
+    document.getElementById("leadLead").textContent = AUTH_TXT[mode].lead;
+    document.getElementById("leadSubmit").textContent = AUTH_TXT[mode].submit;
+    elSenha.setAttribute("autocomplete", mode === "signup" ? "new-password" : "current-password");
+    elSenha.setAttribute("placeholder", mode === "signup" ? "Crie uma senha (mín. 6)" : "Sua senha");
+    document.querySelectorAll("#leadSeg button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-authmode") === mode);
+    });
+    AUTH_FIELDS.forEach(function (id) { setInvalid(id, false); });
+  }
+
+  document.getElementById("leadSeg").addEventListener("click", function (e) {
+    const b = e.target.closest("button[data-authmode]"); if (!b) return;
+    setAuthMode(b.getAttribute("data-authmode"));
+    setTimeout(function () { (authMode === "signup" ? elNome : elEmail).focus(); }, 10);
+  });
+
   function openLead() {
     leadForm.reset();
-    ["fldNome", "fldEmail", "fldTel"].forEach(function (id) {
-      document.getElementById(id).classList.remove("invalid");
-    });
+    // Sem contas ainda → começa no cadastro; senão, na tela de entrar.
+    setAuthMode(getAccounts().length ? "login" : "signup");
     leadOverlay.classList.add("open");
-    setTimeout(function () { elNome.focus(); }, 30);
+    setTimeout(function () { (authMode === "signup" ? elNome : elEmail).focus(); }, 30);
   }
   function closeLead() { leadOverlay.classList.remove("open"); }
 
@@ -2091,31 +2136,75 @@
   }
   elTel.addEventListener("input", function () { elTel.value = maskPhone(elTel.value); });
 
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  function setInvalid(id, bad) { document.getElementById(id).classList.toggle("invalid", bad); }
+  // PONTO ÚNICO DE INTEGRAÇÃO do cadastro. Hoje persiste local (protótipo, sem banco).
+  function saveAccount(data) {
+    const rec = Object.assign({
+      criadoEm: new Date().toISOString(),
+      origemCta: pendingCta || "simulador",
+      pagina: location.href,
+      referrer: document.referrer || null
+    }, data);
+    const list = getAccounts(); list.push(rec); setAccounts(list);
+    // === Gravar no backend quando o site real existir (NUNCA envie a senha em texto puro;
+    //     o hash seguro é responsabilidade do servidor):
+    // fetch("/api/signup", { method: "POST", headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(rec) }).catch(function () {});
+    return rec;
+  }
 
   leadForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
-    const nome = elNome.value.trim();
     const email = elEmail.value.trim();
-    const telDigits = elTel.value.replace(/\D/g, "");
-    const badNome = nome.length === 0;
+    const senha = elSenha.value;
     const badEmail = !EMAIL_RE.test(email);
+
+    if (authMode === "login") {
+      setErr("fldEmail", "Informe um email válido.");
+      setErr("fldSenha", "Informe sua senha.");
+      const badSenha = senha.length === 0;
+      setInvalid("fldEmail", badEmail);
+      setInvalid("fldSenha", badSenha);
+      if (badEmail || badSenha) { (badEmail ? elEmail : elSenha).focus(); return; }
+      const acc = findAccount(email);
+      if (!acc) { setErr("fldEmail", "Email não cadastrado. Crie uma conta."); setInvalid("fldEmail", true); elEmail.focus(); return; }
+      if (acc.senhaHash !== hashSenha(senha)) { setErr("fldSenha", "Senha incorreta."); setInvalid("fldSenha", true); elSenha.focus(); return; }
+      lsSet(SESSION_KEY, acc.email);
+      closeLead();
+      showView("sim");
+      return;
+    }
+
+    // cadastro
+    const nome = elNome.value.trim();
+    const telDigits = elTel.value.replace(/\D/g, "");
+    const senha2 = elSenha2.value;
+    const badNome = nome.length === 0;
     const badTel = telDigits.length < 10;   // DDD (2) + número (8 a 9)
+    const badSenha = senha.length < 6;
+    const badSenha2 = !badSenha && senha2 !== senha;
+    setErr("fldEmail", "Informe um email válido.");
+    setErr("fldSenha", "A senha precisa ter ao menos 6 caracteres.");
     setInvalid("fldNome", badNome);
     setInvalid("fldEmail", badEmail);
     setInvalid("fldTel", badTel);
-    if (badNome || badEmail || badTel) {
-      (badNome ? elNome : badEmail ? elEmail : elTel).focus();
+    setInvalid("fldSenha", badSenha);
+    setInvalid("fldSenha2", badSenha2);
+    if (badNome || badEmail || badTel || badSenha || badSenha2) {
+      (badNome ? elNome : badEmail ? elEmail : badTel ? elTel : badSenha ? elSenha : elSenha2).focus();
       return;
     }
-    saveLead({ nome: nome, email: email, telefone: elTel.value });
+    if (findAccount(email)) {
+      setErr("fldEmail", "Email já cadastrado. Faça login.");
+      setInvalid("fldEmail", true); elEmail.focus(); return;
+    }
+    saveAccount({ nome: nome, email: email, telefone: elTel.value, senhaHash: hashSenha(senha) });
+    lsSet(SESSION_KEY, email);
     closeLead();
     showView("sim");
   });
 
   // limpa o destaque de erro assim que a pessoa começa a corrigir o campo
-  [["fldNome", elNome], ["fldEmail", elEmail], ["fldTel", elTel]].forEach(function (pair) {
+  [["fldNome", elNome], ["fldEmail", elEmail], ["fldTel", elTel], ["fldSenha", elSenha], ["fldSenha2", elSenha2]].forEach(function (pair) {
     pair[1].addEventListener("input", function () { setInvalid(pair[0], false); });
   });
 
@@ -2126,10 +2215,14 @@
   const acctPass = document.getElementById("acctPass");
   const acctPass2 = document.getElementById("acctPass2");
 
-  function getLeads() { try { return JSON.parse(lsGet(LEAD_STORE) || "[]"); } catch (e) { return []; } }
-  function currentLead() { const f = getLeads(); return f.length ? f[f.length - 1] : null; }
+  function currentLead() { return findAccount(lsGet(SESSION_KEY)); }
+  function currentIndex() {
+    const e = (lsGet(SESSION_KEY) || "").toLowerCase();
+    return getAccounts().findIndex(function (a) { return (a.email || "").toLowerCase() === e; });
+  }
   function acctBad(id, bad) { document.getElementById(id).classList.toggle("bad", bad); }
   function acctMsg(id, show) { document.getElementById(id).classList.toggle("show", show); }
+  function acctErr(id, msg) { const e = document.getElementById(id).querySelector(".acct-err"); if (e) e.textContent = msg; }
 
   // Preenche a tela de conta com o cadastro atual deste navegador.
   function fillAccount() {
@@ -2158,21 +2251,30 @@
     acctBad("acctFldNome", badNome);
     acctBad("acctFldEmail", badEmail);
     acctBad("acctFldTel", badTel);
+    acctErr("acctFldEmail", "Informe um email válido.");
     if (badNome || badEmail || badTel) {
       (badNome ? acctNome : badEmail ? acctEmail : acctTel).focus();
       return;
     }
-    const fila = getLeads();
-    const patch = { nome: nome, email: email, telefone: acctTel.value, atualizadoEm: new Date().toISOString() };
-    if (fila.length) { Object.assign(fila[fila.length - 1], patch); } else { fila.push(patch); }
-    lsSet(LEAD_STORE, JSON.stringify(fila));
+    const list = getAccounts();
+    const idx = currentIndex();
+    if (idx < 0) { return; }
+    const sessionEmail = (lsGet(SESSION_KEY) || "").toLowerCase();
+    // o email é o login: não pode colidir com outra conta já existente
+    if (email.toLowerCase() !== sessionEmail && findAccount(email)) {
+      acctErr("acctFldEmail", "Já existe uma conta com esse email.");
+      acctBad("acctFldEmail", true); acctEmail.focus(); return;
+    }
+    list[idx] = Object.assign({}, list[idx], { nome: nome, email: email, telefone: acctTel.value, atualizadoEm: new Date().toISOString() });
+    setAccounts(list);
+    lsSet(SESSION_KEY, email);   // o login acompanha o email atualizado
     // === Atualizar o cadastro no backend quando o site real existir:
-    // fetch("/api/leads", { method: "PUT", headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(patch) }).catch(function () {});
+    // fetch("/api/conta", { method: "PUT", headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(list[idx]) }).catch(function () {});
     acctMsg("acctProfileMsg", true);
   });
 
-  // Troca de senha: protótipo sem servidor — valida e confirma, sem armazenar a senha.
+  // Troca de senha: grava o novo hash na conta atual (protótipo, só neste navegador).
   document.getElementById("acctPassForm").addEventListener("submit", function (ev) {
     ev.preventDefault();
     acctMsg("acctPassMsg", false);
@@ -2183,6 +2285,9 @@
     acctBad("acctFldPass2", badP2);
     if (badP1) { acctPass.focus(); return; }
     if (badP2) { acctPass2.focus(); return; }
+    const list = getAccounts();
+    const idx = currentIndex();
+    if (idx >= 0) { list[idx].senhaHash = hashSenha(p1); list[idx].atualizadoEm = new Date().toISOString(); setAccounts(list); }
     acctPass.value = ""; acctPass2.value = "";
     acctMsg("acctPassMsg", true);
   });
