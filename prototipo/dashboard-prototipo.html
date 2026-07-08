@@ -404,7 +404,6 @@
       <span class="live"><span class="dot"></span> Base atualizada · jun/2026</span>
       <button class="icon-btn nav-sim" id="goSim" type="button">🧮 Simular meu contrato</button>
       <button class="icon-btn" id="themeToggle" type="button"><span id="themeIcon">🌙</span> <span id="themeLabel">Escuro</span></button>
-      <button class="icon-btn" id="goLogout" type="button" style="display:none">🚪 Sair</button>
     </div>
   </header>
 
@@ -711,6 +710,18 @@
         </div>
         <p class="acct-hint">Protótipo sem servidor: a senha não é enviada nem armazenada — a confirmação é apenas ilustrativa até a integração com o site real.</p>
       </form>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Sessão</h2>
+          <p>Encerrar a sessão neste navegador. Seus dados de cadastro continuam salvos — na próxima simulação pedimos só a confirmação do acesso.</p>
+        </div>
+      </div>
+      <div class="acct-actions">
+        <button class="icon-btn" id="goLogout" type="button">🚪 Sair da conta</button>
+      </div>
     </section>
 
     <footer class="foot">
@@ -2023,18 +2034,14 @@
   function lsRemove(k) { try { localStorage.removeItem(k); } catch (e) {} }
   function isKnownLead() { return lsGet(LEAD_KEY) === "1"; }
 
-  // Mostra o botão "Sair" só quando a pessoa está identificada (lead conhecida).
-  const btnLogout = document.getElementById("goLogout");
-  function syncAuthUI() { btnLogout.style.display = isKnownLead() ? "" : "none"; }
-
   // Logout: encerra a sessão deste navegador SEM apagar os dados já salvos
   // (LEAD_STORE permanece). Na próxima simulação o cadastro é pedido de novo.
+  // O botão "Sair" fica dentro da área "Minha conta".
   function logout() {
     lsRemove(LEAD_KEY);
-    syncAuthUI();
     showView("market");
   }
-  btnLogout.addEventListener("click", logout);
+  document.getElementById("goLogout").addEventListener("click", logout);
 
   // PONTO ÚNICO DE INTEGRAÇÃO. Hoje persiste local (protótipo estático, sem banco).
   // Ao embutir no site real, descomente o fetch para gravar na tabela de leads.
@@ -2103,7 +2110,6 @@
       return;
     }
     saveLead({ nome: nome, email: email, telefone: elTel.value });
-    syncAuthUI();
     closeLead();
     showView("sim");
   });
@@ -2193,7 +2199,6 @@
 
   document.getElementById("leadClose").addEventListener("click", closeLead);
   leadOverlay.addEventListener("mousedown", function (e) { if (e.target === leadOverlay) closeLead(); });
-  syncAuthUI();   // ao abrir a página, reflete se já existe sessão neste navegador
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && leadOverlay.classList.contains("open")) closeLead();
   });
