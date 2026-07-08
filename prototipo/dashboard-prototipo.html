@@ -399,22 +399,53 @@
   .acct-msg { display: none; font-size: 12.5px; font-weight: 600; }
   .acct-msg.show { display: inline; }
   .acct-msg.ok { color: var(--good); }
-  /* coluna única centralizada (só a tela Minha conta) */
-  #viewAccount { max-width: 640px; margin-left: auto; margin-right: auto; }
-  /* cabeçalho do perfil, sem o gradiente decorativo do .hero */
-  .acct-hero { padding: 22px 22px 20px; }
-  .acct-hero-head { display: flex; align-items: center; gap: 16px; }
+  /* container centralizado com navegação lateral (só a tela Minha conta) */
+  #viewAccount { max-width: 780px; margin-left: auto; margin-right: auto; }
+  /* cabeçalho do perfil: avatar + nome + email, sem o gradiente do .hero */
+  .acct-hero { padding: 20px 22px; }
+  .acct-hero-head { display: flex; align-items: center; gap: 15px; }
   .acct-avatar { width: 54px; height: 54px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; text-transform: uppercase; color: var(--brand-text); background: var(--brand-wash); border: 1px solid var(--border); }
-  .acct-hero h1 { font-size: clamp(21px, 3vw, 28px); margin: 4px 0 0; letter-spacing: -0.02em; line-height: 1.12; }
-  .acct-hero-lead { color: var(--text-secondary); font-size: 13.5px; line-height: 1.55; margin: 14px 0 0; }
+  .acct-idname { font-size: clamp(19px, 2.4vw, 24px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+  .acct-idemail { color: var(--text-secondary); font-size: 13px; line-height: 1.4; margin: 3px 0 0; word-break: break-all; }
+
+  /* layout em duas colunas: menu lateral fixo + conteúdo */
+  .acct-layout { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: start; margin-top: 20px; }
+  .acct-nav { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 16px; }
+  .acct-navitem { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-radius: 9px; padding: 9px 11px; font-size: 13.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background .15s, color .15s; }
+  .acct-navitem svg { width: 17px; height: 17px; flex: 0 0 auto; opacity: .85; }
+  .acct-navitem:hover { background: var(--panel-2); color: var(--text-primary); }
+  .acct-navitem.active { background: var(--brand-wash); color: var(--text-primary); font-weight: 700; }
+  .acct-navsep { height: 1px; background: var(--border); border: none; margin: 10px 4px; }
+  .acct-navlogout { color: var(--critical); }
+  .acct-navlogout svg { opacity: 1; }
+  .acct-navlogout:hover { background: var(--panel-2); color: var(--critical); }
+
+  /* seções de conteúdo: só a ativa aparece */
+  .acct-section { display: none; }
+  .acct-section.active { display: block; }
+  .acct-content { min-width: 0; }
+
   /* ícone à esquerda dentro do campo */
   .acct-inwrap { position: relative; }
   .acct-inwrap .acct-input, .pw-wrap .acct-input { padding-left: 40px; }
   .in-ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--text-secondary); opacity: .75; pointer-events: none; }
   .in-ico svg { width: 100%; height: 100%; display: block; }
   /* ação secundária: contorno na cor da marca, sem preenchimento */
-  .acct-secondary { background: transparent; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 20px; font-size: 13.5px; font-weight: 700; color: var(--brand-text); cursor: pointer; transition: background .15s; }
+  .acct-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; color: var(--brand-text); cursor: pointer; transition: background .15s; }
+  .acct-secondary svg { width: 16px; height: 16px; }
   .acct-secondary:hover { background: var(--brand-wash); }
+  /* ação destrutiva (privacidade): contorno vermelho/coral */
+  .acct-danger { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--critical); border-radius: 10px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; color: var(--critical); cursor: pointer; transition: background .15s; }
+  .acct-danger svg { width: 16px; height: 16px; }
+  .acct-danger:hover { background: rgba(220, 65, 55, 0.10); }
+  .acct-priv-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+  @media (max-width: 620px) {
+    .acct-layout { grid-template-columns: 1fr; gap: 14px; }
+    .acct-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .acct-navsep { display: none; }
+    .acct-navlogout { margin-left: auto; }
+  }
 </style>
 
 <div class="wrap">
@@ -677,14 +708,35 @@
       <div class="acct-hero-head">
         <div class="acct-avatar" id="acctAvatar">R</div>
         <div class="acct-hero-txt">
-          <span class="eyebrow">Minha conta · Dados de cadastro</span>
-          <h1>Configurações do seu perfil</h1>
+          <p class="acct-idname" id="acctIdName">Sua conta</p>
+          <p class="acct-idemail" id="acctIdEmail">nome@dominio.com</p>
         </div>
       </div>
-      <p class="acct-hero-lead">Aqui você confere e atualiza os dados que usamos para falar com você sobre a simulação e as ofertas de energia. Alterou de email ou de telefone? É só editar e salvar.</p>
     </section>
 
-    <section class="card">
+    <div class="acct-layout">
+      <nav class="acct-nav" aria-label="Seções da conta">
+        <button type="button" class="acct-navitem active" data-sec="contato">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>
+          Dados de contato
+        </button>
+        <button type="button" class="acct-navitem" data-sec="senha">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          Senha
+        </button>
+        <button type="button" class="acct-navitem" data-sec="privacidade">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4 3 6.6 7 8 4-1.4 7-4 7-8V6l-7-3Z"/></svg>
+          Privacidade
+        </button>
+        <hr class="acct-navsep" />
+        <button type="button" class="acct-navitem acct-navlogout" id="goLogout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sair da conta
+        </button>
+      </nav>
+
+      <div class="acct-content">
+    <section class="card acct-section active" data-sec="contato">
       <div class="card-head">
         <div>
           <h2>Dados de contato</h2>
@@ -723,7 +775,7 @@
       </form>
     </section>
 
-    <section class="card">
+    <section class="card acct-section" data-sec="senha">
       <div class="card-head">
         <div>
           <h2>Senha</h2>
@@ -757,17 +809,32 @@
       </form>
     </section>
 
-    <section class="card">
+    <section class="card acct-section" data-sec="privacidade">
       <div class="card-head">
         <div>
-          <h2>Sessão</h2>
-          <p>Encerrar a sessão neste navegador. Sua conta continua salva — na próxima simulação pedimos seu email e senha novamente.</p>
+          <h2>Privacidade</h2>
+          <p>Baixe uma cópia dos seus dados ou encerre sua conta neste protótipo.</p>
         </div>
       </div>
-      <div class="acct-actions">
-        <button class="icon-btn" id="goLogout" type="button">🚪 Sair da conta</button>
+      <div class="acct-form">
+        <div class="acct-priv-row">
+          <button type="button" class="acct-secondary" id="acctDownload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Baixar meus dados
+          </button>
+          <span class="acct-msg ok" id="acctPrivMsg">Cópia dos seus dados gerada.</span>
+        </div>
+        <div class="acct-priv-row">
+          <button type="button" class="acct-danger" id="acctDelete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+            Excluir minha conta
+          </button>
+        </div>
+        <p class="acct-hint">Excluir a conta apaga o cadastro deste navegador e encerra a sessão. Ação irreversível — no protótipo, sem backend por trás.</p>
       </div>
     </section>
+      </div><!-- /acct-content -->
+    </div><!-- /acct-layout -->
 
     <footer class="foot">
       Área de conta do protótipo. Alterações de nome, email e telefone ficam salvas neste navegador; ao integrar ao site real, passam a gravar no cadastro do cliente.
@@ -2288,12 +2355,28 @@
     acctEmail.value = rec.email || "";
     acctTel.value = rec.telefone || "";
     document.getElementById("acctAvatar").textContent = ((rec.nome || "").trim().charAt(0) || "?");
+    document.getElementById("acctIdName").textContent = (rec.nome || "").trim() || "Sua conta";
+    document.getElementById("acctIdEmail").textContent = rec.email || "";
     acctPass.value = ""; acctPass2.value = "";
     resetPwEyes(document.getElementById("viewAccount"));
     ["acctFldNome", "acctFldEmail", "acctFldTel", "acctFldPass", "acctFldPass2"]
       .forEach(function (id) { acctBad(id, false); });
-    acctMsg("acctProfileMsg", false); acctMsg("acctPassMsg", false);
+    acctMsg("acctProfileMsg", false); acctMsg("acctPassMsg", false); acctMsg("acctPrivMsg", false);
+    showAcctSection("contato");   // sempre abre na primeira seção
   }
+
+  // Navegação lateral: mostra só a seção escolhida, marca o item ativo.
+  function showAcctSection(sec) {
+    document.querySelectorAll(".acct-navitem[data-sec]").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-sec") === sec);
+    });
+    document.querySelectorAll(".acct-section").forEach(function (s) {
+      s.classList.toggle("active", s.getAttribute("data-sec") === sec);
+    });
+  }
+  document.querySelectorAll(".acct-navitem[data-sec]").forEach(function (btn) {
+    btn.addEventListener("click", function () { showAcctSection(btn.getAttribute("data-sec")); });
+  });
 
   acctTel.addEventListener("input", function () { acctTel.value = maskPhone(acctTel.value); });
 
@@ -2360,6 +2443,30 @@
 
   document.getElementById("goAccount").addEventListener("click", function () { showView("account"); });
   document.getElementById("acctBack").addEventListener("click", function () { showView("sim"); });
+
+  // Privacidade — Baixar meus dados: gera um JSON real da conta neste navegador.
+  document.getElementById("acctDownload").addEventListener("click", function () {
+    const rec = currentLead() || {};
+    const dados = { nome: rec.nome || "", email: rec.email || "", telefone: rec.telefone || "", atualizadoEm: rec.atualizadoEm || null, exportadoEm: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "meus-dados-cmf-energia.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    acctMsg("acctPrivMsg", true);
+  });
+
+  // Privacidade — Excluir minha conta: remove o cadastro e encerra a sessão.
+  document.getElementById("acctDelete").addEventListener("click", function () {
+    if (!window.confirm("Excluir sua conta deste navegador? Esta ação não pode ser desfeita.")) return;
+    const list = getAccounts();
+    const idx = currentIndex();
+    if (idx >= 0) { list.splice(idx, 1); setAccounts(list); }
+    // === No site real, apagar o cadastro no backend (LGPD):
+    // fetch("/api/conta", { method: "DELETE" }).catch(function () {});
+    logout();   // limpa a sessão e volta ao painel
+  });
 
   // Olhinho: mostra/oculta a senha do campo ao lado (modal de acesso e Minha conta).
   document.querySelectorAll(".pw-eye").forEach(function (btn) {
