@@ -488,9 +488,13 @@
   .alrt-yr-lab { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
   .alrt-yr-price { font-family: var(--mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; color: var(--text-primary); }
   .alrt-yr-sugg { justify-self: start; background: none; border: 1px dashed var(--border-strong, var(--border)); border-radius: 8px; padding: 5px 11px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-secondary); cursor: pointer; line-height: 1.35; text-align: left; }
-  .alrt-yr-sugg b { display: block; margin-top: 1px; color: var(--brand-text); font-family: var(--mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 800; text-transform: none; letter-spacing: 0; }
+  .alrt-yr-sugg small { display: block; margin-top: 2px; font-size: 9.5px; font-weight: 600; text-transform: none; letter-spacing: 0; opacity: 0.85; }
+  .alrt-yr-sugg b { display: block; margin-top: 2px; color: var(--brand-text); font-family: var(--mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 800; text-transform: none; letter-spacing: 0; }
   .alrt-yr-sugg:hover:not(:disabled) { border-color: var(--brand); color: var(--text-primary); }
   .alrt-yr-sugg:disabled { opacity: 0.45; cursor: default; }
+  .alrt-yr-tgt { display: flex; flex-direction: column; gap: 4px; }
+  .alrt-yr-tgt .alrt-yr-lab { color: var(--brand-text); font-weight: 700; }
+  .alrt-yr.on .alrt-yr-tgt .acct-inwrap { border-color: var(--brand); }
   .alrt-yr-tgt .acct-input:disabled { opacity: 0.5; cursor: not-allowed; }
   .alrt-stlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
   .alrt-stlist li { font-size: 12.5px; line-height: 1.45; }
@@ -2571,10 +2575,12 @@
         '<div class="alrt-yr-mkt"><span class="alrt-yr-lab">Mercado hoje</span>' +
           '<span class="alrt-yr-price">' + (now != null ? fmtBRL0(now) : "—") + '</span></div>' +
         '<button type="button" class="alrt-yr-sugg"' + (sug == null ? " disabled" : "") + '>' +
-          'Sugestão CMF <b>' + (sug != null ? fmtBRL0(sug) : "—") + '</b></button>' +
-        '<div class="acct-inwrap alrt-yr-tgt">' +
-          '<span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>' +
-          '<input class="acct-input alrt-yr-alvo" type="text" inputmode="decimal" autocomplete="off" placeholder="alvo R$/MWh" disabled /></div>' +
+          'Sugestão CMF <small>(−10% do preço de hoje)</small> <b>' + (sug != null ? fmtBRL0(sug) : "—") + '</b></button>' +
+        '<div class="alrt-yr-tgt">' +
+          '<span class="alrt-yr-lab">Seu preço-alvo</span>' +
+          '<div class="acct-inwrap">' +
+            '<span class="in-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>' +
+            '<input class="acct-input alrt-yr-alvo" type="text" inputmode="decimal" autocomplete="off" placeholder="digite R$/MWh" disabled /></div></div>' +
       '</div>';
     }).join("");
     host.querySelectorAll(".alrt-yr").forEach(function (row) {
