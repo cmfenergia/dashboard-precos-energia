@@ -496,11 +496,37 @@
   .alrt-yr-tgt .alrt-yr-lab { color: var(--brand-text); font-weight: 700; }
   .alrt-yr.on .alrt-yr-tgt .acct-inwrap { border-color: var(--brand); }
   .alrt-yr-tgt .acct-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* Produto = modalidade + submercado + anos; o cliente pode acompanhar vários */
+  .alrt-prods { display: block; }
+  .alrt-prod { border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: var(--panel-2); }
+  .alrt-prod + .alrt-prod { margin-top: 14px; }
+  .alrt-prod-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .alrt-prod-title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 800; color: var(--text-primary); }
+  .alrt-prod-num { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-size: 12px; font-weight: 800; }
+  .alrt-prod-del { background: none; border: none; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 7px; border-radius: 7px; }
+  .alrt-prod-del:hover { color: var(--critical); background: var(--panel); }
+  .alrt-prod-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-bottom: 16px; }
+  .alrt-field { display: flex; flex-direction: column; gap: 6px; }
+  .alrt-field > span { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+  .alrt-selwrap { position: relative; }
+  .alrt-sel { appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 100%; padding: 10px 34px 10px 12px; border: 1px solid var(--border-strong, var(--border)); border-radius: 10px; background: var(--panel); font-size: 13px; font-weight: 600; color: var(--text-primary); font-family: inherit; cursor: pointer; }
+  .alrt-sel:hover { border-color: var(--brand); }
+  .alrt-sel:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-wash); }
+  .alrt-sel:invalid, .alrt-sel option[value=""] { color: var(--text-secondary); }
+  .alrt-selcaret { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; display: inline-flex; color: var(--text-secondary); }
+  .alrt-prod-yhead { display: block; margin-bottom: 10px; }
+  .alrt-addprod { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 14px 16px; border: 1px dashed var(--border-strong, var(--border)); border-radius: 12px; margin-top: 14px; }
+  .alrt-addprod span { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; }
+  .alrt-addprod-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--brand); color: var(--brand-text); border-radius: 9px; padding: 9px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; flex: 0 0 auto; }
+  .alrt-addprod-btn:hover { background: var(--brand-wash); }
+  .alrt-stblock + .alrt-stblock { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .alrt-stblock-h { font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
   .alrt-stlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
   .alrt-stlist li { font-size: 12.5px; line-height: 1.45; }
   @media (max-width: 640px) {
     .alrt-yr { grid-template-columns: 1fr 1fr; }
     .alrt-yr-pick, .alrt-yr-tgt { grid-column: 1 / -1; }
+    .alrt-prod-fields { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -759,11 +785,15 @@
 
       <div class="alrt-years">
         <div class="alrt-years-head">
-          <span class="alrt-flabel">Anos que você quer acompanhar</span>
-          <span class="alrt-years-sub">Marque os anos-safra e defina, em cada um, o preço-alvo que você consideraria bom. Use a <b>sugestão CMF</b> (10% abaixo do mercado de hoje) como ponto de partida. Base: jun/2026.</span>
+          <span class="alrt-flabel">Produtos que você quer acompanhar</span>
+          <span class="alrt-years-sub">Monte cada contrato que te interessa: escolha a <b>modalidade</b> e o <b>submercado</b>, marque os anos-safra e defina em cada um o preço-alvo. Use a <b>sugestão CMF</b> (10% abaixo do mercado de hoje) como ponto de partida. Você pode acompanhar mais de um produto. No site real, os preços consideram a modalidade e o submercado escolhidos; nesta prévia usamos a curva base. Base: jun/2026.</span>
         </div>
-        <div id="alrtYrList"></div>
-        <div class="alrt-err" id="alrtYrErr">Marque ao menos um ano e informe um preço-alvo válido (maior que zero) em cada ano marcado.</div>
+        <div class="alrt-prods" id="alrtProducts"></div>
+        <div class="alrt-addprod">
+          <span>Quer acompanhar outro produto — outra modalidade, submercado ou faixa de anos?</span>
+          <button type="button" class="alrt-addprod-btn" id="alrtAddProd">+ Adicionar produto</button>
+        </div>
+        <div class="alrt-err" id="alrtYrErr">Em cada produto, escolha a modalidade, o submercado e ao menos um ano-safra com preço-alvo válido (maior que zero).</div>
       </div>
 
       <div class="alrt-side">
@@ -2543,6 +2573,42 @@
   const ALERTA_ANOS = ["2027", "2028", "2029", "2030", "2031"];
   const ALERTA_BASE = 2026;          // ano corrente (A+0), base da curva
   const ALERTA_SUGG = 0.10;          // sugestão CMF = 10% abaixo do mercado de hoje
+  // Modalidade do contrato (2 famílias) e submercado — no site real filtram o preço
+  // de referência de cada ano na base de dados da CMF.
+  const ALERTA_MODS = [
+    { v: "atac-conv", g: "Atacadista", t: "Convencional" },
+    { v: "atac-i0",   g: "Atacadista", t: "Incentivado 0%" },
+    { v: "atac-i50",  g: "Atacadista", t: "Incentivado 50%" },
+    { v: "atac-i100", g: "Atacadista", t: "Incentivado 100%" },
+    { v: "var-conv",  g: "Varejista",  t: "Convencional" },
+    { v: "var-i0",    g: "Varejista",  t: "Incentivado 0%" },
+    { v: "var-i50",   g: "Varejista",  t: "Incentivado 50%" },
+    { v: "var-i100",  g: "Varejista",  t: "Incentivado 100%" }
+  ];
+  const ALERTA_SUBS = [
+    { v: "nordeste", t: "Nordeste" }, { v: "norte", t: "Norte" }, { v: "sul", t: "Sul" },
+    { v: "sudeste", t: "Sudeste" }, { v: "co", t: "Centro-Oeste" }
+  ];
+  function alrtModLabel(v) { const m = ALERTA_MODS.find(function (x) { return x.v === v; }); return m ? m.g + " · " + m.t : ""; }
+  function alrtSubLabel(v) { const s = ALERTA_SUBS.find(function (x) { return x.v === v; }); return s ? "Submercado " + s.t : ""; }
+  function alrtProdLabel(p) { const a = []; if (p.modalidade) a.push(alrtModLabel(p.modalidade)); if (p.submercado) a.push(alrtSubLabel(p.submercado)); return a.join(" · "); }
+  function alrtCaret() { return '<span class="alrt-selcaret"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>'; }
+  function alrtModOptions(sel) {
+    const groups = {};
+    ALERTA_MODS.forEach(function (m) { (groups[m.g] = groups[m.g] || []).push(m); });
+    let html = '<option value=""' + (sel ? "" : " selected") + ' disabled>Selecione a modalidade…</option>';
+    Object.keys(groups).forEach(function (g) {
+      html += '<optgroup label="' + g + '">';
+      groups[g].forEach(function (m) { html += '<option value="' + m.v + '"' + (sel === m.v ? " selected" : "") + '>' + m.g + " · " + m.t + '</option>'; });
+      html += '</optgroup>';
+    });
+    return html;
+  }
+  function alrtSubOptions(sel) {
+    let html = '<option value=""' + (sel ? "" : " selected") + ' disabled>Selecione o submercado…</option>';
+    ALERTA_SUBS.forEach(function (s) { html += '<option value="' + s.v + '"' + (sel === s.v ? " selected" : "") + '>Submercado ' + s.t + '</option>'; });
+    return html;
+  }
   // Preço de referência = última cotação nominal (R$/MWh) daquele ano na curva.
   function alrtPriceOf(yr) {
     const arr = (YEARS[yr] || {}).nominal || [];
@@ -2554,19 +2620,20 @@
   function alrtParse(v) { return parseFloat((v || "").replace(/\./g, "").replace(",", ".")); }
   function alrtShowErr(id, show) { document.getElementById(id).style.display = show ? "block" : "none"; }
 
-  // Aceita o formato antigo (um único ano) e devolve sempre { anos: {...}, ... }.
+  // Aceita os formatos antigos (um único ano; ou { anos } sem produto) e devolve
+  // sempre { produtos: [{ modalidade, submercado, anos }], ... }.
   function alrtNormalize(a) {
     if (!a) return null;
-    if (a.anos) return a;
-    if (a.ano && a.alvo != null) { const anos = {}; anos[a.ano] = { alvo: a.alvo }; return Object.assign({}, a, { anos: anos }); }
+    if (a.produtos) return a;
+    let anos = a.anos;
+    if (!anos && a.ano && a.alvo != null) { anos = {}; anos[a.ano] = { alvo: a.alvo }; }
+    if (anos) return Object.assign({}, a, { produtos: [{ modalidade: "", submercado: "", anos: anos }] });
     return a;
   }
 
-  // Monta uma linha por ano-safra: [marcar] [mercado hoje] [sugestão CMF] [alvo].
-  function alrtBuildRows() {
-    const host = document.getElementById("alrtYrList");
-    if (!host) return;
-    host.innerHTML = ALERTA_ANOS.map(function (yr) {
+  // Uma linha por ano-safra: [marcar] [mercado hoje] [sugestão CMF] [alvo].
+  function alrtYearRowsHTML() {
+    return ALERTA_ANOS.map(function (yr) {
       const now = alrtPriceOf(yr);
       const sug = alrtSugg(now);
       return '<div class="alrt-yr" data-yr="' + yr + '">' +
@@ -2583,7 +2650,35 @@
             '<input class="acct-input alrt-yr-alvo" type="text" inputmode="decimal" autocomplete="off" placeholder="digite R$/MWh" disabled /></div></div>' +
       '</div>';
     }).join("");
-    host.querySelectorAll(".alrt-yr").forEach(function (row) {
+  }
+  // Um "produto" = modalidade + submercado + anos/alvos. Card completo em HTML.
+  function alrtProductHTML(p) {
+    p = p || {};
+    return '<div class="alrt-prod">' +
+      '<div class="alrt-prod-head">' +
+        '<div class="alrt-prod-title"><span class="alrt-prod-num"></span> <span class="alrt-prod-name">Produto</span></div>' +
+        '<button type="button" class="alrt-prod-del">Remover</button>' +
+      '</div>' +
+      '<div class="alrt-prod-fields">' +
+        '<label class="alrt-field"><span>Modalidade do contrato</span>' +
+          '<div class="alrt-selwrap"><select class="alrt-sel alrt-prod-mod" required>' + alrtModOptions(p.modalidade) + '</select>' + alrtCaret() + '</div></label>' +
+        '<label class="alrt-field"><span>Submercado</span>' +
+          '<div class="alrt-selwrap"><select class="alrt-sel alrt-prod-sub" required>' + alrtSubOptions(p.submercado) + '</select>' + alrtCaret() + '</div></label>' +
+      '</div>' +
+      '<span class="alrt-flabel alrt-prod-yhead">Anos que você quer acompanhar neste produto</span>' +
+      '<div class="alrt-prod-years">' + alrtYearRowsHTML() + '</div>' +
+    '</div>';
+  }
+  // Liga os eventos de um card de produto (selects, remover, e cada linha de ano).
+  function alrtWireProduct(prod) {
+    prod.querySelector(".alrt-prod-del").addEventListener("click", function () {
+      if (document.querySelectorAll("#alrtProducts .alrt-prod").length <= 1) return;
+      prod.remove(); alrtRenumber(); alrtShowErr("alrtYrErr", false);
+    });
+    prod.querySelectorAll(".alrt-prod-mod, .alrt-prod-sub").forEach(function (s) {
+      s.addEventListener("change", function () { alrtShowErr("alrtYrErr", false); });
+    });
+    prod.querySelectorAll(".alrt-yr").forEach(function (row) {
       const ck = row.querySelector(".alrt-yr-ck");
       const alvo = row.querySelector(".alrt-yr-alvo");
       const sugBtn = row.querySelector(".alrt-yr-sugg");
@@ -2598,28 +2693,30 @@
       });
     });
   }
-  function alrtToggleRow(row) {
-    const on = row.querySelector(".alrt-yr-ck").checked;
-    row.classList.toggle("on", on);
-    const alvo = row.querySelector(".alrt-yr-alvo");
-    alvo.disabled = !on;
-    if (!on) alvo.value = "";
+  // Cria e insere um card de produto (opcionalmente pré-preenchido) no fim da lista.
+  function alrtAddProduct(data) {
+    const host = document.getElementById("alrtProducts");
+    const tmp = document.createElement("div");
+    tmp.innerHTML = alrtProductHTML(data);
+    const prod = tmp.firstElementChild;
+    host.appendChild(prod);
+    alrtWireProduct(prod);
+    if (data && data.anos) alrtSetProductYears(prod, data.anos);
+    alrtRenumber();
+    return prod;
   }
-  // Lê as linhas → { anos:{ "2027":{alvo}, ... }, anyChecked, badYear }.
-  function alrtCollect() {
-    const anos = {}; let anyChecked = false, badYear = false;
-    document.querySelectorAll("#alrtYrList .alrt-yr").forEach(function (row) {
-      if (!row.querySelector(".alrt-yr-ck").checked) return;
-      anyChecked = true;
-      const alvo = alrtParse(row.querySelector(".alrt-yr-alvo").value);
-      if (!(alvo > 0)) { badYear = true; return; }
-      anos[row.getAttribute("data-yr")] = { alvo: alvo };
+  // Renumera "Produto N" e esconde o "Remover" quando só há um produto.
+  function alrtRenumber() {
+    const prods = document.querySelectorAll("#alrtProducts .alrt-prod");
+    prods.forEach(function (p, i) {
+      p.querySelector(".alrt-prod-num").textContent = (i + 1);
+      p.querySelector(".alrt-prod-name").textContent = "Produto " + (i + 1);
+      p.querySelector(".alrt-prod-del").style.display = prods.length > 1 ? "" : "none";
     });
-    return { anos: anos, anyChecked: anyChecked, badYear: badYear };
   }
-  function alrtSetRows(anos) {
+  function alrtSetProductYears(prod, anos) {
     anos = anos || {};
-    document.querySelectorAll("#alrtYrList .alrt-yr").forEach(function (row) {
+    prod.querySelectorAll(".alrt-yr").forEach(function (row) {
       const yr = row.getAttribute("data-yr");
       const has = Object.prototype.hasOwnProperty.call(anos, yr);
       row.querySelector(".alrt-yr-ck").checked = has;
@@ -2627,15 +2724,52 @@
       if (has) row.querySelector(".alrt-yr-alvo").value = String(anos[yr].alvo);
     });
   }
-  function alrtFirstHit(anos) {
-    return Object.keys(anos).sort().filter(function (yr) {
-      const now = alrtPriceOf(yr); return now != null && now <= anos[yr].alvo;
-    })[0] || null;
+  function alrtToggleRow(row) {
+    const on = row.querySelector(".alrt-yr-ck").checked;
+    row.classList.toggle("on", on);
+    const alvo = row.querySelector(".alrt-yr-alvo");
+    alvo.disabled = !on;
+    if (!on) alvo.value = "";
+  }
+  // Lê todos os produtos → { produtos: [{ modalidade, submercado, anos }], ok }.
+  // Um produto é completo se tem modalidade, submercado e ao menos um ano válido.
+  function alrtCollect() {
+    const produtos = []; let ok = true;
+    const prods = document.querySelectorAll("#alrtProducts .alrt-prod");
+    prods.forEach(function (prod) {
+      const mod = prod.querySelector(".alrt-prod-mod").value;
+      const sub = prod.querySelector(".alrt-prod-sub").value;
+      const anos = {}; let yrCount = 0, badYear = false;
+      prod.querySelectorAll(".alrt-yr").forEach(function (row) {
+        if (!row.querySelector(".alrt-yr-ck").checked) return;
+        yrCount++;
+        const alvo = alrtParse(row.querySelector(".alrt-yr-alvo").value);
+        if (!(alvo > 0)) { badYear = true; return; }
+        anos[row.getAttribute("data-yr")] = { alvo: alvo };
+      });
+      if (!mod || !sub || yrCount === 0 || badYear) ok = false;
+      produtos.push({ modalidade: mod, submercado: sub, anos: anos });
+    });
+    if (!prods.length) ok = false;
+    return { produtos: produtos, ok: ok };
+  }
+  // Primeiro (produto, ano) cujo mercado já está no alvo — ou null.
+  function alrtFirstHit(produtos) {
+    for (let i = 0; i < produtos.length; i++) {
+      const anos = produtos[i].anos || {};
+      const yrs = Object.keys(anos).sort();
+      for (let j = 0; j < yrs.length; j++) {
+        const now = alrtPriceOf(yrs[j]);
+        if (now != null && now <= anos[yrs[j]].alvo) return { prod: produtos[i], yr: yrs[j], alvo: anos[yrs[j]].alvo, price: now };
+      }
+    }
+    return null;
   }
 
   // Texto único da notificação, reaproveitado no WhatsApp e no email.
-  function alrtBody(yr, alvo, price) {
-    return "O preço de energia para " + yr + " chegou a " + fmtBRL0(price) +
+  function alrtBody(prod, yr, alvo, price) {
+    const ctx = alrtProdLabel(prod);
+    return "O preço de energia para " + yr + (ctx ? " (" + ctx + ")" : "") + " chegou a " + fmtBRL0(price) +
       "/MWh, dentro do seu alvo de " + fmtBRL0(alvo) + "/MWh. Podemos buscar sua renovação agora?";
   }
   function alrtWaCard(msg) {
@@ -2648,60 +2782,69 @@
       '<div class="mail-subj">Seu preço-alvo para ' + yr + ' foi atingido</div>' +
       '<div class="mail-body">' + msg + ' Responda este email ou aguarde: um especialista vai falar com você.</div></div>';
   }
-  function alrtShowPreview(yr, alvo, price) {
+  function alrtShowPreview(prod, yr, alvo, price) {
     const wa = document.getElementById("alrtWa").checked;
     const em = document.getElementById("alrtEmailCh").checked;
-    const msg = alrtBody(yr, alvo, price);
-    let html = '<div class="alrt-preview-lab">Prévia da notificação · ' + yr + ' (simulação — nada é enviado)</div>';
+    const msg = alrtBody(prod, yr, alvo, price);
+    const ctx = alrtProdLabel(prod);
+    let html = '<div class="alrt-preview-lab">Prévia da notificação · ' + yr + (ctx ? ' · ' + ctx : '') + ' (simulação — nada é enviado)</div>';
     if (wa) html += alrtWaCard(msg);
     if (em) html += alrtMailCard(yr, msg);
     if (!wa && !em) html = '<div class="alrt-status wait">Selecione um canal para ver a prévia.</div>';
     const p = document.getElementById("alrtPreview"); p.innerHTML = html; p.style.display = "";
   }
-  // Status por ano acompanhado: uma linha "atingido" ou "faltam R$ X".
-  function alrtRenderStatus(anos) {
+  // Status por produto: um bloco por produto, com uma linha por ano acompanhado.
+  function alrtRenderStatus(produtos) {
     const st = document.getElementById("alrtStatus");
-    const keys = Object.keys(anos).sort();
-    if (!keys.length) { st.style.display = "none"; return; }
-    let anyHit = false;
-    const items = keys.map(function (yr) {
-      const now = alrtPriceOf(yr);
-      const alvo = anos[yr].alvo;
-      if (now != null && now <= alvo) {
-        anyHit = true;
-        return '<li class="hit">🎯 <b>' + yr + '</b> — mercado a ' + fmtBRL0(now) +
-          "/MWh, dentro do seu alvo (" + fmtBRL0(alvo) + "). A CMF vai falar com você.</li>";
-      }
-      if (now == null) return '<li class="wait">⏳ <b>' + yr + "</b> — sem cotação no momento; alvo " + fmtBRL0(alvo) + ".</li>";
-      return '<li class="wait">⏳ <b>' + yr + "</b> — hoje " + fmtBRL0(now) + "/MWh; faltam " +
-        fmtBRL0(now - alvo) + " para o seu alvo (" + fmtBRL0(alvo) + ").</li>";
-    }).join("");
+    const hasAny = produtos.some(function (p) { return Object.keys(p.anos || {}).length; });
+    if (!hasAny) { st.style.display = "none"; return; }
+    let anyHit = false, blocks = "";
+    produtos.forEach(function (p) {
+      const keys = Object.keys(p.anos || {}).sort();
+      if (!keys.length) return;
+      const items = keys.map(function (yr) {
+        const now = alrtPriceOf(yr);
+        const alvo = p.anos[yr].alvo;
+        if (now != null && now <= alvo) {
+          anyHit = true;
+          return '<li class="hit">🎯 <b>' + yr + '</b> — mercado a ' + fmtBRL0(now) +
+            "/MWh, dentro do seu alvo (" + fmtBRL0(alvo) + "). A CMF vai falar com você.</li>";
+        }
+        if (now == null) return '<li class="wait">⏳ <b>' + yr + "</b> — sem cotação no momento; alvo " + fmtBRL0(alvo) + ".</li>";
+        return '<li class="wait">⏳ <b>' + yr + "</b> — hoje " + fmtBRL0(now) + "/MWh; faltam " +
+          fmtBRL0(now - alvo) + " para o seu alvo (" + fmtBRL0(alvo) + ").</li>";
+      }).join("");
+      blocks += '<div class="alrt-stblock"><div class="alrt-stblock-h">' + (alrtProdLabel(p) || "Produto") +
+        '</div><ul class="alrt-stlist">' + items + "</ul></div>";
+    });
     st.className = "alrt-status " + (anyHit ? "hit" : "wait");
-    st.innerHTML = '<ul class="alrt-stlist">' + items + "</ul>";
+    st.innerHTML = blocks;
     st.style.display = "";
   }
   // Preenche a tela com o alerta salvo na conta (ou o estado "criar novo").
   function renderAlerta() {
     if (!document.getElementById("alrtCard")) return;
     const rec = currentLead() || {};
-    alrtBuildRows();
+    document.getElementById("alrtProducts").innerHTML = "";
     document.getElementById("alrtWaNum").textContent = rec.telefone ? "· " + rec.telefone : "";
     document.getElementById("alrtEmailAddr").textContent = rec.email ? "· " + rec.email : "";
     acctMsg("alrtMsg", false);
     alrtShowErr("alrtYrErr", false); alrtShowErr("alrtChErr", false);
     const a = alrtNormalize(rec.alerta);
-    if (a && a.anos && Object.keys(a.anos).length) {
-      alrtSetRows(a.anos);
+    const prods = (a && a.produtos && a.produtos.length) ? a.produtos : null;
+    if (prods) {
+      prods.forEach(function (p) { alrtAddProduct(p); });
       document.getElementById("alrtWa").checked = !!(a.canais && a.canais.whatsapp);
       document.getElementById("alrtEmailCh").checked = !!(a.canais && a.canais.email);
       document.getElementById("alrtOptin").checked = !!a.optin;
       document.getElementById("alrtSave").textContent = "Salvar alterações";
       document.getElementById("alrtOff").style.display = "";
-      alrtRenderStatus(a.anos);
-      const hitYr = alrtFirstHit(a.anos);
-      if (hitYr) alrtShowPreview(hitYr, a.anos[hitYr].alvo, alrtPriceOf(hitYr));
+      alrtRenderStatus(prods);
+      const hit = alrtFirstHit(prods);
+      if (hit) alrtShowPreview(hit.prod, hit.yr, hit.alvo, hit.price);
       else document.getElementById("alrtPreview").style.display = "none";
     } else {
+      alrtAddProduct(null);
       document.getElementById("alrtWa").checked = true;
       document.getElementById("alrtEmailCh").checked = true;
       document.getElementById("alrtOptin").checked = false;
@@ -2718,15 +2861,15 @@
     const wa = document.getElementById("alrtWa").checked;
     const em = document.getElementById("alrtEmailCh").checked;
     const optin = document.getElementById("alrtOptin").checked;
-    const badYr = !col.anyChecked || col.badYear;
+    const badPr = !col.ok;
     const badCh = (!wa && !em) || !optin;
-    alrtShowErr("alrtYrErr", badYr); alrtShowErr("alrtChErr", badCh);
-    if (badYr || badCh) return;
+    alrtShowErr("alrtYrErr", badPr); alrtShowErr("alrtChErr", badCh);
+    if (badPr || badCh) return;
     const list = getAccounts(); const idx = currentIndex(); if (idx < 0) return;
-    list[idx].alerta = { anos: col.anos, canais: { whatsapp: wa, email: em }, optin: true, ativo: true, criadoEm: new Date().toISOString() };
+    list[idx].alerta = { produtos: col.produtos, canais: { whatsapp: wa, email: em }, optin: true, ativo: true, criadoEm: new Date().toISOString() };
     setAccounts(list);
-    // === No site real: POST /api/alertas { anos, canais }. Um serviço compara os
-    // preços de cada ano a cada atualização da curva e dispara WhatsApp/email quando bate.
+    // === No site real: POST /api/alertas { produtos, canais }. Um serviço compara o
+    // preço de cada produto (modalidade+submercado+ano) a cada atualização da curva e dispara WhatsApp/email quando bate.
     // fetch("/api/alertas", { method: "POST", headers: { "Content-Type": "application/json" },
     //   body: JSON.stringify(list[idx].alerta) }).catch(function () {});
     renderAlerta();
@@ -2739,18 +2882,28 @@
     renderAlerta();
   });
 
-  // Prévia sob demanda: usa o primeiro ano marcado e força o "atingido" no exemplo.
+  // "Adicionar produto": novo card em branco, como se fosse um novo contrato.
+  document.getElementById("alrtAddProd").addEventListener("click", function () {
+    const prod = alrtAddProduct(null);
+    alrtShowErr("alrtYrErr", false);
+    prod.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  // Prévia sob demanda: usa o 1º produto/ano marcado e força o "atingido" no exemplo.
   document.getElementById("alrtSimHit").addEventListener("click", function () {
     const col = alrtCollect();
-    if (!col.anyChecked || col.badYear) { alrtShowErr("alrtYrErr", true); return; }
-    const yr = Object.keys(col.anos).sort()[0];
-    const alvo = col.anos[yr].alvo;
+    if (!col.ok) { alrtShowErr("alrtYrErr", true); return; }
+    const first = col.produtos.find(function (p) { return Object.keys(p.anos).length; });
+    if (!first) { alrtShowErr("alrtYrErr", true); return; }
+    const yr = Object.keys(first.anos).sort()[0];
+    const alvo = first.anos[yr].alvo;
     const now = alrtPriceOf(yr);
     const price = Math.min(now == null ? alvo : now, alvo);   // garante "atingido" no exemplo
+    const ctx = alrtProdLabel(first);
     const st = document.getElementById("alrtStatus"); st.style.display = ""; st.className = "alrt-status hit";
-    st.innerHTML = "🎯 <b>Exemplo (" + yr + "):</b> se o preço chegar a " + fmtBRL0(price) +
+    st.innerHTML = "🎯 <b>Exemplo (" + yr + (ctx ? " · " + ctx : "") + "):</b> se o preço chegar a " + fmtBRL0(price) +
       "/MWh (seu alvo: " + fmtBRL0(alvo) + "/MWh), você receberia:";
-    alrtShowPreview(yr, alvo, price);
+    alrtShowPreview(first, yr, alvo, price);
   });
 
   ["alrtWa", "alrtEmailCh", "alrtOptin"].forEach(function (id) {
