@@ -64,29 +64,47 @@
   .eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
 
   /* ── top bar ─────────────────────────────────────────────── */
-  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 14px 20px; box-shadow: var(--card-shadow); }
   .brand { display: flex; align-items: center; gap: 11px; }
   .brand-mark {
-    width: 44px; height: 44px; border-radius: 11px; background: #ffffff;
+    width: 52px; height: 52px; border-radius: 14px; background: #ffffff;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     padding: 5px; border: 1px solid var(--border);
     box-shadow: 0 2px 10px var(--brand-wash);
   }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .brand-name { font-weight: 800; letter-spacing: 0.01em; font-size: 15px; line-height: 1.05; }
-  .brand-name small { display: block; font-weight: 600; color: var(--text-muted); font-size: 9px; letter-spacing: 0.16em; margin-top: 2px; }
-  .top-right { display: flex; align-items: center; gap: 10px; }
+  .brand-name { font-weight: 800; letter-spacing: 0.01em; font-size: 19px; line-height: 1.05; }
+  .brand-name small { display: block; font-weight: 600; color: var(--text-muted); font-size: 10px; letter-spacing: 0.16em; margin-top: 3px; }
+  .top-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex-wrap: wrap; }
+  .top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .live {
-    display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text-secondary);
-    background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px;
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-secondary); white-space: nowrap;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 7px 13px;
   }
   .live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: livepulse 2.4s ease-out infinite; }
   @keyframes livepulse { 0% { box-shadow: 0 0 0 0 rgba(12,163,12,0.5); } 70%,100% { box-shadow: 0 0 0 6px rgba(12,163,12,0); } }
   .icon-btn {
     display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border);
-    color: var(--text-secondary); border-radius: 999px; padding: 7px 13px; font-size: 12.5px; cursor: pointer;
+    color: var(--text-secondary); border-radius: 999px; padding: 8px 13px; font-size: 13px; cursor: pointer; white-space: nowrap;
   }
   .icon-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  /* botão de tema só com o ícone (a palavra "Escuro"/"Claro" fica escondida) */
+  #themeToggle { width: 38px; height: 38px; padding: 0; justify-content: center; font-size: 15px; }
+  #themeToggle #themeLabel { display: none; }
+  /* itens que só aparecem no cabeçalho quando se está dentro do simulador */
+  .top-div { width: 1px; height: 30px; background: var(--border); flex: none; }
+  .nav-ghost { background: transparent; border-color: transparent; color: var(--text-primary); font-weight: 700; }
+  .nav-ghost:hover { background: var(--panel-2); border-color: transparent; color: var(--text-primary); }
+  .sim-only { display: none; }
+  body.view-sim .sim-only { display: inline-flex; }
+  /* visível só na página inicial (a home é a tela padrão, então mostra por padrão) */
+  .market-only { display: inline-flex; }
+  body.view-sim .market-only, body.view-account .market-only { display: none; }
+  /* botão que abre o mini-tour "Como ler este gráfico", no topo do card do gráfico */
+  .chart-guide-btn { display: inline-flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 10px; padding: 7px 13px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s, background .15s; }
+  .chart-guide-btn svg { width: 15px; height: 15px; color: var(--brand); flex: none; }
+  .chart-guide-btn:hover { border-color: var(--brand); color: var(--text-primary); background: var(--panel-2); }
 
   /* ── hero ───────────────────────────────────────────────── */
   .hero {
@@ -147,13 +165,14 @@
   .hero-spark .cap span.last { transform: translateX(-100%); }
 
   /* ── seletor de produto/mercado (controla todo o painel) ── */
-  .prod-bar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
-    padding: 12px 16px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
-  .prod-bar .prod-bar-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); padding-bottom: 8px; }
+  .prod-bar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+    padding: 16px 22px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+  .prod-bar .prod-bar-lbl { display: inline-flex; align-items: center; gap: 9px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+  .prod-bar .prod-bar-lbl svg { width: 17px; height: 17px; stroke: var(--brand); flex: none; }
   .prod-field { display: flex; flex-direction: column; gap: 4px; }
   .prod-field > span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-  .prod-field .date-select { font-size: 13px; padding: 7px 10px; }
+  .prod-field .date-select { font-size: 15px; font-weight: 700; color: var(--text-primary); border-radius: 12px; padding: 11px 15px; }
 
   /* ── cards ──────────────────────────────────────────────── */
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 20px 20px 16px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
@@ -172,8 +191,10 @@
   .enc-switch:disabled { opacity: 0.45; cursor: not-allowed; background: var(--panel-2); border-color: var(--border); }
   .enc-switch:disabled .knob { transform: none; background: var(--text-muted); }
   .enc-switch:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-wash); }
-  .prod-field.enc-field { justify-content: flex-end; }
-  .prod-field.enc-field > .enc-switch { margin-top: 1px; }
+  .prod-div { align-self: stretch; width: 1px; background: var(--border); margin: 2px 0; }
+  .prod-field.enc-field { align-items: flex-start; gap: 6px; }
+  .prod-field.enc-field > .enc-switch { margin-top: 0; }
+  .enc-state { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
 
   .segmented { display: inline-flex; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; }
   .segmented button { border: none; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 999px; cursor: pointer; transition: background 0.18s, color 0.18s; }
@@ -366,6 +387,7 @@
     .hero { grid-template-columns: 1fr; }
     .hero-read { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 18px; }
     .ctrl-label { min-width: 100%; }
+    .prod-div { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .live .dot, .pulse-ring { animation: none; }
@@ -720,6 +742,13 @@
     transition: top .22s ease, left .22s ease, width .22s ease, height .22s ease;
   }
   .tour-spot.blank { border-color: transparent; border-radius: 0; }
+  /* anel que destaca o controle específico dentro do card aceso (mini-tour do gráfico) */
+  .tour-foco {
+    position: fixed; z-index: 300; box-sizing: border-box; pointer-events: none;
+    border: 2px solid var(--brand); border-radius: 10px;
+    box-shadow: 0 0 0 4px rgba(235,104,52,0.16);
+    transition: top .2s ease, left .2s ease, width .2s ease, height .2s ease;
+  }
   .tour-mask {
     position: fixed; z-index: 300; pointer-events: none;
     backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
@@ -747,34 +776,44 @@
 
 <div class="wrap">
   <header class="top">
-    <div class="brand">
+    <div class="top-left">
+      <div class="brand">
       <div class="brand-mark">
         <img src="data:image/png;base64,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" alt="CMF Energia">
       </div>
       <div class="brand-name">CMF ENERGIA<small>MERCADO LIVRE DE ENERGIA</small></div>
+      </div>
+      <span class="top-div sim-only" aria-hidden="true"></span>
+      <button class="icon-btn nav-ghost sim-only" id="simBack" type="button">← Voltar ao painel</button>
     </div>
     <div class="top-right">
       <span class="live"><span class="dot"></span> Base atualizada · jun/2026</span>
+      <button class="icon-btn market-only" id="tourStartMkt" type="button">❓ Ver tour</button>
+      <button class="icon-btn sim-only" id="tourStart" type="button">❓ Ver tour</button>
+      <button class="icon-btn sim-only" id="goAccount" type="button">👤 Minha conta</button>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro e escuro"><span id="themeIcon">🌙</span> <span id="themeLabel">Escuro</span></button>
       <button class="icon-btn nav-sim" id="goSim" type="button">🧮 Simular meu contrato</button>
-      <button class="icon-btn" id="themeToggle" type="button"><span id="themeIcon">🌙</span> <span id="themeLabel">Escuro</span></button>
     </div>
   </header>
 
   <div id="viewMarket">
   <!-- SELETOR DE PRODUTO / MERCADO -->
   <div class="prod-bar" id="prodBar">
-    <span class="prod-bar-lbl">Ver preços de</span>
+    <span class="prod-bar-lbl">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="14" y2="12"></line><line x1="4" y1="17" x2="9" y2="17"></line></svg>Ver preços de</span>
     <label class="prod-field"><span>Submercado</span>
       <select class="date-select" id="selSub" aria-label="Submercado"></select></label>
     <label class="prod-field"><span>Modalidade</span>
       <select class="date-select" id="selMod" aria-label="Modalidade"></select></label>
     <label class="prod-field"><span>Tipo de energia</span>
       <select class="date-select" id="selTipo" aria-label="Tipo de energia"></select></label>
-    <label class="prod-field enc-field"><span>Encargos inclusos</span>
-      <button type="button" class="enc-switch" id="encHeaderSwitch" role="switch" aria-checked="true" aria-label="Encargos inclusos"><span class="knob"></span></button></label>
+    <div class="prod-div" aria-hidden="true"></div>
+    <label class="prod-field enc-field"><span>Encargos</span>
+      <button type="button" class="enc-switch" id="encHeaderSwitch" role="switch" aria-checked="true" aria-label="Encargos inclusos"><span class="knob"></span></button>
+      <span class="enc-state" id="encHeaderState">Inclusos</span></label>
   </div>
   <!-- HERO -->
-  <section class="hero">
+  <section class="hero" id="mktHeroCard">
     <div class="hero-left">
       <span class="eyebrow" id="heroEyebrow" style="display:none"></span>
       <h1>O preço da energia livre, mês a mês</h1>
@@ -805,29 +844,32 @@
   </section>
 
   <!-- CHART 1 — evolução por ano de fornecimento -->
-  <section class="card">
+  <section class="card" id="mktVintageCard">
     <div class="card-head">
       <div>
         <h2>Preço de cada ano de fornecimento, ao longo do tempo</h2>
         <p>Cada linha é um ano de entrega e mostra como seu preço negociado mudou mês a mês. Linhas cheias e coloridas ainda estão em negociação; linhas cinza tracejadas são anos já encerrados. Passe o mouse na legenda para destacar um ano.</p>
       </div>
       <div class="head-controls">
+        <button type="button" class="chart-guide-btn" id="grafGuide">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.25"></circle><path d="M9.6 9.4a2.4 2.4 0 0 1 4.7.7c0 1.6-2.3 1.9-2.3 3.4"></path><path d="M12 16.6h.01"></path></svg>
+          Como ler este gráfico</button>
         <div class="segmented" id="vintageMode">
           <button data-mode="indexado" class="active" type="button">Indexado (IPCA)</button>
           <button data-mode="nominal" type="button">Nominal</button>
         </div>
       </div>
     </div>
-    <div class="head-controls" style="margin-bottom:6px">
+    <div class="head-controls" style="margin-bottom:6px" id="vPeriodoRow">
       <span class="ctrl-mini">De</span>
       <span id="vStartPick"></span>
       <span class="ctrl-mini">até</span>
       <span id="vEndPick"></span>
     </div>
     <div class="overlays">
-      <div class="ov-group"><span class="ctrl-mini">Média futura do livre<button type="button" class="info-btn" data-info="mediaFutura" aria-expanded="false" aria-label="O que é a média futura do livre?">?</button></span><div class="chips" id="vFwdChips"></div></div>
-      <div class="ov-group"><span class="ctrl-mini">Média do período<button type="button" class="info-btn" data-info="mediaHist" aria-expanded="false" aria-label="O que é a média do período?">?</button></span><div class="chips" id="vMeanChips"></div></div>
-      <div class="ov-group measure-group" style="margin-left:auto">
+      <div class="ov-group" id="vFwdGroup"><span class="ctrl-mini">Média futura do livre<button type="button" class="info-btn" data-info="mediaFutura" aria-expanded="false" aria-label="O que é a média futura do livre?">?</button></span><div class="chips" id="vFwdChips"></div></div>
+      <div class="ov-group" id="vMeanGroup"><span class="ctrl-mini">Média do período<button type="button" class="info-btn" data-info="mediaHist" aria-expanded="false" aria-label="O que é a média do período?">?</button></span><div class="chips" id="vMeanChips"></div></div>
+      <div class="ov-group measure-group" style="margin-left:auto" id="vMeasureGroup">
         <span class="ctrl-mini">Medir variação</span>
         <div class="segmented ghost" id="vMeasure">
           <button data-m="toggle" type="button" title="Como medir a variação no período">📐 Régua</button>
@@ -835,7 +877,7 @@
         </div>
         <div class="measure-bubble" id="measureHint" role="tooltip">Com a <b>Régua ligada</b>, arraste com o botão esquerdo sobre o gráfico para marcar um período. Ou segure <b>Shift</b> e arraste a qualquer momento. Dá pra marcar vários e comparar.</div>
       </div>
-      <div class="ov-group">
+      <div class="ov-group" id="vEscalaGroup">
         <span class="ctrl-mini">Escala Y</span>
         <div class="segmented ghost" id="yScale">
           <button data-y="out" type="button" title="Diminuir zoom">−</button>
@@ -912,7 +954,7 @@
   </section>
 
   <!-- DATA EXPLORER -->
-  <section class="card explorer">
+  <section class="card explorer" id="mktExplorerCard">
     <div class="card-head">
       <div>
         <h2>Explorador de dados</h2>
@@ -954,13 +996,6 @@
 
   <!-- ══════════ SIMULADOR: MEU CONTRATO × MERCADO ══════════ -->
   <div id="viewSimulator" style="display:none">
-    <div class="sim-head" style="display:flex; align-items:center; justify-content:space-between; gap:10px">
-      <button class="icon-btn" id="simBack" type="button">← Voltar ao painel</button>
-      <span style="display:flex; gap:8px">
-        <button class="icon-btn" id="tourStart" type="button">❓ Ver tour</button>
-        <button class="icon-btn" id="goAccount" type="button">⚙️ Minha conta</button>
-      </span>
-    </div>
 
     <section class="hero sim-hero">
       <div class="hero-left">
@@ -1098,10 +1133,11 @@
         <span class="alrt-flabel">Anexe suas faturas de energia</span>
         <div class="quo-drop" id="quoDrop" role="button" tabindex="0">
           <b>Clique para anexar</b> ou arraste os arquivos aqui
-          <small>PDF, JPG ou PNG · idealmente os últimos 12 meses</small>
+          <small>PDF, JPG ou PNG de até 15 MB · idealmente os últimos 12 meses</small>
         </div>
         <input type="file" id="quoFileInput" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" hidden />
         <div class="quo-files" id="quoFiles"></div>
+        <div class="alrt-err" id="quoNoticeFiles"></div>
         <div class="alrt-err" id="quoErrFiles">Anexe ao menos uma fatura para a CMF montar o produto mais aderente ao seu consumo.</div>
       </div>
 
@@ -1298,6 +1334,7 @@
 
 <!-- Tour guiado do simulador: recorte de destaque + balão de explicação -->
 <div id="tourSpot" class="tour-spot" style="display:none" aria-hidden="true"></div>
+<div id="tourFoco" class="tour-foco" style="display:none" aria-hidden="true"></div>
 <div id="tourMaskT" class="tour-mask" style="display:none" aria-hidden="true"></div>
 <div id="tourMaskB" class="tour-mask" style="display:none" aria-hidden="true"></div>
 <div id="tourMaskL" class="tour-mask" style="display:none" aria-hidden="true"></div>
@@ -1472,6 +1509,8 @@
     sw.title = ok ? "" : "Encargos só se aplicam ao varejista";
     if (!ok) encHeaderOn = true;
     sw.setAttribute("aria-checked", encHeaderOn ? "true" : "false");
+    const st = document.getElementById("encHeaderState");
+    if (st) st.textContent = encHeaderOn ? "Inclusos" : "Sem encargos";
   }
   function onSelProduto() {
     produtoEscolhido = true;
@@ -2750,14 +2789,18 @@
   }
 
   function simVisible() { return document.getElementById("viewSimulator").style.display !== "none"; }
+  function mktVisible() { return document.getElementById("viewMarket").style.display !== "none"; }
   function showView(name) {
     document.getElementById("viewMarket").style.display = name === "market" ? "" : "none";
     document.getElementById("viewSimulator").style.display = name === "sim" ? "" : "none";
     document.getElementById("viewAccount").style.display = name === "account" ? "" : "none";
+    document.body.classList.toggle("view-sim", name === "sim");
+    document.body.classList.toggle("view-account", name === "account");
     document.getElementById("tooltip").style.opacity = 0;
     window.scrollTo(0, 0);
-    if (name !== "sim") tourFecha();   // sair do simulador encerra o tour
-    if (name === "sim") { preencherSimSeletores(); renderSim(); renderAlerta(); quoHistRender(); tourAuto(); }
+    if (tourIdx >= 0) tourFecha();     // trocar de tela encerra qualquer tour aberto
+    if (name === "sim") { preencherSimSeletores(); renderSim(); renderAlerta(); quoHistRender(); tourAuto(TOUR_SIM, "cmf_tour_sim", simVisible); }
+    if (name === "market") tourAuto(TOUR_MARKET, "cmf_tour_market", mktVisible);
     if (name === "account") fillAccount();
   }
   document.getElementById("goSim").addEventListener("click", () => requestSim("header:goSim"));
@@ -3983,7 +4026,7 @@
   }
 
   function quoHideErrs() {
-    ["quoErrFiles", "quoErrCustom", "quoErrOptin"].forEach(function (id) { quoEl(id).style.display = "none"; });
+    ["quoNoticeFiles", "quoErrFiles", "quoErrCustom", "quoErrOptin"].forEach(function (id) { quoEl(id).style.display = "none"; });
   }
   function quoSyncPanes() {
     document.querySelectorAll(".quo-opt").forEach(function (l) { l.classList.toggle("on", l.dataset.quoOpt === quoTipo); });
@@ -4003,9 +4046,32 @@
         '<button type="button" data-i="' + i + '" title="Remover" aria-label="Remover anexo">✕</button></div>';
     }).join("");
   }
+  // barreira de anexos: só PDF/JPG/PNG, até 15 MB e no máximo 36 arquivos.
+  // No protótipo nada sobe de fato (guardamos só nome e tamanho); no site real
+  // essa mesma checagem tem que ser refeita no backend, que é onde ela protege.
+  var QUO_MAX_MB = 15, QUO_MAX_FILES = 36;
+  var QUO_MIME_OK = { "application/pdf": 1, "image/jpeg": 1, "image/png": 1 };
+  var QUO_EXT_OK = /\.(pdf|jpe?g|png)$/i;
+  function quoFormatoOk(f) {
+    // quando o navegador informa o MIME, ele manda; senão caímos na extensão
+    return f.type ? !!QUO_MIME_OK[f.type] : QUO_EXT_OK.test(f.name);
+  }
   function quoAddFiles(list) {
-    Array.prototype.forEach.call(list, function (f) { quoFiles.push({ nome: f.name, bytes: f.size }); });
+    var recusados = [], duplicados = [];
+    Array.prototype.forEach.call(list, function (f) {
+      if (quoFiles.some(function (x) { return x.nome === f.name && x.bytes === f.size; })) { duplicados.push(f.name); return; }
+      if (quoFiles.length >= QUO_MAX_FILES) { recusados.push(f.name + " (limite de " + QUO_MAX_FILES + " arquivos)"); return; }
+      if (!quoFormatoOk(f)) { recusados.push(f.name + " (formato não aceito)"); return; }
+      if (f.size > QUO_MAX_MB * 1048576) { recusados.push(f.name + " (acima de " + QUO_MAX_MB + " MB)"); return; }
+      quoFiles.push({ nome: f.name, bytes: f.size });
+    });
     quoRenderFiles(); quoHideErrs();
+    var msgs = [];
+    if (duplicados.length === 1) msgs.push('Esse arquivo "' + duplicados[0] + '" já foi anexado.');
+    else if (duplicados.length > 1) msgs.push("Esses arquivos já foram anexados: " + duplicados.join(", ") + ".");
+    if (recusados.length) msgs.push("Não anexamos: " + recusados.join("; ") + ". Aceitamos PDF, JPG e PNG de até " + QUO_MAX_MB + " MB.");
+    var aviso = quoEl("quoNoticeFiles");
+    if (msgs.length) { aviso.textContent = msgs.join(" "); aviso.style.display = "block"; }
   }
   const quoDrop = quoEl("quoDrop"), quoInput = quoEl("quoFileInput");
   quoDrop.addEventListener("click", function () { quoInput.click(); });
@@ -4172,8 +4238,7 @@
   // ── Tour guiado do simulador ──────────────────────────────────────────────
   // Na primeira visita ao simulador, apresenta as três ferramentas uma a uma.
   // Depois disso só reabre pelo botão "Ver tour"; a marca de "já viu" fica neste navegador.
-  const TOUR_KEY = "cmf_tour_sim";
-  const TOUR_STEPS = [
+  const TOUR_SIM = [
     {
       alvo: null,
       titulo: "Bem-vindo ao simulador",
@@ -4196,6 +4261,254 @@
       texto: "Peça cotações anexando suas faturas, para a CMF montar o produto mais aderente ao seu consumo, ou descrevendo um produto personalizado. Buscamos propostas com 5 grandes geradores do mercado."
     }
   ];
+
+  // Tour da página inicial (viewMarket), na primeira visita ao site. Chave própria.
+  const TOUR_MARKET = [
+    {
+      alvo: null,
+      titulo: "Bem-vindo ao painel da CMF",
+      texto: "Aqui você acompanha o preço da energia no mercado livre, mês a mês: quanto custa hoje, como evoluiu e quanto isso representa de economia frente ao mercado cativo. Vamos dar uma volta rápida?"
+    },
+    {
+      alvo: "prodBar",
+      titulo: "Escolha o que você quer ver",
+      texto: "Comece definindo o produto: submercado, modalidade e tipo de energia. Todo o painel se ajusta a essa escolha. O botão de encargos só liga e desliga na modalidade Varejista, a única que tem preço com e sem encargos."
+    },
+    {
+      alvo: "mktHeroCard",
+      titulo: "O preço de referência",
+      texto: "O preço médio do mercado livre para os próximos 60 meses e como ele se moveu nos últimos meses, já corrigido pela inflação para comparação em moeda de hoje."
+    },
+    {
+      alvo: "mktVintageCard",
+      titulo: "Preço de cada ano de fornecimento",
+      texto: "Cada linha é um ano de entrega e mostra como o preço negociado mudou mês a mês. Você escolhe o período, alterna entre indexado (IPCA) e nominal e sobrepõe médias e a régua de variação. Para ver cada controle funcionando, use o botão \"Como ler este gráfico\" no card."
+    },
+    {
+      alvo: "mktExplorerCard",
+      titulo: "Explorador de dados",
+      texto: "Monte a sua própria tabela: escolha os anos de fornecimento e as colunas que quer ver. A tabela mostra todo o período disponível e você ajusta a largura de cada coluna arrastando a borda."
+    },
+    {
+      alvo: "goSim",
+      titulo: "Compare com o seu contrato",
+      texto: "Quando quiser saber se o seu contrato está caro ou barato frente ao mercado, clique em Simular meu contrato e use o simulador."
+    }
+  ];
+
+  // Mini-tour do gráfico de vintages, aberto pelo botão "Como ler este gráfico".
+  // Todos os passos miram o mesmo card e disparam uma demo automática (campo demo).
+  const TOUR_GRAFICO = [
+    {
+      alvo: "mktVintageCard", foco: "legendVintage",
+      demo: "anos",
+      titulo: "As linhas: um ano cada",
+      texto: "Cada linha é um ano de entrega. Coloridas e cheias são anos ainda em negociação; cinza tracejadas são anos já encerrados. Nestes botões você liga e desliga cada ano."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vintageMode",
+      demo: "modo",
+      titulo: "Indexado (IPCA) × Nominal",
+      texto: "No indexado, os preços são corrigidos pela inflação até hoje, então dá para comparar anos diferentes em moeda de hoje. No nominal, é o valor de cada época, sem correção. Veja as linhas se deslocarem ao alternar."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vPeriodoRow",
+      demo: "periodo",
+      titulo: "O período",
+      texto: "Aqui você define o trecho de tempo que aparece no gráfico. Reduza a janela para focar nos meses mais recentes, ou amplie para ver a história inteira dos preços."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vFwdGroup",
+      demo: "mediaFwd",
+      titulo: "A média futura do livre",
+      texto: "Uma linha de apoio opcional. Para cada mês do gráfico, ela mostra o preço médio da energia olhando para a frente. Você escolhe o alcance: 24, 36, 48 ou 60 meses à frente."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vMeanGroup",
+      demo: "mediaAno",
+      titulo: "A média de cada ano",
+      texto: "Ela desenha uma linha reta no preço médio de um ano. Assim você vê num relance quando o preço daquele ano esteve abaixo da média, ou seja, mais barato que o normal, e quando esteve acima, mais caro."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vMeasureGroup",
+      demo: "regua",
+      titulo: "A régua: meça a variação",
+      texto: "Ligue em 📐 Régua e arraste sobre o gráfico, ou segure Shift e arraste a qualquer momento. Para cada ano ela mostra a variação em % e em R$ entre os dois meses: verde quando caiu, vermelho quando subiu. Veja um exemplo sendo traçado."
+    },
+    {
+      alvo: "mktVintageCard", foco: "vEscalaGroup",
+      demo: "escala",
+      titulo: "A escala do eixo",
+      texto: "Use − / + para aproximar ou afastar a escala de preços e Auto para o ajuste automático. Também dá para arrastar o gráfico para cima ou para baixo e deslocar a escala."
+    }
+  ];
+
+  // conjunto de passos e chave "já viu" ativos; trocam conforme o tour aberto
+  let TOUR_STEPS = TOUR_SIM;
+  let TOUR_KEY = "cmf_tour_sim";
+  function tourUsar(steps, key) { TOUR_STEPS = steps; TOUR_KEY = key; }
+
+  // Exemplo animado da régua (passo do tour): planta uma medição de demonstração no
+  // gráfico e varre o ponto final, mostrando a variação sendo medida na prática. É
+  // marcada com _demo para ser removida ao sair do passo, sem tocar nas réguas reais.
+  let reguaTimer = null, reguaDemoObj = null;
+  function reguaDemoStop() {
+    if (reguaTimer) { clearTimeout(reguaTimer); reguaTimer = null; }
+    reguaDemoObj = null;
+    const antes = vintageMeasures.length;
+    vintageMeasures = vintageMeasures.filter(function (m) { return !m._demo; });
+    if (vintageMeasures.length !== antes) { syncMeasureUI(); vintageAnim = false; drawVintage(); }
+  }
+  function reguaDemoStart() {
+    reguaDemoStop();
+    if (!mktVisible()) return;
+    const lo = vStart, hi = vEnd, span = hi - lo;
+    if (span < 6) return;                       // janela curta demais para o exemplo
+    const iA = lo + Math.round(span * 0.30);
+    const iB = lo + Math.round(span * 0.88);
+    const demo = { a: MONTHS[iA], b: MONTHS[iA], _demo: true };
+    reguaDemoObj = demo;
+    vintageMeasures.push(demo);
+    const passo = Math.max(1, Math.round((iB - iA) / 18));
+    let cur = iA;
+    (function varre() {
+      if (reguaDemoObj !== demo) return;
+      if (cur < iB) {
+        cur = Math.min(iB, cur + passo);
+        demo.b = MONTHS[cur];
+        vintageAnim = false; drawVintage();
+        reguaTimer = setTimeout(varre, 90);
+      } else {
+        reguaTimer = setTimeout(function () {   // segura o resultado e recomeça
+          if (reguaDemoObj !== demo) return;
+          cur = iA; demo.b = MONTHS[iA]; vintageAnim = false; drawVintage();
+          reguaTimer = setTimeout(varre, 450);
+        }, 1700);
+      }
+    })();
+  }
+
+  // ── Mini-tour "Como ler este gráfico" ────────────────────────────────────
+  // Cada passo aciona uma demo automática e reversível no gráfico de vintages.
+  // Tiramos uma foto do estado ao abrir e restauramos ao fechar, para nenhuma
+  // demonstração deixar o gráfico diferente de como o usuário o encontrou.
+  let grafSnap = null, grafTimer = null;
+  function grafSnapshot() {
+    grafSnap = {
+      mode: vintageMode, vStart: vStart, vEnd: vEnd,
+      hidden: new Set(vintageHidden), fwd: new Set(vFwd), mean: new Set(vMean),
+      yManual: vYManual ? vYManual.slice() : null,
+      measures: vintageMeasures.filter(function (m) { return !m._demo; })
+    };
+  }
+  // reaplica o estado atual em todos os controles do gráfico e redesenha
+  function syncVintageAll(anim) {
+    [...document.getElementById("vintageMode").children].forEach(function (x) {
+      x.classList.toggle("active", x.dataset.mode === vintageMode);
+    });
+    const ys = document.getElementById("yScale");
+    [...ys.children].forEach(function (x) {
+      x.classList.toggle("active", vYManual === null && x.dataset.y === "auto");
+    });
+    if (typeof vStartPicker !== "undefined" && vStartPicker) vStartPicker.refresh();
+    if (typeof vEndPicker !== "undefined" && vEndPicker) vEndPicker.refresh();
+    buildVintageOverlayControls();
+    renderVintageLegend();
+    syncMeasureUI();
+    vintageAnim = !!anim; drawVintage();
+    if (tourIdx >= 0) tourPos();   // mantém o anel de foco e o balão alinhados na demo
+  }
+  function grafRestore() {
+    if (!grafSnap) return;
+    vintageMode = grafSnap.mode; vStart = grafSnap.vStart; vEnd = grafSnap.vEnd;
+    vintageHidden.clear(); grafSnap.hidden.forEach(function (v) { vintageHidden.add(v); });
+    vFwd.clear(); grafSnap.fwd.forEach(function (v) { vFwd.add(v); });
+    vMean.clear(); grafSnap.mean.forEach(function (v) { vMean.add(v); });
+    vYManual = grafSnap.yManual ? grafSnap.yManual.slice() : null;
+    vintageMeasures = grafSnap.measures.slice();
+    syncVintageAll(false);
+  }
+  // demos: ligam um ano encerrado e um futuro; alternam modo; estreitam o período;
+  // sobrepõem médias; fazem um zoom. Todas partem do estado da foto (grafSnap).
+  function demoAnos() {
+    const futHidden = Object.keys(YEARS).find(function (y) { return YEARS[y].active && vintageHidden.has(y); });
+    const encerrados = Object.keys(YEARS).filter(function (y) { return !YEARS[y].active; });
+    const seq = [];
+    if (futHidden) seq.push(futHidden);
+    if (encerrados.length) seq.push(encerrados[encerrados.length - 1]);
+    let k = 0;
+    (function passo() {
+      if (!grafSnap || k >= seq.length) return;
+      vintageHidden.delete(seq[k]); k++;
+      syncVintageAll(true);
+      grafTimer = setTimeout(passo, 750);
+    })();
+  }
+  function demoModo() {
+    let nom = true;
+    (function passo() {
+      if (!grafSnap) return;
+      vintageMode = nom ? "nominal" : "indexado";
+      syncVintageAll(true); nom = !nom;
+      grafTimer = setTimeout(passo, 1500);
+    })();
+  }
+  function demoPeriodo() {
+    const a = grafSnap.vStart, b = grafSnap.vEnd, estreito = Math.max(a, b - 17);
+    let narrow = true;
+    (function passo() {
+      if (!grafSnap) return;
+      if (narrow) { vStart = estreito; vEnd = b; } else { vStart = a; vEnd = b; }
+      syncVintageAll(true); narrow = !narrow;
+      grafTimer = setTimeout(passo, 1700);
+    })();
+  }
+  function demoMediaFwd() {
+    let on = false;
+    (function passo() {
+      if (!grafSnap) return;
+      on = !on;
+      if (on) vFwd.add(60); else vFwd.delete(60);
+      syncVintageAll(false);
+      grafTimer = setTimeout(passo, on ? 1500 : 550);
+    })();
+  }
+  function demoMediaAno() {
+    const ano = Object.keys(YEARS).find(function (y) { return YEARS[y].active && !vintageHidden.has(y); }) || PRIMEIRO_ANO;
+    if (meanNoPeriodo(ano) == null) return;
+    let on = false;
+    (function passo() {
+      if (!grafSnap) return;
+      on = !on;
+      if (on) vMean.add(ano); else vMean.delete(ano);
+      syncVintageAll(false);
+      grafTimer = setTimeout(passo, on ? 1600 : 550);
+    })();
+  }
+  function demoEscala() {
+    let zoom = true;
+    (function passo() {
+      if (!grafSnap) return;
+      if (zoom) {
+        if (!vYManual) vYManual = vintageAutoDomain();
+        const c = (vYManual[0] + vYManual[1]) / 2, half = (vYManual[1] - vYManual[0]) / 2 * 0.6;
+        vYManual = [Math.max(0, Math.round(c - half)), Math.round(c + half)];
+      } else { vYManual = null; }
+      syncVintageAll(false); zoom = !zoom;
+      grafTimer = setTimeout(passo, 1500);
+    })();
+  }
+  function grafDemoStart(name) {
+    if (!grafSnap) grafSnapshot();
+    if (name === "regua") { reguaDemoStart(); return; }
+    const map = { anos: demoAnos, modo: demoModo, periodo: demoPeriodo, mediaFwd: demoMediaFwd, mediaAno: demoMediaAno, escala: demoEscala };
+    if (map[name]) map[name]();
+  }
+  function grafDemoStop() {
+    if (grafTimer) { clearTimeout(grafTimer); grafTimer = null; }
+    reguaDemoStop();
+    grafRestore();
+  }
 
   let tourIdx = -1;   // -1 = tour fechado
   function tourEl(id) { return document.getElementById(id); }
@@ -4220,13 +4533,14 @@
   const TOUR_LAYERS = ["tourSpot", "tourMaskT", "tourMaskB", "tourMaskL", "tourMaskR"];
   function tourLayers(mostra) {
     TOUR_LAYERS.forEach(function (id) { tourEl(id).style.display = mostra ? "block" : "none"; });
+    if (!mostra) tourEl("tourFoco").style.display = "none";
   }
 
   // Recalcula o recorte de destaque e a posição do balão. Roda também durante o
   // scroll, porque o recorte é fixo na tela e o alvo se move junto com a página.
   function tourPos() {
     if (tourIdx < 0) return;
-    const spot = tourEl("tourSpot"), pop = tourEl("tourPop");
+    const spot = tourEl("tourSpot"), pop = tourEl("tourPop"), ring = tourEl("tourFoco");
     const passo = TOUR_STEPS[tourIdx];
     const alvo = passo.alvo ? document.getElementById(passo.alvo) : null;
     const vw = window.innerWidth, vh = window.innerHeight, m = 10;
@@ -4237,6 +4551,7 @@
       spot.style.top = (vh / 2) + "px"; spot.style.left = (vw / 2) + "px";
       spot.style.width = "0px"; spot.style.height = "0px";
       tourMasks(vh / 2, vw / 2, 0, 0);
+      ring.style.display = "none";
       pop.style.top = Math.max(m, (vh - ph) / 2) + "px";
       pop.style.left = Math.max(m, (vw - pw) / 2) + "px";
       return;
@@ -4249,12 +4564,27 @@
     spot.style.width = w + "px"; spot.style.height = h + "px";
     tourMasks(t, l, w, h);
 
-    // balão abaixo do alvo; se não couber, acima; se o alvo for maior que a tela, sobre ele
+    // âncora do balão: o controle em foco quando houver, senão o alvo inteiro.
+    // O card segue aceso no recorte; o anel só destaca o controle dentro dele.
+    const fEl = passo.foco ? document.getElementById(passo.foco) : null;
+    let aT, aL, aB;
+    if (fEl) {
+      const fr = fEl.getBoundingClientRect();
+      ring.style.display = "block";
+      ring.style.top = (fr.top - 5) + "px"; ring.style.left = (fr.left - 6) + "px";
+      ring.style.width = (fr.width + 12) + "px"; ring.style.height = (fr.height + 10) + "px";
+      aT = fr.top; aL = fr.left - 6; aB = fr.bottom;
+    } else {
+      ring.style.display = "none";
+      aT = t; aL = l; aB = t + h;
+    }
+
+    // balão abaixo da âncora; se não couber, acima; senão centralizado
     let top;
-    if (t + h + 14 + ph <= vh - m) top = t + h + 14;
-    else if (t - 14 - ph >= m) top = t - 14 - ph;
+    if (aB + 14 + ph <= vh - m) top = aB + 14;
+    else if (aT - 14 - ph >= m) top = aT - 14 - ph;
     else top = Math.max(m, (vh - ph) / 2);
-    let left = l;
+    let left = aL;
     if (left + pw > vw - m) left = vw - pw - m;
     if (left < m) left = m;
     pop.style.top = Math.max(m, top) + "px";
@@ -4262,6 +4592,7 @@
   }
 
   function tourAbrir(i) {
+    grafDemoStop();                // encerra e reverte qualquer demo ao trocar de passo
     tourIdx = i;
     const s = TOUR_STEPS[i], ultimo = i === TOUR_STEPS.length - 1;
     tourEl("tourNum").textContent = i + 1;
@@ -4275,27 +4606,34 @@
     tourEl("tourNext").textContent = i === 0 ? "Começar tour" : (ultimo ? "Concluir" : "Próximo");
     tourLayers(true);
     tourEl("tourPop").style.display = "block";
-    const alvo = s.alvo ? document.getElementById(s.alvo) : null;
-    if (alvo) alvo.scrollIntoView({ behavior: "smooth", block: "center" });
+    const foca = s.foco ? document.getElementById(s.foco) : (s.alvo ? document.getElementById(s.alvo) : null);
+    if (foca) foca.scrollIntoView({ behavior: "smooth", block: "center" });
     tourPos();
     tourEl("tourNext").focus({ preventScroll: true });
+    if (s.demo) grafDemoStart(s.demo);
   }
 
   function tourFecha() {
     if (tourIdx < 0) return;
+    grafDemoStop();
+    grafSnap = null;
     tourIdx = -1;
     tourLayers(false);
     tourEl("tourPop").style.display = "none";
     lsSet(TOUR_KEY, "1");
   }
 
-  // abre sozinho só na primeira vez que a pessoa entra no simulador
-  function tourAuto() {
-    if (lsGet(TOUR_KEY) || tourIdx >= 0) return;
-    setTimeout(function () { if (simVisible() && tourIdx < 0) tourAbrir(0); }, 280);
+  // abre sozinho só na primeira vez que a pessoa vê aquela tela (chave própria por tour)
+  function tourAuto(steps, key, visivel) {
+    if (lsGet(key) || tourIdx >= 0) return;
+    setTimeout(function () {
+      if (visivel() && tourIdx < 0) { tourUsar(steps, key); tourAbrir(0); }
+    }, 280);
   }
 
-  tourEl("tourStart").addEventListener("click", function () { tourAbrir(0); });
+  tourEl("tourStart").addEventListener("click", function () { tourUsar(TOUR_SIM, "cmf_tour_sim"); tourAbrir(0); });
+  tourEl("tourStartMkt").addEventListener("click", function () { tourUsar(TOUR_MARKET, "cmf_tour_market"); tourAbrir(0); });
+  tourEl("grafGuide").addEventListener("click", function () { tourUsar(TOUR_GRAFICO, "cmf_tour_grafico"); tourAbrir(0); });
   tourEl("tourSkip").addEventListener("click", tourFecha);
   tourEl("tourBack").addEventListener("click", function () { if (tourIdx > 0) tourAbrir(tourIdx - 1); });
   tourEl("tourNext").addEventListener("click", function () {
@@ -4309,6 +4647,9 @@
     else if (e.key === "ArrowRight" && tourIdx < TOUR_STEPS.length - 1) tourAbrir(tourIdx + 1);
     else if (e.key === "ArrowLeft" && tourIdx > 0) tourAbrir(tourIdx - 1);
   });
+
+  // primeira visita ao site: a página inicial já é a tela padrão, então dispara aqui
+  tourAuto(TOUR_MARKET, "cmf_tour_market", mktVisible);
 
   // ── theme ────────────────────────────────────────────────────────────────
   document.getElementById("themeToggle").addEventListener("click", () => {
