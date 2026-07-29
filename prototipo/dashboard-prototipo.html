@@ -2746,7 +2746,7 @@
     [...e.currentTarget.children].forEach(x => x.classList.toggle("active", x === b)); renderExplorer();
   });
   document.getElementById("explAll").addEventListener("click", () => { YEAR_KEYS.forEach(y => selYears.add(y)); livre.on = true; BE_BANDS.forEach(b => beSel.add(b.band)); hist.on = true; STD_COLS.forEach(c => selStd.add(c.id)); buildExplControls(); renderExplorer(); });
-  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); hist.on = false; selStd.clear(); buildExplControls(); renderExplorer(); });
+  document.getElementById("explNone").addEventListener("click", () => { selYears.clear(); livre.on = false; beSel.clear(); hist.on = false; selStd.clear(); Object.keys(colWidths).forEach(k => delete colWidths[k]); buildExplControls(); renderExplorer(); });
 
   // ── Simulador: meu contrato × mercado ───────────────────────────────────
   let simMode = "indexado";
