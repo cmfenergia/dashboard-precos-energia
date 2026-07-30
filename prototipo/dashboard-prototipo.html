@@ -4744,3 +4744,68 @@ if (b?.dataset.palette) {
     document.addEventListener("cut", function (e) { if (!inField(e.target)) e.preventDefault(); });
   })();
 </script>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const supabase = createClient("https://rgwenfyypromlixuxqqr.supabase.co", "sb_publishable_UtzSwJyRnfhYXNmLUxwKIw_gkSB-b86");
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("leadForm");
+    if (!form) return;
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    const modal = document.querySelector(".lead-modal");
+    const overlay = document.getElementById("leadOverlay");
+    const elNome = document.getElementById("leadNome");
+    const elEmail = document.getElementById("leadEmail");
+    const elTel = document.getElementById("leadTel");
+    const elSenha = document.getElementById("leadSenha");
+    const elSenha2 = document.getElementById("leadSenha2");
+    const submitBtn = document.getElementById("leadSubmit");
+    function showMsg(msg, ok) {
+      let el = newForm.querySelector(".supabase-auth-msg");
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "lead-err supabase-auth-msg";
+        el.style.marginTop = "8px";
+        newForm.appendChild(el);
+      }
+      el.style.display = "block";
+      el.style.color = ok ? "#0ca30c" : "#d03b3b";
+      el.textContent = msg;
+    }
+    newForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const mode = (modal && modal.getAttribute("data-authmode")) || "login";
+      const email = ((elEmail && elEmail.value) || "").trim();
+      const senha = (elSenha && elSenha.value) || "";
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        if (mode === "signup") {
+          const senha2 = (elSenha2 && elSenha2.value) || "";
+          if (senha !== senha2) { showMsg("As senhas nao coincidem.", false); return; }
+          const nome = ((elNome && elNome.value) || "").trim();
+          const telefone = ((elTel && elTel.value) || "").trim();
+          const resp = await supabase.auth.signUp({ email: email, password: senha, options: { data: { nome: nome, telefone: telefone } } });
+          if (resp.error) { showMsg(resp.error.message, false); return; }
+          if (!resp.data.session) {
+            showMsg("Cadastro criado! Verifique seu email para confirmar a conta.", true);
+          } else {
+            showMsg("Cadastro criado com sucesso!", true);
+            if (overlay) overlay.classList.remove("open");
+          }
+        } else {
+          const resp = await supabase.auth.signInWithPassword({ email: email, password: senha });
+          if (resp.error) { showMsg(resp.error.message, false); return; }
+          showMsg("Login realizado!", true);
+          if (overlay) overlay.classList.remove("open");
+        }
+      } catch (err) {
+        showMsg("Ocorreu um erro. Tente novamente.", false);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  });
+</script>
+</script>
