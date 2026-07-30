@@ -4834,12 +4834,18 @@ if (b?.dataset.palette) {
           } else {
             showMsg("Cadastro criado com sucesso!", true);
             if (overlay) overlay.classList.remove("open");
+            try { const list0 = JSON.parse(localStorage.getItem("cmf_leads") || "[]"); const eLow = email.trim().toLowerCase(); if (!list0.find(function (a) { return (a.email || "").toLowerCase() === eLow; })) { list0.push({ email: email }); localStorage.setItem("cmf_leads", JSON.stringify(list0)); } localStorage.setItem("cmf_session", email); } catch (bridgeErr) {}
+            const goSimBtn2 = document.getElementById("goSim");
+            if (goSimBtn2) goSimBtn2.click();
           }
         } else {
           const resp = await supabase.auth.signInWithPassword({ email: email, password: senha });
           if (resp.error) { showMsg(resp.error.message, false); return; }
           showMsg("Login realizado!", true);
           if (overlay) overlay.classList.remove("open");
+          try { const list0 = JSON.parse(localStorage.getItem("cmf_leads") || "[]"); const eLow = email.trim().toLowerCase(); if (!list0.find(function (a) { return (a.email || "").toLowerCase() === eLow; })) { list0.push({ email: email }); localStorage.setItem("cmf_leads", JSON.stringify(list0)); } localStorage.setItem("cmf_session", email); } catch (bridgeErr) {}
+          const goSimBtn = document.getElementById("goSim");
+          if (goSimBtn) goSimBtn.click();
         }
       } catch (err) {
         showMsg("Ocorreu um erro. Tente novamente.", false);
