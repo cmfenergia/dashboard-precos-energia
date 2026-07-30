@@ -4745,9 +4745,50 @@ if (b?.dataset.palette) {
   })();
 </script>
 
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
   const supabase = createClient("https://rgwenfyypromlixuxqqr.supabase.co", "sb_publishable_UtzSwJyRnfhYXNmLUxwKIw_gkSB-b86");
+  function renderAuthBadge(session) {
+    const topRight = document.querySelector(".top-right");
+    if (!topRight) return;
+    let badge = document.getElementById("authBadge");
+    if (!badge) {
+      badge = document.createElement("div");
+      badge.id = "authBadge";
+      badge.style.display = "none";
+      badge.style.alignItems = "center";
+      badge.style.gap = "8px";
+      badge.style.fontSize = "12.5px";
+      badge.style.padding = "7px 12px";
+      badge.style.border = "1px solid rgba(0,0,0,0.12)";
+      badge.style.borderRadius = "999px";
+      badge.style.marginRight = "6px";
+      topRight.insertBefore(badge, topRight.firstChild);
+    }
+    if (session && session.user) {
+      const nome = (session.user.user_metadata && session.user.user_metadata.nome) || session.user.email;
+      badge.innerHTML = "";
+      const span = document.createElement("span");
+      span.textContent = "Ola, " + nome;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Sair";
+      btn.style.border = "none";
+      btn.style.background = "transparent";
+      btn.style.color = "#c34a1c";
+      btn.style.fontWeight = "700";
+      btn.style.cursor = "pointer";
+      btn.style.fontSize = "12.5px";
+      btn.addEventListener("click", async function () { await supabase.auth.signOut(); });
+      badge.appendChild(span);
+      badge.appendChild(btn);
+      badge.style.display = "inline-flex";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+  supabase.auth.getSession().then(function (r) { renderAuthBadge(r.data.session); });
+  supabase.auth.onAuthStateChange(function (event, session) { renderAuthBadge(session); });
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("leadForm");
     if (!form) return;
