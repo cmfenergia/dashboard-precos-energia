@@ -4855,3 +4855,20 @@ if (b?.dataset.palette) {
     });
   });
 </script>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const supabaseAlrt = createClient("https://rgwenfyypromlixuxqqr.supabase.co", "sb_publishable_UtzSwJyRnfhYXNmLUxwKIw_gkSB-b86");
+
+  function alrtDbNote(text, ok) { let el = document.getElementById("alrtDbNote"); if (!el) { el = document.createElement("div"); el.id = "alrtDbNote"; el.style.marginTop = "10px"; const actions = document.querySelector(".alrt-actions"); if (actions && actions.parentNode) { actions.parentNode.insertBefore(el, actions.nextSibling); } } el.textContent = text; el.className = "alrt-status " + (ok ? "hit" : "wait"); }
+
+  async function alrtPersist() { const { data: sd } = await supabaseAlrt.auth.getSession(); const session = sd && sd.session; if (!session) { alrtDbNote("Faca login para salvar seu alerta de preco-alvo.", false); if (typeof window.openLead === "function") { try { window.openLead("login"); } catch (e) {} } return; } const collected = typeof window.alrtCollect === "function" ? window.alrtCollect() : null; if (!collected || collected.ok === false || !collected.produtos || !collected.produtos.length) { alrtDbNote("Selecione ao menos um ano-safra e um preco-alvo antes de salvar.", false); return; } const waCh = document.getElementById("alrtWa"); const emailCh = document.getElementById("alrtEmailCh"); const optinCh = document.getElementById("alrtOptin"); if (!optinCh || !optinCh.checked) { alrtDbNote("Marque a autorizacao de contato para salvar o alerta.", false); return; } const telInput = document.getElementById("acctTel"); const payload = { user_id: session.user.id, produtos: collected.produtos, canal_whatsapp: !!(waCh && waCh.checked), canal_email: !!(emailCh && emailCh.checked), telefone: telInput && telInput.value ? telInput.value : null, email: session.user.email, ativo: true }; const { error } = await supabaseAlrt.from("alertas_preco").upsert(payload, { onConflict: "user_id" }); if (error) { alrtDbNote("Nao deu para salvar agora: " + error.message, false); return; } alrtDbNote("Alerta salvo! Vamos te avisar quando os precos baterem sua meta.", true); }
+
+  async function alrtPersistOff() { const { data: sd } = await supabaseAlrt.auth.getSession(); const session = sd && sd.session; if (!session) return; await supabaseAlrt.from("alertas_preco").update({ ativo: false }).eq("user_id", session.user.id); alrtDbNote("Alerta desativado.", false); }
+
+  const alrtSaveBtn = document.getElementById("alrtSave");
+  const alrtOffBtn = document.getElementById("alrtOff");
+  if (alrtSaveBtn) alrtSaveBtn.addEventListener("click", alrtPersist);
+  if (alrtOffBtn) alrtOffBtn.addEventListener("click", alrtPersistOff);
+    </script>
+    
