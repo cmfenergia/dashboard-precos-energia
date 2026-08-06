@@ -4872,3 +4872,16 @@ if (b?.dataset.palette) {
   if (alrtOffBtn) alrtOffBtn.addEventListener("click", alrtPersistOff);
     </script>
     
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const supabaseQuo = createClient("https://rgwenfyypromlixuxqqr.supabase.co", "sb_publishable_UtzSwJyRnfhYXNmLUxwKIw_gkSB-b86");
+
+  function quoDbNote(text, ok) { let el = document.getElementById("quoDbNote"); if (!el) { el = document.createElement("div"); el.id = "quoDbNote"; el.style.marginTop = "10px"; const btn = document.getElementById("quoAsk"); if (btn && btn.parentNode) btn.parentNode.insertBefore(el, btn.nextSibling); } el.textContent = text; el.className = "alrt-status " + (ok ? "hit" : "wait"); }
+
+  async function quoPersist() { const { data: sd } = await supabaseQuo.auth.getSession(); const session = sd && sd.session; if (!session) { quoDbNote("Faca login para enviar sua solicitacao de cotacao.", false); if (typeof window.openLead === "function") { try { window.openLead("login"); } catch (e) {} } return; } const fileInput = document.getElementById("quoFileInput"); const files = fileInput && fileInput.files ? Array.from(fileInput.files) : []; const tipoRadio = document.querySelector('input[name="quoTipo"]:checked'); const tipo = tipoRadio ? tipoRadio.value : "faturas"; if (tipo === "faturas" && files.length === 0) { quoDbNote("Anexe ao menos uma fatura antes de solicitar.", false); return; } quoDbNote("Enviando sua solicitacao...", false); const arquivos = []; for (const file of files) { const path = session.user.id + "/" + Date.now() + "-" + file.name; const { error: upErr } = await supabaseQuo.storage.from("cotacoes-faturas").upload(path, file, { upsert: false }); if (upErr) { quoDbNote("Erro ao enviar arquivo " + file.name + ": " + upErr.message, false); return; } arquivos.push({ path: path, name: file.name, size: file.size }); } let produtos = []; if (tipo === "custom" && typeof window.quoColeta === "function") { try { produtos = window.quoColeta(); } catch (e) {} } const { data: inserted, error: insErr } = await supabaseQuo.from("cotacoes").insert({ user_id: session.user.id, tipo: tipo, produtos: produtos, arquivos: arquivos }).select("id").maybeSingle(); if (insErr || !inserted) { quoDbNote("Nao deu para salvar sua solicitacao agora: " + (insErr ? insErr.message : ""), false); return; } try { await fetch("https://rgwenfyypromlixuxqqr.supabase.co/functions/v1/notificar-cotacao", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ cotacaoId: inserted.id }) }); } catch (e) {} quoDbNote("Solicitacao enviada! A equipe da CMF vai analisar e te retornar.", true); }
+
+  const quoAskBtn = document.getElementById("quoAsk");
+  if (quoAskBtn) quoAskBtn.addEventListener("click", quoPersist);
+    </script>
+    
