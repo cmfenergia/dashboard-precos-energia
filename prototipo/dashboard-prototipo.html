@@ -4830,7 +4830,7 @@ if (b?.dataset.palette) {
           const resp = await supabase.auth.signUp({ email: email, password: senha, options: { data: { nome: nome, telefone: telefone } } });
           if (resp.error) { showMsg(resp.error.message, false); return; }
           if (!resp.data.session) {
-            showMsg("Cadastro criado! Verifique seu email para confirmar a conta.", true);
+            showMsg("Cadastro criado. Nossa verificação é realizada pela Supabase Auth, plataforma 100% segura. Favor confirmar sua conta.", true);
           } else {
             showMsg("Cadastro criado com sucesso!", true);
             if (overlay) overlay.classList.remove("open");
