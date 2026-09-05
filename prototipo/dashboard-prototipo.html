@@ -707,7 +707,7 @@
   .quo-ger small { display: block; margin-top: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
   /* Produto personalizado: o cliente pode cotar vários no mesmo pedido */
   .quo-prod { border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: var(--panel-2); }
-  .quo-prod + .quo-prod { margin-top: 14px; }
+  .quo-prod + .quo-prod { margin-top: 14px; } .quo-vol-row { display: flex; align-items: center; gap: 8px; } .quo-vol-row .acct-input { flex: 1; min-width: 0; } .quo-vol-row .segmented { flex: 0 0 auto; }
   .quo-prod .quo-grid:last-child { margin-bottom: 0; }
   /* Histórico de solicitações: fica salvo na conta e o cliente reabre quando quiser */
   .quo-hist { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
@@ -3926,7 +3926,7 @@
   }
   function quoAddProd() {
     const n = ++quoSeq;
-    const st = { id: n, iniYM: (QUO_BASE_Y + 1) + "-01", fimYM: (QUO_BASE_Y + 3) + "-12", pickIni: null, pickFim: null };
+    const st = { id: n, iniYM: (QUO_BASE_Y + 1) + "-01", fimYM: (QUO_BASE_Y + 3) + "-12", pickIni: null, pickFim: null, unidade: "mwh" };
     if (st.iniYM < QUO_MIN) st.iniYM = QUO_MIN;
     if (st.fimYM > QUO_MAX) st.fimYM = QUO_MAX;
 
@@ -3947,8 +3947,8 @@
         '<div class="alrt-field"><span>Período de fornecimento</span><div class="quo-per">' +
           '<span id="quoIniHost_' + n + '"></span><em>até</em><span id="quoFimHost_' + n + '"></span>' +
         "</div></div>" +
-        '<label class="alrt-field"><span>Volume médio (MWh/ano)</span>' +
-          '<input class="acct-input" id="quoVol_' + n + '" type="text" inputmode="decimal" placeholder="ex: 8.760" /></label>' +
+        '<label class="alrt-field"><span>Volume médio (<span id="quoVolUn_' + n + '">MWh/mês</span>)</span>' +
+          '<div class="quo-vol-row"><input class="acct-input" id="quoVol_' + n + '" type="text" inputmode="decimal" placeholder="ex: 730" /><div class="segmented quo-vol-unit" id="quoUnit_' + n + '"><button data-unit="mwh" class="active" type="button">MWh</button><button data-unit="mwm" type="button">MWm</button></div></div></label>' +
         quoCampoSel("Flexibilidade", "quoFlex_" + n) +
         quoCampoSel("Sazonalização", "quoSazo_" + n) +
       "</div>";
@@ -3962,7 +3962,7 @@
     quoEl("quoSazo_" + n).innerHTML = quoOpts(QUO_SAZO, QUO_SAZO[0]);
     quoSyncTipos(n);
     quoEl("quoMod_" + n).addEventListener("change", function () { quoSyncTipos(n); });
-    quoEl("quoVol_" + n).addEventListener("input", quoHideErrs);
+    quoEl("quoVol_" + n).addEventListener("input", quoHideErrs); var quoUnitBtns = quoEl("quoUnit_" + n).querySelectorAll("button"); quoUnitBtns.forEach(function (b) { b.addEventListener("click", function () { quoUnitBtns.forEach(function (x) { x.classList.remove("active"); }); b.classList.add("active"); st.unidade = b.dataset.unit; quoEl("quoVolUn_" + n).textContent = st.unidade === "mwm" ? "MWm" : "MWh/mês"; quoEl("quoVol_" + n).placeholder = st.unidade === "mwm" ? "ex: 1,0" : "ex: 730"; quoHideErrs(); }); });
 
     // Período: mesmo calendário mês/ano usado na data-base do simulador.
     st.pickIni = makeMonthPicker("quoIniHost_" + n, {
@@ -4016,7 +4016,7 @@
         submercadoLabel: sub.options[sub.selectedIndex].textContent,
         inicio: st.iniYM,
         fim: st.fimYM,
-        volume: volTxt,
+        volume: volTxt, volumeUnidade: st.unidade || "mwh",
         flex: quoEl("quoFlex_" + n).value,
         sazo: quoEl("quoSazo_" + n).value,
         ok: vol > 0 && !!st.iniYM && !!st.fimYM && st.fimYM >= st.iniYM
@@ -4026,7 +4026,7 @@
   function quoProdTexto(p) {
     return "<b>" + quoEsc(p.modalidade) + " · " + quoEsc(p.tipo) + "</b>, submercado <b>" + quoEsc(p.submercadoLabel) +
       "</b>, fornecimento de <b>" + monthTitle(p.inicio) + "</b> a <b>" + monthTitle(p.fim) +
-      "</b>, volume médio de <b>" + quoEsc(p.volume) + " MWh/ano</b>, flexibilidade <b>" + quoEsc(p.flex) +
+      "</b>, volume médio de <b>" + quoEsc(p.volume) + " " + (p.volumeUnidade === "mwm" ? "MWm" : "MWh/mês") + "</b>, flexibilidade <b>" + quoEsc(p.flex) +
       "</b>, sazonalização <b>" + quoEsc(p.sazo) + "</b>.";
   }
 
