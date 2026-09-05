@@ -1014,7 +1014,7 @@
       <div class="card-head">
         <div>
           <h2>Seu contrato</h2>
-          <p>Adicione um ano por linha. O preço é o valor contratado por MWh; o volume (opcional) é o quanto você consome por ano naquele fornecimento. Se preenchido, mostramos o impacto em R$/ano.</p>
+          <p>Adicione um ano por linha. O preço é o valor contratado por MWh; o volume (opcional) é o quanto você consome por mês naquele fornecimento. Se preenchido, mostramos o impacto em R$/ano.</p>
         </div>
         <div class="head-controls">
           <div class="segmented" id="simMode">
@@ -1042,7 +1042,7 @@
       <div class="sim-rows-head">
         <span>Ano de fornecimento</span>
         <span>Preço contratado (R$/MWh)</span>
-        <span>Volume (MWh/ano) · opcional</span>
+        <span>Volume (MWh/mês) · opcional</span>
         <span></span>
       </div>
       <div id="simRows"></div>
@@ -2938,7 +2938,7 @@
       let impactHtml = "";
       if (c.volume != null) {
         hasVol = true;
-        const imp = (Pcmp - marketNow) * c.volume;
+        const imp = (Pcmp - marketNow) * c.volume * 12;
         totalImpact += imp; wSum += c.volume; wPctSum += pctNow * c.volume;
         impactHtml = '<div class="sc-impact ' + (imp > 0 ? "pos" : "neg") + '">' + (imp > 0 ? "+ " : "− ") + fmtBRL0(Math.abs(imp)) + ' / ano <span class="sc-unit">vs. mercado hoje</span></div>';
       }
