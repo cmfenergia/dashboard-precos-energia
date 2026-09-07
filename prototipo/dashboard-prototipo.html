@@ -1381,7 +1381,7 @@
       <div class="lead-field only-signup" id="fldTel">
         <label for="leadTel">Telefone corporativo</label>
         <input class="lead-input" id="leadTel" name="telefone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" />
-        <div class="lead-err">Informe um telefone com DDD.</div>
+        <div class="lead-err">Informe um telefone com DDD.</div></div><div class="lead-field only-signup" id="fldEmpresa"><label for="leadEmpresa">Nome da empresa</label><input class="lead-input" id="leadEmpresa" name="empresa" type="text" autocomplete="organization" placeholder="Nome da sua empresa" required /><div class="lead-err">Informe o nome da empresa.</div>
       </div>
       <div class="lead-field" id="fldSenha">
         <label for="leadSenha">Senha</label>
@@ -3210,7 +3210,7 @@
     login:  { title: "Entrar na sua conta", lead: "Use seu email e senha para acessar o simulador.", submit: "Entrar" },
     signup: { title: "Crie sua conta", lead: "Cadastre-se para liberar o simulador. Seu email vira o seu login.", submit: "Criar conta e simular" }
   };
-  const AUTH_FIELDS = ["fldNome", "fldEmail", "fldTel", "fldSenha", "fldSenha2"];
+  const AUTH_FIELDS = ["fldNome", "fldEmail", "fldTel", "fldEmpresa", "fldSenha", "fldSenha2"];
 
   function setAuthMode(mode) {
     authMode = mode;
@@ -4801,7 +4801,7 @@ if (b?.dataset.palette) {
     const elTel = document.getElementById("leadTel");
     const elSenha = document.getElementById("leadSenha");
     const elSenha2 = document.getElementById("leadSenha2");
-    const submitBtn = document.getElementById("leadSubmit");
+    const submitBtn = document.getElementById("leadSubmit"); const elEmpresa = document.getElementById("leadEmpresa");
     function showMsg(msg, ok) {
       let el = newForm.querySelector(".supabase-auth-msg");
       if (!el) {
@@ -4826,8 +4826,8 @@ if (b?.dataset.palette) {
           const senha2 = (elSenha2 && elSenha2.value) || "";
           if (senha !== senha2) { showMsg("As senhas nao coincidem.", false); return; }
           const nome = ((elNome && elNome.value) || "").trim();
-          const telefone = ((elTel && elTel.value) || "").trim();
-          const resp = await supabase.auth.signUp({ email: email, password: senha, options: { data: { nome: nome, telefone: telefone } } });
+          const telefone = ((elTel && elTel.value) || "").trim(); const empresa = ((elEmpresa && elEmpresa.value) || "").trim();
+          const resp = await supabase.auth.signUp({ email: email, password: senha, options: { data: { nome: nome, telefone: telefone, empresa: empresa } } });
           if (resp.error) { showMsg(resp.error.message, false); return; }
           if (!resp.data.session) {
             showMsg("Cadastro criado. Nossa verificação é realizada pela Supabase Auth, plataforma 100% segura. Favor confirmar sua conta.", true);
