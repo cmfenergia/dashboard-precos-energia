@@ -792,7 +792,7 @@
       <button class="icon-btn nav-ghost sim-only" id="simBack" type="button">← Voltar ao painel</button>
     </div>
     <div class="top-right">
-      <span class="live"><span class="dot"></span> Base atualizada · jun/2026</span>
+      <span class="live"><span class="dot"></span> Base atualizada · set/2026</span>
       <button class="icon-btn market-only" id="tourStartMkt" type="button">❓ Ver tour</button>
       <button class="icon-btn sim-only" id="tourStart" type="button">❓ Ver tour</button>
       <button class="icon-btn sim-only" id="goAccount" type="button">👤 Minha conta</button>
@@ -994,7 +994,7 @@
   </section>
 
   <footer class="foot">
-    Valores em R$/MWh, indexados mensalmente pela inflação (IPCA). Amostra de jan/2022 a jun/2026, extraída da planilha “Curva Forward - CMF Energia”.
+    Valores em R$/MWh, indexados mensalmente pela inflação (IPCA). Amostra de jan/2022 a set/2026, extraída da planilha “Curva Forward - CMF Energia”.
     <div class="badge">PROTÓTIPO · DADOS REAIS DA PLANILHA BASE</div>
   </footer>
   </div><!-- /viewMarket -->
@@ -1076,7 +1076,7 @@
       <div class="alrt-years">
         <div class="alrt-years-head">
           <span class="alrt-flabel">Produtos que você quer acompanhar</span>
-          <span class="alrt-years-sub">Monte cada contrato que te interessa: escolha a <b>modalidade</b> e o <b>submercado</b>, marque os anos-safra e defina em cada um o preço-alvo. Os preços de "mercado hoje" e a <b>sugestão CMF</b> (10% abaixo) mudam conforme a modalidade e o submercado escolhidos. Você pode acompanhar mais de um produto. Base: jun/2026.</span>
+          <span class="alrt-years-sub">Monte cada contrato que te interessa: escolha a <b>modalidade</b> e o <b>submercado</b>, marque os anos-safra e defina em cada um o preço-alvo. Os preços de "mercado hoje" e a <b>sugestão CMF</b> (10% abaixo) mudam conforme a modalidade e o submercado escolhidos. Você pode acompanhar mais de um produto. Base: set/2026.</span>
         </div>
         <div class="alrt-prods" id="alrtProducts"></div>
         <div class="alrt-addprod">
@@ -2001,7 +2001,7 @@
 
   // Média dos próximos N meses = média dos preços por ano de fornecimento,
   // ponderada pelos meses que faltam a partir de cada mês de observação.
-  // (reproduz exatamente a coluna de média 60m da planilha, ex.: jun/2026 = 280,93)
+  // (reproduz exatamente a coluna de média 60m da planilha, ex.: set/2026 = 280,93)
   function forwardAvg(t, horizon, mode) {
     const [y0, m0] = MONTHS[t].split("-").map(Number);
     let sum = 0, cnt = 0;
