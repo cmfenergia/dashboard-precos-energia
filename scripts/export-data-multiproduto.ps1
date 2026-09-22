@@ -8,7 +8,7 @@ Fonte por produto:
   nominal         = aba "<Mod>-<Tipo>-<Sub>-Nom"   (ex.: Varej-Conv-NE-Nom)
 
 Mapeamento (confirmado por regressao contra data/precos-energia.json):
-  linhas 86..140           = 55 meses (2022-01 .. 2026-07)
+  linhas 86..141           = 56 meses (2022-01 .. 2026-08)
                              A janela termina no ultimo mes com IPCA real preenchido
                              (coluna B da Forward). Meses com preco mas sem IPCA ficam
                              de fora: entrariam com correcao zero e mudariam sozinhos
@@ -42,7 +42,7 @@ $xlsxTmp = Join-Path $scratch "curva-forward-extract.xlsx"
 if (-not (Test-Path $xlsxPath)) { throw "Nao encontrei a planilha: $xlsxPath" }
 Copy-Item -LiteralPath $xlsxPath -Destination $xlsxTmp -Force
 
-$firstRow = 86; $lastRow = 140
+$firstRow = 86; $lastRow = 141
 $vintageYears = 2022..2031
 $vintageCols  = @("K","L","M","N","O","P","Q","R","S","T")
 
