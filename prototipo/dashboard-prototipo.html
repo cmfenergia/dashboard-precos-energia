@@ -707,7 +707,7 @@
   .quo-ger small { display: block; margin-top: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
   /* Produto personalizado: o cliente pode cotar vários no mesmo pedido */
   .quo-prod { border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: var(--panel-2); }
-  .quo-prod + .quo-prod { margin-top: 14px; } .quo-vol-row { display: flex; align-items: center; gap: 8px; } .quo-vol-row .acct-input { flex: 1; min-width: 0; } .quo-vol-row .segmented { flex: 0 0 auto; }
+  .quo-prod + .quo-prod { margin-top: 14px; } .vid-ov{position:fixed;inset:0;z-index:9999;background:rgba(10,10,8,.72);display:none;align-items:center;justify-content:center;padding:16px}.vid-ov.open{display:flex}.vid-box{background:var(--panel);color:var(--text-primary);border:1px solid var(--border);border-radius:18px;width:min(920px,100%);max-height:94vh;overflow:auto;padding:18px 18px 16px;box-shadow:0 24px 70px rgba(0,0,0,.35)}.vid-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.vid-head h3{margin:0;font-size:18px}.vid-head p{margin:4px 0 0;font-size:13px;color:var(--text-secondary)}.vid-x{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;color:var(--text-secondary)}.vid-box video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:16/9}.vid-foot{display:flex;justify-content:flex-end;margin-top:12px}.vid-skip{background:var(--brand);color:var(--brand-ink);border:none;border-radius:999px;padding:10px 20px;font:inherit;font-weight:700;cursor:pointer} .quo-vol-row { display: flex; align-items: center; gap: 8px; } .quo-vol-row .acct-input { flex: 1; min-width: 0; } .quo-vol-row .segmented { flex: 0 0 auto; }
   .quo-prod .quo-grid:last-child { margin-bottom: 0; }
   /* Histórico de solicitações: fica salvo na conta e o cliente reabre quando quiser */
   .quo-hist { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
@@ -793,7 +793,7 @@
     </div>
     <div class="top-right">
       <span class="live"><span class="dot"></span> Base atualizada · set/2026</span>
-      <button class="icon-btn market-only" id="tourStartMkt" type="button">❓ Ver tour</button>
+      <button class="icon-btn market-only" id="videoStartMkt" type="button">▶ Vídeo</button> <button class="icon-btn market-only" id="tourStartMkt" type="button">❓ Ver tour</button>
       <button class="icon-btn sim-only" id="tourStart" type="button">❓ Ver tour</button>
       <button class="icon-btn sim-only" id="goAccount" type="button">👤 Minha conta</button>
       <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro e escuro"><span id="themeIcon">🌙</span> <span id="themeLabel">Escuro</span></button>
@@ -801,7 +801,7 @@
     </div>
   </header>
 
-  <div id="viewMarket">
+  <div class="vid-ov" id="vidOv" role="dialog" aria-modal="true" aria-labelledby="vidTit"><div class="vid-box"><div class="vid-head"><div><h3 id="vidTit">Conheça a plataforma em poucos minutos</h3><p>Um tutorial rápido de como a plataforma funciona. Dê play se quiser, ou feche e explore direto.</p></div><button class="vid-x" id="vidX" type="button" aria-label="Fechar">×</button></div><video id="vidV" controls preload="none" playsinline poster="/prototipo/poster.jpg"><source src="/prototipo/tutorial-cmf.mp4" type="video/mp4"></video><div class="vid-foot"><button class="vid-skip" id="vidSkip" type="button">Explorar a plataforma</button></div></div></div><script>(function(){var K="cmf_video_v1",ov=document.getElementById("vidOv"),v=document.getElementById("vidV");function seen(){try{return window.localStorage.getItem(K)}catch(e){return null}}function mark(){try{window.localStorage.setItem(K,"1")}catch(e){}}function abrir(){ov.classList.add("open");window.cmfVideoAberto=true}function fechar(){try{v.pause()}catch(e){}ov.classList.remove("open");window.cmfVideoAberto=false;mark()}document.getElementById("vidX").addEventListener("click",fechar);document.getElementById("vidSkip").addEventListener("click",fechar);ov.addEventListener("click",function(e){if(e.target===ov)fechar()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ov.classList.contains("open"))fechar()});var b=document.getElementById("videoStartMkt");if(b)b.addEventListener("click",abrir);if(!seen())abrir()})();</script><div id="viewMarket">
   <!-- SELETOR DE PRODUTO / MERCADO -->
   <div class="prod-bar" id="prodBar">
     <span class="prod-bar-lbl">
@@ -4630,7 +4630,7 @@
   function tourAuto(steps, key, visivel) {
     if (lsGet(key) || tourIdx >= 0) return;
     setTimeout(function () {
-      if (visivel() && tourIdx < 0) { tourUsar(steps, key); tourAbrir(0); }
+      if (window.cmfVideoAberto) { tourAuto(steps, key, visivel); return; } if (visivel() && tourIdx < 0) { tourUsar(steps, key); tourAbrir(0); }
     }, 280);
   }
 
